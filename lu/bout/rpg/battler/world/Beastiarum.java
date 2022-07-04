@@ -3,7 +3,7 @@ package lu.bout.rpg.battler.world;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Json;
 
-import lu.bout.rpg.character.Monster;
+import lu.bout.rpg.engine.character.Monster;
 
 public class Beastiarum {
 

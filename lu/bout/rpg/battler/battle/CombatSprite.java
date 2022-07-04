@@ -3,13 +3,12 @@ package lu.bout.rpg.battler.battle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
 
 import java.util.Map;
 
 import lu.bout.rpg.battler.world.GameMonster;
-import lu.bout.rpg.character.Player;
-import lu.bout.rpg.combat.participant.Participant;
+import lu.bout.rpg.engine.character.Player;
+import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class CombatSprite extends Sprite {
 
@@ -22,6 +21,7 @@ public class CombatSprite extends Sprite {
     float shakeDuration = 0;
     float baseX, baseY;
     BattleAnimation animation = null;
+    float lastHp;
 
     public static CombatSprite createSprite(Participant participant) {
         Texture t;
@@ -41,6 +41,7 @@ public class CombatSprite extends Sprite {
         super(t);
         this.participant = participant;
         this.healthBar = new SimpleHealthbar(this.getWidth() / 2, 10);
+        updateHealth();
     }
 
     @Override
@@ -53,7 +54,7 @@ public class CombatSprite extends Sprite {
         }
         if (participant.isAlive() || animation != null) {
             super.draw(batch);
-            healthBar.draw(batch, this.getX() + this.getWidth() / 4, this.getY(), getPercentHealth());
+            healthBar.draw(batch, this.getX() + this.getWidth() / 4, this.getY(), lastHp);
         }
     }
 
@@ -69,21 +70,10 @@ public class CombatSprite extends Sprite {
         animation = new AttackAnimation(this, enemy);
     }
 
-    private void animateShake(Batch batch, float delta) {
-        setX(baseX + (MathUtils.random() - 0.5f) * 10);
-        setY(baseY + (MathUtils.random() - 0.5f) * 10);
-        shakeDuration = shakeDuration - delta;
-        if (shakeDuration < 0) {
-            shakeDuration = 0;
-            setX(baseX);
-            setY(baseY);
-        }
-    }
-
-    private float getPercentHealth() {
+    public void updateHealth() {
         float hp = participant.getCharacter().getHp();
         hp = hp < 0 ? 0 : hp;
-        return hp / participant.getCharacter().getMaxhp();
+        lastHp = hp / participant.getCharacter().getMaxhp();
     }
 
     public void setCenterXY(float x, float y) {

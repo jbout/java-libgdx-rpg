@@ -1,12 +1,11 @@
-package lu.bout.rpg.battler.battle.minigame;
+package lu.bout.rpg.battler.battle.minigame.lightsout;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 
-import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.battle.minigame.SimonSays;
 
-public class SimonButton extends Circle {
+public class LightButton extends Circle {
 
     static final int RENDER_WIDTH = 60;
     static final int RENDER_HEIGHT = 70;
@@ -14,7 +13,7 @@ public class SimonButton extends Circle {
     private boolean down = false;
     private String runeName;
 
-    public SimonButton() {
+    public LightButton() {
         super();
         setRune(0);
     }
@@ -35,8 +34,9 @@ public class SimonButton extends Circle {
         return down;
     }
 
-    public void render(SimonSays simonSays, SpriteBatch batch) {
-        batch.draw((down ? simonSays.buttonDown : simonSays.buttonUp), x - radius, y - radius, RENDER_WIDTH, RENDER_HEIGHT);
-        batch.draw(simonSays.runes.findRegion(runeName), x - 14, y - (down ? 14 : 8), 28 , 36);
+    public void render(LightsoutGame simonSays, SpriteBatch batch) {
+        float ratio = 2*radius / RENDER_WIDTH;
+        batch.draw((down ? simonSays.buttonDown : simonSays.buttonUp), x - radius, y - radius, 2*radius, ratio * RENDER_HEIGHT);
+        batch.draw(simonSays.runes.findRegion(runeName), x - (14*ratio), y - ((down ? 14 : 8)*ratio), 28*ratio , 36*ratio);
     }
 }

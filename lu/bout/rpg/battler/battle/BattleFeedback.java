@@ -1,6 +1,6 @@
 package lu.bout.rpg.battler.battle;
 
-import lu.bout.rpg.combat.Combat;
+import lu.bout.rpg.engine.combat.Combat;
 
 public interface BattleFeedback {
 

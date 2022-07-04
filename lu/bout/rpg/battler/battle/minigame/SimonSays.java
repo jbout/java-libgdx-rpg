@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import lu.bout.rpg.combat.command.CombatCommand;
+import lu.bout.rpg.engine.combat.command.CombatCommand;
 
 public class SimonSays extends Rectangle implements MiniGame {
 
@@ -49,7 +49,6 @@ public class SimonSays extends Rectangle implements MiniGame {
         sprite = new SimonSprite();
 
         buttons = generateButtons(8);
-        showDuration = 3000000000L;
     }
 
     public void init(int difficulty, CombatCommand command) {
@@ -60,6 +59,7 @@ public class SimonSays extends Rectangle implements MiniGame {
         if (difficulty < 2) {
             difficulty = 2;
         }
+        showDuration = 3000000000L - (500000000L * Math.max(0, 5-difficulty));
         HashSet<Integer> uniqueRuneIds = new HashSet<>();
         while (uniqueRuneIds.size() < buttons.size){
             uniqueRuneIds.add(MathUtils.random(0, 23));
@@ -92,7 +92,7 @@ public class SimonSays extends Rectangle implements MiniGame {
         return circleButtons;
     }
 
-    public void render(SpriteBatch batch, Vector2 inputVector) {
+    public void render(SpriteBatch batch, float delta, Vector2 inputVector) {
 
         for(SimonButton button: buttons) {
             button.render(this, batch);
@@ -103,18 +103,18 @@ public class SimonSays extends Rectangle implements MiniGame {
             }
         }
         if (mode == MODE_SHOW) {
-            renderShow(batch);
+            renderShow(batch, delta);
         }
     }
 
-    public void renderShow(SpriteBatch batch) {
+    public void renderShow(SpriteBatch batch, float delta) {
         long elapsedTime = TimeUtils.nanoTime() - showStart;
         if (elapsedTime  > showDuration) {
             mode = MODE_PLAY;
         } else {
-            long legDuration = (showDuration  / (correctOrder.size()));
+            float legDuration = (showDuration  / (correctOrder.size()));
             int leg = (int)(elapsedTime / legDuration);
-            float legPercentage = (elapsedTime - (leg*legDuration))/(float)legDuration;
+            float legPercentage = (elapsedTime - (leg*legDuration))/legDuration;
             SimonButton from = correctOrder.get(Math.max(0, leg-1));
             SimonButton to = correctOrder.get(leg);
             if (leg == 0) {

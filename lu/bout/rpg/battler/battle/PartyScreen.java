@@ -5,10 +5,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.LinkedList;
 
-import lu.bout.rpg.battler.RpgBattler;
 import lu.bout.rpg.battler.SubScreen;
-import lu.bout.rpg.character.Character;
-import lu.bout.rpg.character.Party;
+import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.Party;
 
 public class PartyScreen implements SubScreen {
 
@@ -16,7 +15,7 @@ public class PartyScreen implements SubScreen {
     LinkedList<CombatSprite> characters = new LinkedList<CombatSprite>();
 
     @Override
-    public void render(SpriteBatch batch, Vector2 inputVector) {
+    public void render(SpriteBatch batch, float delta, Vector2 inputVector) {
         // nothing to render
     }
 

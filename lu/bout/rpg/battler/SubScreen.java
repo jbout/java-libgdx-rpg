@@ -8,7 +8,8 @@ public interface SubScreen {
     /**
      * Renders a subcomponent on a self defined spot of the screen
      * @param batch batch to render to
+     * @param delta time elapsed in seconds
      * @param inputVector position of the input device if touched, else null
      */
-    public void render(SpriteBatch batch, Vector2 inputVector);
+    public void render(SpriteBatch batch, float delta, Vector2 inputVector);
 }

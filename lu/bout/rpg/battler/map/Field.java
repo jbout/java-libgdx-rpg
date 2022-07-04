@@ -12,7 +12,7 @@ public class Field {
 
     int posX, posY;
     LinkedList<Connection> connections;
-    int type = TYPE_EMPTY;
+    int type;
 
     boolean isOpen = false;
 
@@ -24,7 +24,7 @@ public class Field {
         posX = x;
         posY = y;
         this.type = type;
-        connections = new LinkedList<Connection>();
+        connections = new LinkedList<>();
     }
 
     public Field connect(int direction) {
@@ -36,7 +36,6 @@ public class Field {
     public void connectTo(int direction, Field f) {
         connections.add(new Connection(direction, f));
     }
-
 
     public LinkedList<Connection> getConnections() {
         return  connections;
@@ -53,7 +52,6 @@ public class Field {
     public int getType() {
         return type;
     }
-
 
     public boolean isOpen() {
         return isOpen;

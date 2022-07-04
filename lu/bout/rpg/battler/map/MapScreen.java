@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
@@ -21,17 +22,20 @@ import java.util.Map;
 
 import lu.bout.rpg.battler.RpgBattler;
 import lu.bout.rpg.battler.battle.BattleFeedback;
-import lu.bout.rpg.battler.battle.minigame.SimonButton;
 import lu.bout.rpg.battler.world.Beastiarum;
-import lu.bout.rpg.character.Party;
-import lu.bout.rpg.combat.Combat;
-import lu.bout.rpg.combat.Encounter;
+import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.Party;
+import lu.bout.rpg.engine.combat.Combat;
+import lu.bout.rpg.engine.combat.Encounter;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
 
+    static final int Y_DISTANCE = 190;
+
     final RpgBattler game;
 
-    Texture bg;
+    //Texture bg;
+    TextureRegion bg;
 
     Texture left;
     Texture straight;
@@ -39,11 +43,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     Texture marker;
     Texture swords;
     Texture portal;
+    Texture heal;
 
     Texture dot;
 
     OrthographicCamera camera;
     Viewport viewport;
+    float maxScroll;
 
     DungeonMap dungeonMap;
     Party playerParty;
@@ -54,6 +60,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     Field movingTo = null;
     FieldSprite movingToSprite = null;
     float movingTime;
+    float moveDuration = 0.5f;
 
 	public MapScreen(final RpgBattler game) {
         this.game = game;
@@ -64,13 +71,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
 
-        bg = new Texture("cave_bg.PNG");
+        Texture bgTexture = new Texture("map/cave_texture.jpg");
+        bgTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.Repeat);
+        bg = new TextureRegion(bgTexture,0,0,bgTexture.getWidth(),Gdx.graphics.getHeight());
+
         left = new Texture("map/left.png");
         straight = new Texture("map/straight.png");
         right = new Texture("map/right.png");
         marker = new Texture("map/marker.png");
         swords = new Texture("map/swords.png");
-        portal = new Texture("map/portal.png");
+        portal = new Texture("map/portal2.png");
+        heal = new Texture("map/heal.png");
 
         Pixmap pixmap = new Pixmap(49, 49, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
@@ -83,8 +94,18 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         playerParty = party;
         dungeonMap = map;
         fieldSprites = new LinkedList<>();
+        // 2*50 padding + 50 sprite height
+        maxScroll = map.depth * Y_DISTANCE + 150;
+        bg.setRegionHeight((int) maxScroll);
         addSprite(dungeonMap.getStart());
+        //unfoldAll();
         arriveAt(dungeonMap.getStart());
+    }
+
+    private void unfoldAll() {
+        for (Field f: dungeonMap.getAllFields()) {
+            open(f);
+        }
     }
 
     public void goTo(Field field) {
@@ -98,11 +119,47 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         current = field;
         movingTo = null;
         Gdx.app.log("Game", "Moved to " + current.getMapPosY() + "x" + current.getMapPosY()
+                + " type:" + current.getType() + " "
                 + (current.isOpen ? "(open)" : "(closed)"));
-        if (current.getType() == Field.TYPE_MONSTER) {
-            triggerFight(field);
+        if (!current.isOpen()) {
+            switch (current.getType()) {
+                case Field.TYPE_FINISH:
+                    game.dungeonFinished();
+                    break;
+                case Field.TYPE_MONSTER:
+                    triggerFight(field);
+                    break;
+                case Field.TYPE_TREASURE:
+                    for (Character character : playerParty.getMembers()) {
+                        character.healsPercent(0.5f);
+                        open(current);
+                    }
+                    break;
+                case Field.TYPE_RETURN_FIELD:
+                    focusCamera(dungeonMap.getStart());
+                    arriveAt(dungeonMap.getStart());
+                    break;
+                default:
+                    open(current);
+            }
         } else {
-            open(current);
+            showConnections(current);
+        }
+    }
+
+    public void open(Field field) {
+        Gdx.app.log("Game", "opening " + field.getMapPosY() + "x" + field.getMapPosY()
+                + (field.isOpen ? "(open)" : "(closed)"));
+
+        field.open();
+        showConnections(field);
+    }
+
+    private void showConnections(Field field) {
+        options = new HashMap<>();
+        for (Connection connection :field.getConnections()) {
+            FieldSprite sprite = addSprite(connection.getDestination());
+            options.put(sprite.getBoundaries(), connection.getDestination());
         }
     }
 
@@ -118,19 +175,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         game.startBattle(new Encounter(playerParty, monsterParty, Encounter.TYPE_BALANCED), this);
     }
 
-    public void open(Field field) {
-        Gdx.app.log("Game", "opening " + field.getMapPosY() + "x" + field.getMapPosY()
-                + (field.isOpen ? "(open)" : "(closed)"));
-
-        zoomCamera(current);
-        field.open();
-        options = new HashMap<>();
-        for (Connection connection :field.getConnections()) {
-            FieldSprite sprite = addSprite(connection.getDestination());
-            options.put(sprite.getBoundaries(), connection.getDestination());
-        }
-    }
-
     private FieldSprite getSprite(Field field) {
         FieldSprite sprite = null;
         for (FieldSprite f: fieldSprites) {
@@ -142,16 +186,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         return sprite;
     }
 
-    private void zoomCamera(Field field) {
-        float offSetCurrent = getSprite(field).getY();
-        camera.position.set(camera.viewportWidth/2,Math.max(camera.viewportHeight/2, offSetCurrent),0);
-    }
-
     private FieldSprite addSprite(Field field) {
         FieldSprite sprite = getSprite(field);
         if (sprite == null) {
-            sprite = new FieldSprite(field, dot, swords, portal);
-            sprite.setPosition(133 + 133 * field.getMapPosX(), 50 + field.getMapPosY() * 190);
+            sprite = new FieldSprite(field, dot, swords, portal, heal);
+            sprite.setPosition(133 + 133 * field.getMapPosX(), 50 + field.getMapPosY() * Y_DISTANCE);
             fieldSprites.add(sprite);
         }
         return sprite;
@@ -176,7 +215,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
         game.batch.begin();
         game.batch.setColor(1, 1, 1, 1);
-        game.batch.draw(bg, 0, 0 , RpgBattler.WIDTH, (int)(RpgBattler.HEIGHT * 1.5));
+        game.batch.draw(bg, 0, 0 , RpgBattler.WIDTH, maxScroll);
         for (FieldSprite f: fieldSprites) {
             if (f.getField().isOpen()) {
                 game.batch.setColor(Color.BROWN);
@@ -198,9 +237,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         FieldSprite spot = getSprite(current);
         if (movingTo != null) {
             movingTime += delta;
-            float movePercentage = movingTime / 1;
+            float movePercentage = movingTime / moveDuration;
             float x = spot.getX() * (1-movePercentage) + (movingToSprite.getX() * movePercentage);
             float y = spot.getY() * (1-movePercentage) + (movingToSprite.getY() * movePercentage);
+            moveCamera(delta / moveDuration * Y_DISTANCE);
             game.batch.draw(marker, x, y + 20);
             if (movePercentage >= 1) {
                 arriveAt(movingTo);
@@ -212,10 +252,22 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         game.batch.end();
     }
 
+    private void focusCamera(Field field) {
+        float offSetCurrent = getSprite(field).getY();
+        camera.position.set(camera.viewportWidth/2,Math.max(camera.viewportHeight/2, offSetCurrent),0);
+    }
+
+    private void moveCamera(float deltaY) {
+        float newY = camera.position.y + deltaY;
+        newY = Math.max(camera.viewportHeight/2 , newY);
+        newY = Math.min(maxScroll - (camera.viewportHeight/2) , newY);
+        camera.position.set(camera.position.x,newY,0);
+    }
+
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-        zoomCamera(current);
+        focusCamera(current);
     }
 
     @Override
@@ -272,7 +324,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        return false;
+        moveCamera(deltaY);
+        return true;
     }
 
     @Override

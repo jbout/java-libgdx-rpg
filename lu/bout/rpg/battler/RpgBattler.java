@@ -1,20 +1,23 @@
 package lu.bout.rpg.battler;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.battle.BattleScreen;
-import lu.bout.rpg.battler.map.DungeonMap;
+import lu.bout.rpg.battler.map.MapFactory;
 import lu.bout.rpg.battler.menu.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
-import lu.bout.rpg.character.Party;
-import lu.bout.rpg.character.Player;
-import lu.bout.rpg.combat.Combat;
-import lu.bout.rpg.combat.Encounter;
+import lu.bout.rpg.battler.menu.VictoryScreen;
+import lu.bout.rpg.engine.character.Party;
+import lu.bout.rpg.engine.character.Player;
+import lu.bout.rpg.engine.combat.Combat;
+import lu.bout.rpg.engine.combat.Encounter;
 
 public class RpgBattler extends Game implements BattleFeedback {
 
@@ -28,6 +31,7 @@ public class RpgBattler extends Game implements BattleFeedback {
 	public MapScreen mapScreen;
 
 	public Screen battleLauncher;
+	private Preferences preferences;
 
 	// shared resources
 	public SpriteBatch batch;
@@ -38,15 +42,34 @@ public class RpgBattler extends Game implements BattleFeedback {
 	public void create() {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
+		preferences = Gdx.app.getPreferences("minigame");
+
 		battleScreen = new BattleScreen(this);
 		mapScreen = new MapScreen(this);
 		homeScreen = new HomeScreen(this);
 
+		// debug
+/*
+		Beastiarum beastiarum = Beastiarum.getInstance();
+		Party monsterParty = new Party(beastiarum.getRandomMonster());
+		if (MathUtils.random(2) == 1) {
+			monsterParty.getMembers().add(beastiarum.getRandomMonster());
+		}
+		if (MathUtils.random(2) == 1) {
+			monsterParty.getMembers().add(beastiarum.getRandomMonster());
+		}
+		startBattle(new Encounter(new Party(new Player()), monsterParty, Encounter.TYPE_BALANCED), mapScreen);
+*/
+		// real
 		backToMenu();
 	}
 
 	public void backToMenu() {
 		this.setScreen(homeScreen);
+	}
+
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
 	public void startBattle(Encounter encounter, MapScreen screen) {
@@ -57,8 +80,13 @@ public class RpgBattler extends Game implements BattleFeedback {
 
 	public void launchDungeon() {
 		player = new Player();
-		mapScreen.enterDungeon(new Party(player), DungeonMap.generateMap(20, 0));
+		MapFactory mapper = new MapFactory(15, 5);
+		mapScreen.enterDungeon(new Party(player), mapper.generate());
 		this.setScreen(mapScreen);
+	}
+
+	public void dungeonFinished() {
+		this.setScreen(new VictoryScreen(this));
 	}
 
 	public void combatEnded(Combat combat) {

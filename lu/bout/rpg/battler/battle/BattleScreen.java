@@ -1,6 +1,7 @@
 package lu.bout.rpg.battler.battle;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,24 +22,28 @@ import lu.bout.rpg.battler.SubScreen;
 import lu.bout.rpg.battler.battle.minigame.GameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.SimonSays;
-import lu.bout.rpg.character.Player;
-import lu.bout.rpg.combat.CombatListener;
-import lu.bout.rpg.combat.Encounter;
-import lu.bout.rpg.combat.Combat;
-import lu.bout.rpg.combat.command.AttackCommand;
-import lu.bout.rpg.combat.command.IdleCommand;
-import lu.bout.rpg.combat.event.AttackEvent;
-import lu.bout.rpg.combat.event.CombatEndedEvent;
-import lu.bout.rpg.combat.event.CombatEvent;
-import lu.bout.rpg.combat.event.DeathEvent;
-import lu.bout.rpg.combat.event.ReadyEvent;
-import lu.bout.rpg.combat.participant.Participant;
+import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
+import lu.bout.rpg.battler.battle.minigame.timingGame.TimingGame;
+import lu.bout.rpg.engine.character.Player;
+import lu.bout.rpg.engine.combat.CombatListener;
+import lu.bout.rpg.engine.combat.Encounter;
+import lu.bout.rpg.engine.combat.Combat;
+import lu.bout.rpg.engine.combat.command.AttackCommand;
+import lu.bout.rpg.engine.combat.command.IdleCommand;
+import lu.bout.rpg.engine.combat.event.AttackEvent;
+import lu.bout.rpg.engine.combat.event.CombatEndedEvent;
+import lu.bout.rpg.engine.combat.event.CombatEvent;
+import lu.bout.rpg.engine.combat.event.DeathEvent;
+import lu.bout.rpg.engine.combat.event.ReadyEvent;
+import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	static final int INITIAL_DIFFICULTY = 3;
 
+	RpgBattler game;
 	SpriteBatch batch;
+
 	private OrthographicCamera camera;
 	private Viewport viewport;
 
@@ -56,7 +61,9 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	private SubScreen lowerScreen;
 	private MiniGame minigame;
+	private int minigameType = -1;
 	private PartyScreen partyScreen;
+	private Preferences stats;
 
 	private boolean isPaused = true;
 	private float waitTime = 0;
@@ -64,9 +71,10 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 	private int difficulty = 3;
 
 	public BattleScreen(final RpgBattler game) {
-		minigame = new SimonSays(this,0,0,RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+		this.game = game;
 		partyScreen = new PartyScreen();
 		lowerScreen = partyScreen;
+		stats = Gdx.app.getPreferences("stats");
 		create();
 	}
 
@@ -86,7 +94,26 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		sprites = new LinkedList<CombatSprite>();
 	}
 
+	public void setupMinigame () {
+		int minigameRequested = game.getPreferences().getInteger("minigame");
+		if (minigameType != minigameRequested) {
+			switch (minigameRequested) {
+				case 1:
+					minigame = new LightsoutGame(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+					break;
+				case 2:
+					minigame = new TimingGame(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+					break;
+				case 0:
+				default:
+					minigame = new SimonSays(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+			}
+			minigameType = minigameRequested;
+		}
+	}
+
 	public void startBattle(Encounter encounter, BattleFeedback caller) {
+		setupMinigame(); // might have changed
 		this.caller = caller;
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
 		for (CombatSprite sprite: sprites) {
@@ -180,7 +207,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		for (CombatSprite e: sprites) {
 			e.draw(batch, delta);
 		}
-		lowerScreen.render(batch, isTouched ? touchPos : null);
+		lowerScreen.render(batch, delta, isTouched ? touchPos : null);
 		batch.end();
 	}
 
@@ -219,6 +246,9 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	@Override
 	public void minigameEnded(boolean success, MiniGame game, long timeElapsed) {
+		String statsKey = minigameType + "-" + difficulty + "-" + (success ? "s" : "l");
+		stats.putInteger(statsKey, stats.getInteger(statsKey, 0) + 1);
+		stats.flush();
 		if (success) {
 			difficulty++;
 			player.setNextCommand(game.getCommandToRun());
@@ -232,7 +262,6 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	@Override
 	public void receiveCombatEvent(CombatEvent event) {
-		// TODO render attack animations
 		if (event instanceof AttackEvent) {
 			Participant target = ((AttackEvent) event).getTarget();
 			getSpriteforParticipant(((AttackEvent) event).getActor()).drawAttack(getSpriteforParticipant(target));

@@ -30,6 +30,7 @@ public class AttackAnimation implements BattleAnimation {
         attacker.setY((attacker.baseY * (1-(percent*0.5f))) + (targetVector.y * (percent*0.5f)));
         timeElapsed = timeElapsed + delta;
         if (percent < 0.5f && timeElapsed > ATTACK_DURATION / 2) {
+            attackTarget.updateHealth();
             attackTarget.drawShake(0.25f);
         }
         if (timeElapsed > ATTACK_DURATION) {
