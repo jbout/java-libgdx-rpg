@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.battle.BattleScreen;
 import lu.bout.rpg.battler.map.MapFactory;
-import lu.bout.rpg.battler.menu.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
 import lu.bout.rpg.battler.menu.VictoryScreen;
@@ -27,8 +26,6 @@ import lu.bout.rpg.battler.party.SamplePlayer;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
 import lu.bout.rpg.engine.character.Party;
-import lu.bout.rpg.engine.character.Player;
-import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.Encounter;
 
 public class RpgGame extends Game {

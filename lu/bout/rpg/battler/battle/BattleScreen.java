@@ -124,10 +124,11 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		partyScreen.setParty(encounter.getPlayerParty());
 		combat = new Combat(encounter);
 		for (Participant participant: combat.getParticipants()) {
-			if (participant.getCharacter() instanceof Player) {
+			boolean isPlayer = participant.getCharacter() == game.state.playerCharacter;
+			if (isPlayer) {
 				player = participant;
 			}
-			CombatSprite e = CombatSprite.createSprite(participant);
+			CombatSprite e = CombatSprite.createSprite(participant, isPlayer);
 			sprites.add(e);
 		}
 		positionCombatSprites();

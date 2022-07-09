@@ -23,9 +23,9 @@ public class CombatSprite extends Sprite {
     BattleAnimation animation = null;
     float lastHp;
 
-    public static CombatSprite createSprite(Participant participant) {
+    public static CombatSprite createSprite(Participant participant, boolean isPlayer) {
         Texture t;
-        if (participant.getCharacter() instanceof Player) {
+        if (isPlayer) {
             t = new Texture("enemy/sample-hero.png");
         } else {
             if (participant.getCharacter() instanceof GameMonster) {
