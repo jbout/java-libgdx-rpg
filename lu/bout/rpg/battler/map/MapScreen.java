@@ -20,8 +20,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import lu.bout.rpg.battler.RpgBattler;
+import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
+import lu.bout.rpg.battler.menu.GameOverScreen;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
@@ -32,7 +33,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     static final int Y_DISTANCE = 190;
 
-    final RpgBattler game;
+    final RpgGame game;
 
     //Texture bg;
     TextureRegion bg;
@@ -62,11 +63,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     float movingTime;
     float moveDuration = 0.5f;
 
-	public MapScreen(final RpgBattler game) {
+	public MapScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();
-        viewport = new ExtendViewport(RpgBattler.WIDTH, RpgBattler.HEIGHT, RpgBattler.WIDTH, (int)(RpgBattler.HEIGHT * 1.5), camera);
+        viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
         viewport.apply();
 
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
@@ -197,8 +198,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     }
 
     @Override
-    public void combatEnded(Combat combat) {
-        open(current);
+    public void combatEnded(Combat combat, boolean playerWon) {
+        if (playerWon) {
+            open(current);
+        } else {
+            game.setScreen(new GameOverScreen(game));
+        }
     }
 
     @Override
@@ -215,7 +220,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
         game.batch.begin();
         game.batch.setColor(1, 1, 1, 1);
-        game.batch.draw(bg, 0, 0 , RpgBattler.WIDTH, maxScroll);
+        game.batch.draw(bg, 0, 0 , RpgGame.WIDTH, maxScroll);
         for (FieldSprite f: fieldSprites) {
             if (f.getField().isOpen()) {
                 game.batch.setColor(Color.BROWN);

@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import lu.bout.rpg.battler.RpgBattler;
+import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.SubScreen;
 import lu.bout.rpg.battler.battle.minigame.GameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
@@ -41,7 +41,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	static final int INITIAL_DIFFICULTY = 3;
 
-	RpgBattler game;
+	RpgGame game;
 	SpriteBatch batch;
 
 	private OrthographicCamera camera;
@@ -51,10 +51,11 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 	private Texture brick;
 
 	private Combat combat;
-	private BattleFeedback caller;
+	private Screen caller;
 	private LinkedList<CombatSprite> sprites;
 	private Participant player;
 	boolean isCombatOver;
+	boolean isPlayerWinner;
 
 	private Vector3 touchPosRaw;
 	private Vector2 touchPos;
@@ -70,7 +71,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	private int difficulty = 3;
 
-	public BattleScreen(final RpgBattler game) {
+	public BattleScreen(final RpgGame game) {
 		this.game = game;
 		partyScreen = new PartyScreen();
 		lowerScreen = partyScreen;
@@ -84,7 +85,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		brick = new Texture("cave_bricks_01.png");
 
 		camera = new OrthographicCamera();
-		viewport = new ExtendViewport(RpgBattler.WIDTH, RpgBattler.HEIGHT, RpgBattler.WIDTH, (int)(RpgBattler.HEIGHT * 1.5), camera);
+		viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
 		viewport.apply();
 
 		camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
@@ -99,20 +100,20 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		if (minigameType != minigameRequested) {
 			switch (minigameRequested) {
 				case 1:
-					minigame = new LightsoutGame(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+					minigame = new LightsoutGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 					break;
 				case 2:
-					minigame = new TimingGame(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+					minigame = new TimingGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 					break;
 				case 0:
 				default:
-					minigame = new SimonSays(this, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT / 2);
+					minigame = new SimonSays(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 			}
 			minigameType = minigameRequested;
 		}
 	}
 
-	public void startBattle(Encounter encounter, BattleFeedback caller) {
+	public void startBattle(Encounter encounter, Screen caller) {
 		setupMinigame(); // might have changed
 		this.caller = caller;
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
@@ -138,11 +139,14 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	public void endBattle() {
 		isPaused = true;
-		caller.combatEnded(combat);
+		if (caller instanceof BattleFeedback) {
+			((BattleFeedback)caller).combatEnded(combat, isPlayerWinner);
+		}
+		game.setScreen(caller);
 	}
 
 	private void positionCombatSprites() {
-		float minigameHeight = RpgBattler.HEIGHT / 2;
+		float minigameHeight = RpgGame.HEIGHT / 2;
 		float combatHeight = viewport.getWorldHeight() - minigameHeight;
 		IntIntMap count = new IntIntMap();
 		for (CombatSprite sprite: sprites) {
@@ -161,7 +165,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 			int teamid = sprite.getParticipant().getTeamId();
 			int pos = xPos.getAndIncrement(teamid, 0, 1);
 			sprite.setCenterXY(
-					RpgBattler.WIDTH / count.get(teamid, 0) * (pos + 0.5f),
+					RpgGame.WIDTH / count.get(teamid, 0) * (pos + 0.5f),
 					yPos.get(teamid, 0)
 			);
 		}
@@ -183,7 +187,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 				if (isCombatOver) {
 					this.endBattle();
 				} else {
-					combat.advanceTimer(1);
+					combat.advanceTimer(Math.min(1,(int)(delta * 200)));
 				}
 			} else {
 				waitTime -= delta;
@@ -201,8 +205,8 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(bg, 0, (RpgBattler.HEIGHT/2) , RpgBattler.WIDTH, RpgBattler.HEIGHT);
-		batch.draw(brick, 0, 0, RpgBattler.WIDTH, RpgBattler.HEIGHT/2);
+		batch.draw(bg, 0, (RpgGame.HEIGHT/2) , RpgGame.WIDTH, RpgGame.HEIGHT);
+		batch.draw(brick, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT/2);
 
 		for (CombatSprite e: sprites) {
 			e.draw(batch, delta);
@@ -280,6 +284,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		}
 		if (event instanceof CombatEndedEvent) {
 			isCombatOver = true;
+			isPlayerWinner = ((CombatEndedEvent) event).isPlayerWinner();
 		}
 	}
 

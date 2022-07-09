@@ -8,20 +8,20 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-import lu.bout.rpg.battler.RpgBattler;
+import lu.bout.rpg.battler.RpgGame;
 
 public class VictoryScreen implements Screen, GestureDetector.GestureListener {
 
-    final RpgBattler game;
+    final RpgGame game;
 
     OrthographicCamera camera;
     Texture bg;
 
-	public VictoryScreen(final RpgBattler game) {
+	public VictoryScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, RpgBattler.WIDTH, RpgBattler.HEIGHT);
+        camera.setToOrtho(false, RpgGame.WIDTH, RpgGame.HEIGHT);
         bg = new Texture("gameover/victory.png");
     }
 
@@ -39,7 +39,7 @@ public class VictoryScreen implements Screen, GestureDetector.GestureListener {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(bg, 0, 0 , RpgBattler.WIDTH, RpgBattler.HEIGHT);
+        game.batch.draw(bg, 0, 0 , RpgGame.WIDTH, RpgGame.HEIGHT);
         game.batch.end();
     }
 

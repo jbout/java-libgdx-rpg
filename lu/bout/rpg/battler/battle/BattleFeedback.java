@@ -4,5 +4,5 @@ import lu.bout.rpg.engine.combat.Combat;
 
 public interface BattleFeedback {
 
-    public void combatEnded(Combat combat);
+    public void combatEnded(Combat combat, boolean playerWon);
 }

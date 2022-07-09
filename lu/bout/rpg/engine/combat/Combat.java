@@ -106,7 +106,10 @@ public class Combat {
 		return minCooldown;
 	}
 
-	public boolean isCombatOver() {
+	/**
+	 * @return id of the team who won, -1 if noone won
+	 */
+	public int whoWon() {
 		int teamId = -1;
 		for(Participant p : persons) {
 			if (p.isAlive()) {
@@ -115,12 +118,12 @@ public class Combat {
 				} else {
 					if (teamId != p.getTeamId()) {
 						// two different teams detected
-						return false;
+						return -1;
 					}
 				}
 			}
 		}
-		return true;
+		return teamId;
 	}
 	
 	private void executeCommand(Participant who, CombatCommand command) {
@@ -133,8 +136,9 @@ public class Combat {
 				}
 			}
 		}
-		if (isCombatOver()) {
-			this.propagate(new CombatEndedEvent(this));
+		int winner = whoWon();
+		if (winner != -1) {
+			this.propagate(new CombatEndedEvent(this, winner == TEAM_PLAYER));
 		}
 	}
 

@@ -7,34 +7,30 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import lu.bout.rpg.battler.RpgBattler;
+import lu.bout.rpg.battler.RpgGame;
 
 public class StatsScreen implements Screen {
 
-    final RpgBattler game;
+    final RpgGame game;
     private final Preferences stats;
 
     private Stage stage;
 
     Texture bg;
 
-	public StatsScreen(final RpgBattler game) {
+	public StatsScreen(final RpgGame game) {
         stats = Gdx.app.getPreferences("stats");
         this.game = game;
         stage = new Stage(new ScreenViewport());
@@ -80,16 +76,12 @@ public class StatsScreen implements Screen {
         button1.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         button1.setPosition(Gdx.graphics.getWidth() / 4,100);
         button1.setColor(Color.BROWN);
-        button1.addListener(new InputListener(){
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.backToMenu();
-            }
-            @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                return true;
+        button1.addListener(new ClickListener() {
+            public void clicked (InputEvent event, float x, float y) {
+                game.showMenu();
             }
         });
+
         stage.addActor(button1);
 
         showMinigame(0, "Simon Says", labelStyle, 1000);
