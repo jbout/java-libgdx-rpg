@@ -103,7 +103,7 @@ public class HomeScreen extends MenuScreen {
             continueButton.setDisabled(true);
         } else {
             continueButton.setColor(Color.GREEN);
-            continueButton.setText(latest.name);
+            continueButton.setText("Continue");
             continueButton.setDisabled(false);
         }
     }

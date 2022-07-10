@@ -7,6 +7,9 @@ public class DungeonMap {
     Field start;
     int depth;
 
+    public DungeonMap() {
+    }
+
     public DungeonMap(Field start, int depth) {
         this.start = start;
         this.depth = depth;

@@ -16,6 +16,10 @@ public class Field {
 
     boolean isOpen = false;
 
+    // for json serialization
+    public Field() {
+    }
+
     public Field(int x, int y) {
         this(x,y,TYPE_EMPTY);
     }

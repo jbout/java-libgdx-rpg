@@ -11,8 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.map.MapFactory;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.saves.GameState;
+import lu.bout.rpg.battler.saves.chapter.DungeonChapter;
 
 public class NewGameScreen extends MenuScreen {
 
@@ -53,8 +55,13 @@ public class NewGameScreen extends MenuScreen {
     }
 
     private void createGame() {
+        // TODO find a way to remove onscreen keyboard
         GameState state = new GameState();
         state.playerCharacter = new PlayerCharacter(playerNameField.getText());
+        MapFactory mapper = new MapFactory(15, 5);
+        DungeonChapter chapter = new DungeonChapter();
+        chapter.map = mapper.generate();
+        state.currentChapter = chapter;
         game.getSaveService().add(state);
         game.launchGame(state);
     }

@@ -191,7 +191,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         FieldSprite sprite = getSprite(field);
         if (sprite == null) {
             sprite = new FieldSprite(field, dot, swords, portal, heal);
-            sprite.setPosition(133 + 133 * field.getMapPosX(), 50 + field.getMapPosY() * Y_DISTANCE);
+            sprite.setPosition(133 + 133 * field.getMapPosX(), 150 + field.getMapPosY() * Y_DISTANCE);
             fieldSprites.add(sprite);
         }
         return sprite;
@@ -202,7 +202,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         if (playerWon) {
             open(current);
         } else {
-            game.setScreen(new GameOverScreen(game));
+            game.gameOver();
         }
     }
 

@@ -6,6 +6,7 @@ public class PlayerCharacter extends Character {
 
     private String name;
 
+    // to serialize
     public PlayerCharacter() {
     }
 

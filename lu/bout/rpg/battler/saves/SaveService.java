@@ -24,6 +24,7 @@ public class SaveService {
         save.id = this.getNextId();
         save.name = "Any Save";
         state.saveId = save.getId();
+        System.out.println("Store " + json.toJson(state.currentChapter));
         preferences.putString("save-"+save.getId(), json.toJson(state));
         storeSave(save);
     }
@@ -47,6 +48,7 @@ public class SaveService {
         preferences.remove("save-" + state.saveId);
         // assuming the same
         preferences.remove("latest");
+        preferences.flush();
     }
 
     public void getSaves() {

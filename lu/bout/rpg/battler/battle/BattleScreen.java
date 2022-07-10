@@ -143,12 +143,15 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		if (caller instanceof BattleFeedback) {
 			((BattleFeedback)caller).combatEnded(combat, isPlayerWinner);
 		}
-		game.setScreen(caller);
+		// only navigate if the battle feedback did not trigger a navigation
+		if (game.getScreen() == this) {
+			game.setScreen(caller);
+		}
 	}
 
 	private void positionCombatSprites() {
-		float minigameHeight = RpgGame.HEIGHT / 2;
-		float combatHeight = viewport.getWorldHeight() - minigameHeight;
+		float miniGameHeight = RpgGame.HEIGHT / 2;
+		float combatHeight = viewport.getWorldHeight() - miniGameHeight;
 		IntIntMap count = new IntIntMap();
 		for (CombatSprite sprite: sprites) {
 			int pos = sprite.getParticipant().getTeamId();
@@ -158,7 +161,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		IntFloatMap yPos = new IntFloatMap();
 		for (Iterator<IntIntMap.Entry> it = count.iterator(); it.hasNext(); ) {
 			IntIntMap.Entry entry = it.next();
-			yPos.put(entry.key, minigameHeight + (combatHeight / (count.size) * (entry.key + 0.5f)));
+			yPos.put(entry.key, miniGameHeight + (combatHeight / (count.size) * (entry.key + 0.5f)));
 		}
 
 		IntIntMap xPos = new IntIntMap();

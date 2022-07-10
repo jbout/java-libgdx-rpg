@@ -8,6 +8,10 @@ public class Connection {
     private Field destination;
     private int direction;
 
+    // for json serialization
+    public Connection() {
+    }
+
     public Connection(int direction, Field destination) {
         this.direction = direction;
         this.destination = destination;

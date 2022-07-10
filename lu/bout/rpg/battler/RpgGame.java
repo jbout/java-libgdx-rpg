@@ -16,7 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.map.DungeonMap;
 import lu.bout.rpg.battler.map.MapFactory;
+import lu.bout.rpg.battler.menu.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
 import lu.bout.rpg.battler.menu.VictoryScreen;
@@ -25,6 +27,8 @@ import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.SamplePlayer;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
+import lu.bout.rpg.battler.saves.chapter.Chapter;
+import lu.bout.rpg.battler.saves.chapter.DungeonChapter;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.Encounter;
 
@@ -83,15 +87,26 @@ public class RpgGame extends Game {
 		this.setScreen(battleScreen);
 	}
 
-	public void launchDungeon(PlayerCharacter player) {
-		MapFactory mapper = new MapFactory(15, 5);
-		mapScreen.enterDungeon(new Party(player), mapper.generate());
+	public void launchDungeon(PlayerCharacter player, DungeonMap map) {
+		mapScreen.enterDungeon(new Party(player), map);
 		this.setScreen(mapScreen);
 	}
 
 	public void launchGame(GameState state) {
 		this.state = state;
-		launchDungeon(state.playerCharacter);
+		Chapter chapter = state.currentChapter;
+		if (chapter instanceof DungeonChapter) {
+			launchDungeon(state.playerCharacter, ((DungeonChapter)chapter).map);
+		} else {
+			Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
+			gameOver();
+		}
+	}
+
+	public void gameOver() {
+		saveService.remove(state);
+		state = null;
+		this.setScreen(new GameOverScreen(this));
 	}
 
 	public void dungeonFinished() {
