@@ -3,7 +3,6 @@ package lu.bout.rpg.battler;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,21 +13,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
-import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
+import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
 import lu.bout.rpg.battler.map.DungeonMap;
-import lu.bout.rpg.battler.map.MapFactory;
-import lu.bout.rpg.battler.menu.GameOverScreen;
+import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
-import lu.bout.rpg.battler.menu.VictoryScreen;
+import lu.bout.rpg.battler.campaign.screen.VictoryScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.SamplePlayer;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
-import lu.bout.rpg.battler.saves.chapter.Chapter;
-import lu.bout.rpg.battler.saves.chapter.DungeonChapter;
+import lu.bout.rpg.battler.campaign.chapter.Chapter;
+import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.Encounter;
 
@@ -87,19 +86,32 @@ public class RpgGame extends Game {
 		this.setScreen(battleScreen);
 	}
 
-	public void launchDungeon(PlayerCharacter player, DungeonMap map) {
+	protected void launchDungeon(PlayerCharacter player, DungeonMap map) {
 		mapScreen.enterDungeon(new Party(player), map);
 		this.setScreen(mapScreen);
 	}
 
 	public void launchGame(GameState state) {
 		this.state = state;
-		Chapter chapter = state.currentChapter;
+		renderChapter(state.getCurrentChapter());
+	}
+
+	public void goToChapter(Chapter chapter) {
+		this.state.currentChapter = chapter.getId();
+		getSaveService().update(this.state);
+		renderChapter(chapter);
+	}
+
+	private void renderChapter(Chapter chapter) {
 		if (chapter instanceof DungeonChapter) {
 			launchDungeon(state.playerCharacter, ((DungeonChapter)chapter).map);
 		} else {
-			Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
-			gameOver();
+			if (chapter instanceof NarrativeChapter) {
+				this.setScreen(new NarrativeScreen(this, (NarrativeChapter) chapter));
+			} else {
+				Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
+				gameOver();
+			}
 		}
 	}
 
@@ -145,6 +157,7 @@ public class RpgGame extends Game {
 		Label.LabelStyle labelStyle = new Label.LabelStyle();
 		labelStyle.font = font36;
 
+		skin.add("default", labelStyle);
 		skin.get(TextButton.TextButtonStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).listStyle.font = font36;

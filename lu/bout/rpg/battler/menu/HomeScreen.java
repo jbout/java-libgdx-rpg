@@ -12,9 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
-import lu.bout.rpg.battler.party.SamplePlayer;
 import lu.bout.rpg.battler.saves.GameState;
-import lu.bout.rpg.battler.saves.Save;
+import lu.bout.rpg.battler.saves.SaveMetadata;
 
 public class HomeScreen extends MenuScreen {
 
@@ -88,7 +87,7 @@ public class HomeScreen extends MenuScreen {
     }
 
     private void continueGame() {
-        Save latest = game.getSaveService().getLatest();
+        SaveMetadata latest = game.getSaveService().getLatest();
         GameState state = game.getSaveService().restore(latest.getId());
         game.launchGame(state);
     }
@@ -97,7 +96,7 @@ public class HomeScreen extends MenuScreen {
     @Override
     public void show() {
         super.show();
-        Save latest = game.getSaveService().getLatest();
+        SaveMetadata latest = game.getSaveService().getLatest();
         if (latest == null) {
             continueButton.setColor(Color.GRAY);
             continueButton.setDisabled(true);

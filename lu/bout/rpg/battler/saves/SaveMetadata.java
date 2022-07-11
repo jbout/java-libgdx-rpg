@@ -3,7 +3,7 @@ package lu.bout.rpg.battler.saves;
 /**
  * Class with identifiable information concerning a safe game
  */
-public class Save {
+public class SaveMetadata {
 
     public int id;
     public long timestamp;

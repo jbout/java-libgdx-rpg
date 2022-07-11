@@ -6,18 +6,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -29,22 +21,21 @@ public abstract class MenuScreen implements Screen {
 
     protected Stage stage;
 
-    private Texture bg;
+    private Image bgImage;
 
 	public MenuScreen(final RpgGame game) {
         this.game = game;
         stage = new Stage(new ScreenViewport());
 
-        bg = new Texture("bg_01.png");
-        Image image1 = new Image(bg);
-        image1.setPosition(
-            (Gdx.graphics.getWidth() - image1.getWidth()) / 2,
-            (Gdx.graphics.getHeight() - image1.getHeight()) / 2
+        bgImage = new Image(new Texture("bg_01.png"));
+        bgImage.setPosition(
+            (Gdx.graphics.getWidth() - bgImage.getWidth()) / 2,
+            (Gdx.graphics.getHeight() - bgImage.getHeight()) / 2
         );
-        stage.addActor(image1);
+        stage.addActor(bgImage);
     }
 
-    public Label.LabelStyle getTitleStyle() {
+    protected Label.LabelStyle getTitleStyle() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/Amble-Light.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 100;
@@ -59,6 +50,10 @@ public abstract class MenuScreen implements Screen {
         Label.LabelStyle titleStyle = new Label.LabelStyle();
         titleStyle.font = font100;
         return titleStyle;
+    }
+
+    protected Rectangle getUsableSurface() {
+        return new Rectangle(bgImage.getX()+100, bgImage.getY()+100, bgImage.getWidth()-200, bgImage.getHeight()-200);
     }
 
     @Override

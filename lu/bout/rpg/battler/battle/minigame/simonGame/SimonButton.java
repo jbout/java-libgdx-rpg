@@ -1,10 +1,7 @@
-package lu.bout.rpg.battler.battle.minigame;
+package lu.bout.rpg.battler.battle.minigame.simonGame;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
-
-import lu.bout.rpg.battler.battle.BattleScreen;
 
 public class SimonButton extends Circle {
 

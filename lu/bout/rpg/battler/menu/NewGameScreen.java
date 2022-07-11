@@ -11,10 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.campaign.CampaignBuilder;
 import lu.bout.rpg.battler.map.MapFactory;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.saves.GameState;
-import lu.bout.rpg.battler.saves.chapter.DungeonChapter;
+import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 
 public class NewGameScreen extends MenuScreen {
 
@@ -30,15 +31,10 @@ public class NewGameScreen extends MenuScreen {
         stage.addActor(label);
 
         playerNameField = new TextField("name", game.getSkin());
+        playerNameField.setText(game.getPreferences().getString("lastname", "player"));
         playerNameField.setAlignment(Align.center);
         playerNameField.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         playerNameField.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.5f);
-        /*
-        textField.addListener(new TextField.TextFieldListener() {
-
-        });
-
-         */
 
         stage.addActor(playerNameField);
 
@@ -55,13 +51,12 @@ public class NewGameScreen extends MenuScreen {
     }
 
     private void createGame() {
-        // TODO find a way to remove onscreen keyboard
-        GameState state = new GameState();
-        state.playerCharacter = new PlayerCharacter(playerNameField.getText());
-        MapFactory mapper = new MapFactory(15, 5);
-        DungeonChapter chapter = new DungeonChapter();
-        chapter.map = mapper.generate();
-        state.currentChapter = chapter;
+        stage.unfocusAll();
+        Gdx.input.setOnscreenKeyboardVisible(false);
+        game.getPreferences().putString("lastname", playerNameField.getText());
+        game.getPreferences().flush();
+
+        GameState state = GameState.newGame(new PlayerCharacter(playerNameField.getText()), (new CampaignBuilder()).justSingleDungeon());
         game.getSaveService().add(state);
         game.launchGame(state);
     }

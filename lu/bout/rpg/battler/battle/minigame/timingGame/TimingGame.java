@@ -39,6 +39,7 @@ public class TimingGame extends Rectangle implements MiniGame {
         commandToRun = command;
         speed = difficulty;
         okWidth = 600 / difficulty;
+        posX = (float) Math.PI;
     }
 
 

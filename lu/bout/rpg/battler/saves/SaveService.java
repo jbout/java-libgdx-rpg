@@ -20,28 +20,26 @@ public class SaveService {
     }
 
     public void add(GameState state) {
-        Save save = new Save();
+        SaveMetadata save = new SaveMetadata();
         save.id = this.getNextId();
-        save.name = "Any Save";
+        save.name = state.campaign.name;
         state.saveId = save.getId();
-        System.out.println("Store " + json.toJson(state.currentChapter));
-        preferences.putString("save-"+save.getId(), json.toJson(state));
-        storeSave(save);
+        saveState(state);
+        save(save);
     }
 
     public GameState restore(int id) {
         if (id != 1) {
             throw new RuntimeException("Invalid save game id");
         }
-        String jsonString = preferences.getString("save-"+id);
-        GameState state = json.fromJson(GameState.class, jsonString);
-        return state;
+        return loadState(id);
     }
 
     public void update(GameState state) {
-        Save save = getSave(state.saveId);
-        storeSave(save);
-        preferences.putString("save-"+save.getId(), json.toJson(state));
+        SaveMetadata save = getSave(state.saveId);
+        save(save);
+        saveState(state);
+        preferences.flush();
     }
 
     public void remove(GameState state) {
@@ -51,8 +49,15 @@ public class SaveService {
         preferences.flush();
     }
 
-    public void getSaves() {
-
+    public SaveMetadata[] getSaves() {
+        SaveMetadata[] data;
+        SaveMetadata latest = getLatest();
+        if (latest != null) {
+            data = new SaveMetadata[]{getLatest()};
+        } else {
+            data = new SaveMetadata[0];
+        }
+        return data;
     }
 
     /**
@@ -60,23 +65,37 @@ public class SaveService {
      *
      * @return latest Save OR NULL
      */
-    public Save getLatest() {
-        Save save = null;
+    public SaveMetadata getLatest() {
+        SaveMetadata save = null;
         String jsonString = preferences.getString("latest", "");
         if (jsonString != "") {
-            save = json.fromJson(Save.class, jsonString);
+            save = json.fromJson(SaveMetadata.class, jsonString);
         }
         return save;
     }
 
-    private void storeSave(Save save) {
+    private void save(SaveMetadata save) {
         // store in list
         save.timestamp = System.currentTimeMillis();
         preferences.putString("latest", json.toJson(save));
         preferences.flush();
     }
 
-    private Save getSave(int id) {
+    private void saveState(GameState state) {
+        SaveMetadata save = getSave(state.saveId);
+        save(save);
+        String jsonString = json.toJson(state);
+        Gdx.app.log("Game", "Stored " + jsonString.length() + " characters of game state");
+        preferences.putString("save-"+save.getId(), jsonString);
+        preferences.flush();
+    }
+
+    private GameState loadState(int id) {
+        String jsonString = preferences.getString("save-"+id);
+        return json.fromJson(GameState.class, jsonString);
+    }
+
+    private SaveMetadata getSave(int id) {
         // read from list
         return getLatest();
     }

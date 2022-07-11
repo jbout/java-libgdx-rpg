@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.battle.minigame;
+package lu.bout.rpg.battler.battle.minigame.simonGame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,27 +8,26 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import lu.bout.rpg.battler.battle.minigame.GameFeedback;
+import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
 public class SimonSays extends Rectangle implements MiniGame {
 
-    final static int MODE_SHOW = 1;
-    final static int MODE_PLAY = 2;
-    final static int MODE_FINISHED = 3;
+    private enum Mode {show, play, finished};
 
     private Array<SimonButton> buttons;
     private List<SimonButton> correctOrder;
 
-    private int mode;
-    private long showStart;
-    private long showDuration;
+    private Mode mode;
+    private float elapsed;
+    private float showDuration;
 
     Texture buttonUp;
     Texture buttonDown;
@@ -59,7 +58,7 @@ public class SimonSays extends Rectangle implements MiniGame {
         if (difficulty < 2) {
             difficulty = 2;
         }
-        showDuration = 3000000000L - (500000000L * Math.max(0, 5-difficulty));
+        showDuration = 3 - (0.5f * Math.max(0, 5-difficulty));
         HashSet<Integer> uniqueRuneIds = new HashSet<>();
         while (uniqueRuneIds.size() < buttons.size){
             uniqueRuneIds.add(MathUtils.random(0, 23));
@@ -74,8 +73,8 @@ public class SimonSays extends Rectangle implements MiniGame {
 
         Collections.shuffle(clonedButtons);
         correctOrder = clonedButtons.subList(0, difficulty);
-        mode = MODE_SHOW;
-        showStart = TimeUtils.nanoTime();
+        mode = Mode.show;
+        elapsed = 0;
     }
 
     public Array<SimonButton> generateButtons(int nr) {
@@ -96,25 +95,25 @@ public class SimonSays extends Rectangle implements MiniGame {
 
         for(SimonButton button: buttons) {
             button.render(this, batch);
-            if (mode == MODE_PLAY && inputVector != null && button.contains(inputVector)) {
+            if (mode == Mode.play && inputVector != null && button.contains(inputVector)) {
                 if (!button.isDown()) {
                     buttonPressed(button);
                 }
             }
         }
-        if (mode == MODE_SHOW) {
+        if (mode == Mode.show) {
             renderShow(batch, delta);
         }
     }
 
     public void renderShow(SpriteBatch batch, float delta) {
-        long elapsedTime = TimeUtils.nanoTime() - showStart;
-        if (elapsedTime  > showDuration) {
-            mode = MODE_PLAY;
+        elapsed += delta;
+        if (elapsed  > showDuration) {
+            mode = Mode.play;
         } else {
             float legDuration = (showDuration  / (correctOrder.size()));
-            int leg = (int)(elapsedTime / legDuration);
-            float legPercentage = (elapsedTime - (leg*legDuration))/legDuration;
+            int leg = (int)(elapsed / legDuration);
+            float legPercentage = (elapsed - (leg*legDuration))/legDuration;
             SimonButton from = correctOrder.get(Math.max(0, leg-1));
             SimonButton to = correctOrder.get(leg);
             if (leg == 0) {
@@ -134,13 +133,13 @@ public class SimonSays extends Rectangle implements MiniGame {
             correctOrder.remove(0);
         } else {
             // failure
-            mode = MODE_FINISHED;
+            mode = Mode.finished;
             Gdx.input.vibrate(200);
             callback.minigameEnded(false, this, 0);
         }
         if (correctOrder.size() == 0) {
             // success
-            mode = MODE_FINISHED;
+            mode = mode.finished;
             callback.minigameEnded(true, this, 0);
         }
     }

@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.menu;
+package lu.bout.rpg.battler.campaign.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,19 +10,19 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import lu.bout.rpg.battler.RpgGame;
 
-public class GameOverScreen implements Screen, GestureDetector.GestureListener {
+public class VictoryScreen implements Screen, GestureDetector.GestureListener {
 
     final RpgGame game;
 
     OrthographicCamera camera;
     Texture bg;
 
-	public GameOverScreen(final RpgGame game) {
+	public VictoryScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, RpgGame.WIDTH, RpgGame.HEIGHT);
-        bg = new Texture("gameover/skull.png");
+        bg = new Texture("gameover/victory.png");
     }
 
     @Override
@@ -74,8 +74,8 @@ public class GameOverScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        game.showMenu();
-        return true;
+        // game.backToMenu();
+        return false;
     }
 
     @Override

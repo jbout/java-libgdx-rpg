@@ -3,8 +3,6 @@ package lu.bout.rpg.battler.battle.minigame.lightsout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 
-import lu.bout.rpg.battler.battle.minigame.SimonSays;
-
 public class LightButton extends Circle {
 
     static final int RENDER_WIDTH = 60;

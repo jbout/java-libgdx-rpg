@@ -22,7 +22,6 @@ import java.util.Map;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
-import lu.bout.rpg.battler.menu.GameOverScreen;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
@@ -76,6 +75,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         bgTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.Repeat);
         bg = new TextureRegion(bgTexture,0,0,bgTexture.getWidth(),Gdx.graphics.getHeight());
 
+        // TODO use atlas
         left = new Texture("map/left.png");
         straight = new Texture("map/straight.png");
         right = new Texture("map/right.png");
@@ -96,7 +96,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         dungeonMap = map;
         fieldSprites = new LinkedList<>();
         // 2*50 padding + 50 sprite height
-        maxScroll = map.depth * Y_DISTANCE + 150;
+        maxScroll = map.depth * Y_DISTANCE + 350;
         bg.setRegionHeight((int) maxScroll);
         addSprite(dungeonMap.getStart());
         //unfoldAll();
