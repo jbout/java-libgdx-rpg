@@ -1,21 +1,31 @@
 package lu.bout.rpg.battler.campaign;
 
-import lu.bout.rpg.battler.campaign.chapter.Chapter;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
+import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.map.MapFactory;
 
 public class CampaignBuilder {
 
-    public Campaign justSingleDungeon() {
+    public Campaign build2stepDungeon() {
         NarrativeChapter intro = new NarrativeChapter("intro", "Welcome to this simple dungeon crawl.");
+        NarrativeChapter intermezzo = new NarrativeChapter("inter", "You made it this far, but lets see how you fare from here.");
         MapFactory mapper = new MapFactory(15, 5);
         DungeonChapter dungeon = new DungeonChapter("d", mapper.generate());
+        mapper = new MapFactory(5, 0);
+        DungeonChapter smallDungeon = new DungeonChapter("s", mapper.generate());
+        VictoryChapter v = new VictoryChapter("v");
         Campaign campaign = new Campaign();
         campaign.name = "Dungeon Crawl";
         campaign.setStartChapter(intro);
+        campaign.addChapter(smallDungeon);
+        campaign.addChapter(intermezzo);
         campaign.addChapter(dungeon);
-        intro.setNext(dungeon);
+        campaign.addChapter(new VictoryChapter());
+        intro.setNext(smallDungeon);
+        smallDungeon.setOnSuccess(intermezzo);
+        intermezzo.setNext(dungeon);
+        dungeon.setOnSuccess(v);
         return campaign;
     }
 

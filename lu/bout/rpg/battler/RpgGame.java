@@ -4,26 +4,31 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import lu.bout.rpg.battler.battle.BattleScreen;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
+import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
-import lu.bout.rpg.battler.map.DungeonMap;
 import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
 import lu.bout.rpg.battler.campaign.screen.VictoryScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
 import lu.bout.rpg.battler.party.PlayerCharacter;
-import lu.bout.rpg.battler.party.SamplePlayer;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
@@ -77,7 +82,7 @@ public class RpgGame extends Game {
 		this.setScreen(homeScreen);
 	}
 
-	public void showCharacter(SamplePlayer character) {
+	public void showCharacter(PlayerCharacter character) {
 		charScreen.showCharacter(character);
 	}
 
@@ -86,8 +91,8 @@ public class RpgGame extends Game {
 		this.setScreen(battleScreen);
 	}
 
-	protected void launchDungeon(PlayerCharacter player, DungeonMap map) {
-		mapScreen.enterDungeon(new Party(player), map);
+	protected void launchDungeon(PlayerCharacter player, DungeonChapter chapter) {
+		mapScreen.enterDungeon(new Party(player), chapter);
 		this.setScreen(mapScreen);
 	}
 
@@ -104,13 +109,17 @@ public class RpgGame extends Game {
 
 	private void renderChapter(Chapter chapter) {
 		if (chapter instanceof DungeonChapter) {
-			launchDungeon(state.playerCharacter, ((DungeonChapter)chapter).map);
+			launchDungeon(state.playerCharacter, (DungeonChapter)chapter);
 		} else {
 			if (chapter instanceof NarrativeChapter) {
 				this.setScreen(new NarrativeScreen(this, (NarrativeChapter) chapter));
 			} else {
-				Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
-				gameOver();
+				if (chapter instanceof VictoryChapter) {
+					this.setScreen(new VictoryScreen(this));
+				} else {
+					Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
+					gameOver();
+				}
 			}
 		}
 	}
@@ -152,18 +161,48 @@ public class RpgGame extends Game {
 		parameter.shadowOffsetY = 0;
 		parameter.size = 36;
 		BitmapFont font36 = generator.generateFont(parameter); // font size 24 pixels
+		parameter.color = Color.WHITE;
+		BitmapFont font36white = generator.generateFont(parameter); // font size 24 pixels
 		generator.dispose();
 
 		Label.LabelStyle labelStyle = new Label.LabelStyle();
 		labelStyle.font = font36;
 
+		Label.LabelStyle whiteLabelStyle = new Label.LabelStyle();
+		whiteLabelStyle.font = font36white;
+
 		skin.add("default", labelStyle);
+		skin.add("white", whiteLabelStyle);
 		skin.get(TextButton.TextButtonStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).listStyle.font = font36;
 		skin.get(TextField.TextFieldStyle.class).font = font36;
 
+		skin.add("healthbar", generateProgressBarStyle());
+
 		return skin;
+	}
+
+	private ProgressBar.ProgressBarStyle generateProgressBarStyle() {
+		ProgressBar.ProgressBarStyle style = new ProgressBar.ProgressBarStyle();
+
+		style.background = getColoredDrawable(10, 10, Color.RED);
+		style.knob = getColoredDrawable(0, 10, Color.GREEN);
+		style.knobBefore = getColoredDrawable(10, 10, Color.GREEN);
+
+		return style;
+	}
+
+	private Drawable getColoredDrawable(int width, int height, Color color) {
+		Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+		pixmap.setColor(color);
+		pixmap.fill();
+
+		TextureRegionDrawable drawable = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
+
+		pixmap.dispose();
+
+		return drawable;
 	}
 
 	public void render() {

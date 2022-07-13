@@ -53,7 +53,7 @@ public abstract class MenuScreen implements Screen {
     }
 
     protected Rectangle getUsableSurface() {
-        return new Rectangle(bgImage.getX()+100, bgImage.getY()+100, bgImage.getWidth()-200, bgImage.getHeight()-200);
+        return new Rectangle(bgImage.getX()+68, bgImage.getY()+80, bgImage.getWidth()-130, bgImage.getHeight()-135);
     }
 
     @Override

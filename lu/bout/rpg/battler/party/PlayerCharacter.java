@@ -6,12 +6,23 @@ public class PlayerCharacter extends Character {
 
     private String name;
 
+    private int portraitId;
+
     // to serialize
     public PlayerCharacter() {
     }
 
-    public PlayerCharacter(String playerName) {
+    public PlayerCharacter(String playerName, int portraitId) {
         name = playerName;
+        this.portraitId = portraitId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPortaitId() {
+        return portraitId;
     }
 
     @Override

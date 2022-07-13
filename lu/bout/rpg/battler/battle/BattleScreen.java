@@ -85,9 +85,6 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
-		viewport.apply();
-
-		camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
 
 		touchPosRaw = new Vector3();
 		touchPos = new Vector2();
@@ -174,14 +171,11 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		}
 	}
 
-	public void init () {
-
-	}
-
 	@Override
 	public void show() {
-
 	}
+
+	boolean first = true;
 
 	@Override
 	public void render(float delta) {
@@ -190,7 +184,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 				if (isCombatOver) {
 					this.endBattle();
 				} else {
-					combat.advanceTimer(Math.min(1,(int)(delta * 200)));
+					combat.advanceTimer(Math.min(1, (int) (delta * 200)));
 				}
 			} else {
 				waitTime -= delta;
@@ -198,20 +192,20 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 			}
 		}
 		boolean isTouched = Gdx.input.isTouched();
-		if(isTouched) {
+		if (isTouched) {
 			touchPosRaw.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			viewport.unproject(touchPosRaw);
 			touchPos.set(touchPosRaw.x, touchPosRaw.y);
 		}
 
 		ScreenUtils.clear(0, 0, 0, 1);
-		camera.update();
+		viewport.apply();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(bg, 0, (RpgGame.HEIGHT/2) , RpgGame.WIDTH, RpgGame.HEIGHT);
-		batch.draw(brick, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT/2);
+		batch.draw(bg, 0, (RpgGame.HEIGHT / 2), RpgGame.WIDTH, RpgGame.HEIGHT);
+		batch.draw(brick, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 
-		for (CombatSprite e: sprites) {
+		for (CombatSprite e : sprites) {
 			e.draw(batch, delta);
 		}
 		lowerScreen.render(batch, delta, isTouched ? touchPos : null);
@@ -220,8 +214,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	@Override
 	public void resize(int width, int height) {
-		viewport.update(width, height);
-		camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
+		viewport.update(width, height, true);
 		positionCombatSprites();
 		Gdx.app.log("Game", "Resize : " + width + " - " + height);
 	}

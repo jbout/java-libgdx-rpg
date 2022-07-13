@@ -14,6 +14,8 @@ public class SaveService {
     private Preferences preferences;
     private Json json;
 
+    private SaveMetadata[] saves;
+
     public SaveService() {
         preferences = Gdx.app.getPreferences(PREFERENCES_KEY);
         json = new Json();
@@ -24,8 +26,7 @@ public class SaveService {
         save.id = this.getNextId();
         save.name = state.campaign.name;
         state.saveId = save.getId();
-        saveState(state);
-        save(save);
+        save(save, state);
     }
 
     public GameState restore(int id) {
@@ -36,9 +37,8 @@ public class SaveService {
     }
 
     public void update(GameState state) {
-        SaveMetadata save = getSave(state.saveId);
-        save(save);
-        saveState(state);
+        SaveMetadata save = loadSave(state.saveId);
+        save(save, state);
         preferences.flush();
     }
 
@@ -74,20 +74,14 @@ public class SaveService {
         return save;
     }
 
-    private void save(SaveMetadata save) {
-        // store in list
-        save.timestamp = System.currentTimeMillis();
-        preferences.putString("latest", json.toJson(save));
-        preferences.flush();
-    }
-
-    private void saveState(GameState state) {
-        SaveMetadata save = getSave(state.saveId);
-        save(save);
+    private void save(SaveMetadata metadata, GameState state) {
+        metadata.timestamp = System.currentTimeMillis();
+        preferences.putString("latest", json.toJson(metadata));
         String jsonString = json.toJson(state);
         Gdx.app.log("Game", "Stored " + jsonString.length() + " characters of game state");
-        preferences.putString("save-"+save.getId(), jsonString);
+        preferences.putString("save-"+state.saveId, jsonString);
         preferences.flush();
+
     }
 
     private GameState loadState(int id) {
@@ -95,7 +89,7 @@ public class SaveService {
         return json.fromJson(GameState.class, jsonString);
     }
 
-    private SaveMetadata getSave(int id) {
+    private SaveMetadata loadSave(int id) {
         // read from list
         return getLatest();
     }

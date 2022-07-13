@@ -2,6 +2,9 @@ package lu.bout.rpg.battler.campaign.chapter;
 
 public class VictoryChapter extends Chapter {
 
-    public String story;
+    public VictoryChapter() {};
 
+    public VictoryChapter(String id) {
+        this.id = id;
+    };
 }

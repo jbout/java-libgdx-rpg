@@ -9,8 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -19,8 +21,9 @@ import lu.bout.rpg.battler.RpgGame;
 public class CharcterScreen implements Screen {
 
     final RpgGame game;
+    private final Label characterName;
     private Screen returnTo;
-    private SamplePlayer character;
+    private PlayerCharacter character;
 
     private Stage stage;
 
@@ -37,6 +40,19 @@ public class CharcterScreen implements Screen {
         image1.setHeight(Gdx.graphics.getHeight());
         stage.addActor(image1);
 
+        characterName = new Label("name", game.getSkin());
+        characterName.setY(Gdx.graphics.getHeight() * 0.75f);
+        characterName.setWidth(Gdx.graphics.getWidth());
+        characterName.setAlignment(Align.center);
+        stage.addActor(characterName);
+
+        Label placeholder = new Label("Placeholder for character sheet", game.getSkin());
+        placeholder.setY(Gdx.graphics.getHeight() * 0.5f);
+        placeholder.setWidth(Gdx.graphics.getWidth());
+        placeholder.setAlignment(Align.center);
+        stage.addActor(placeholder);
+
+
         Button button1 = new TextButton("Return",game.getSkin());
         button1.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 20);
         button1.setPosition(Gdx.graphics.getWidth() - button1.getWidth() - 100,100);
@@ -49,8 +65,9 @@ public class CharcterScreen implements Screen {
         stage.addActor(button1);
     }
 
-    public void showCharacter(final SamplePlayer character) {
+    public void showCharacter(final PlayerCharacter character) {
         this.character = character;
+        characterName.setText(character.getName());
         if (game.getScreen() != this) {
             returnTo = game.getScreen();
         }

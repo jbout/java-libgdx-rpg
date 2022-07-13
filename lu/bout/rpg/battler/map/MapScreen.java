@@ -1,6 +1,7 @@
 package lu.bout.rpg.battler.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -12,8 +13,18 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
@@ -22,6 +33,8 @@ import java.util.Map;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
+import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
+import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
@@ -33,8 +46,15 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     static final int Y_DISTANCE = 190;
 
     final RpgGame game;
+    private final Viewport uiViewport;
 
-    //Texture bg;
+    protected Stage uiStage;
+    PlayerPortrait portrait;
+
+    OrthographicCamera camera;
+    Viewport mapViewport;
+    float maxScroll;
+
     TextureRegion bg;
 
     Texture left;
@@ -47,10 +67,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     Texture dot;
 
-    OrthographicCamera camera;
-    Viewport viewport;
-    float maxScroll;
-
+    private DungeonChapter chapter;
     DungeonMap dungeonMap;
     Party playerParty;
     LinkedList<FieldSprite> fieldSprites;
@@ -62,14 +79,14 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     float movingTime;
     float moveDuration = 0.5f;
 
-	public MapScreen(final RpgGame game) {
+    public MapScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();
-        viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
-        viewport.apply();
-
+        mapViewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
+
+        uiViewport = new ScreenViewport();
 
         Texture bgTexture = new Texture("map/cave_texture.jpg");
         bgTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.Repeat);
@@ -91,16 +108,50 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         dot = new Texture("map/dot.png");
     }
 
-    public void enterDungeon(Party party, DungeonMap map) {
+    public void enterDungeon(Party party, DungeonChapter chapter) {
         playerParty = party;
-        dungeonMap = map;
+        this.chapter = chapter;
+        dungeonMap = chapter.map;
         fieldSprites = new LinkedList<>();
-        // 2*50 padding + 50 sprite height
-        maxScroll = map.depth * Y_DISTANCE + 350;
+        // 2*150 padding + 50 sprite height
+        maxScroll = dungeonMap.depth * Y_DISTANCE + 350;
         bg.setRegionHeight((int) maxScroll);
         addSprite(dungeonMap.getStart());
         //unfoldAll();
+        buildUi();
         arriveAt(dungeonMap.getStart());
+    }
+
+    private void buildUi() {
+        if (uiStage != null) {
+            uiStage.dispose();
+            uiStage.clear();
+        }
+        uiStage = new Stage(uiViewport, game.batch);
+        Table root = new Table();
+        root.setFillParent(true);
+        root.pad(10);
+        uiStage.addActor(root);
+
+        Table table = new Table();
+        table.defaults().space(20);
+        root.add(table).left().padTop(100);
+        root.row();
+        root.add().growX().expandY().bottom();
+
+        table.row();
+        portrait = new PlayerPortrait(game.state.playerCharacter, game.getSkin());
+        portrait.addListener(new ClickListener() {
+            public void clicked (InputEvent event, float x, float y) {
+                showPlayer(game.state.playerCharacter);
+            }
+        });
+        // one row per party member
+        table.add(portrait);
+    }
+
+    private void showPlayer(PlayerCharacter character) {
+        game.showCharacter(character);
     }
 
     private void unfoldAll() {
@@ -125,7 +176,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         if (!current.isOpen()) {
             switch (current.getType()) {
                 case Field.TYPE_FINISH:
-                    game.dungeonFinished();
+                    game.goToChapter(game.state.campaign.getChapter(chapter.onSuccessChapterId));
                     break;
                 case Field.TYPE_MONSTER:
                     triggerFight(field);
@@ -133,6 +184,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
                 case Field.TYPE_TREASURE:
                     for (Character character : playerParty.getMembers()) {
                         character.healsPercent(0.5f);
+                        portrait.updateHp();
                         open(current);
                     }
                     break;
@@ -199,6 +251,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public void combatEnded(Combat combat, boolean playerWon) {
+        portrait.updateHp();
         if (playerWon) {
             open(current);
         } else {
@@ -208,14 +261,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new GestureDetector(this));
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(uiStage);
+        multiplexer.addProcessor(new GestureDetector(this));
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
 
-        camera.update();
+        mapViewport.apply();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
@@ -253,8 +309,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         } else {
             game.batch.draw(marker, spot.getX(), spot.getY() + 20);
         }
-
         game.batch.end();
+
+        // UI
+
+        uiStage.getViewport().apply();
+        game.batch.setProjectionMatrix(uiStage.getViewport().getCamera().combined);
+        //uiStage.getRoot().draw(game.batch, 1);
+        uiStage.draw();
+        uiStage.act(delta);
+
     }
 
     private void focusCamera(Field field) {
@@ -271,7 +335,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        uiStage.getViewport().update(width, height, true);
+        mapViewport.update(width, height);
         focusCamera(current);
     }
 
@@ -291,7 +356,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public void dispose() {
-
+        uiStage.dispose();
+        // TODO lots of disposing
     }
 
     @Override
@@ -302,7 +368,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     @Override
     public boolean tap(float x, float y, int count, int button) {
         Vector3 raw = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        viewport.unproject(raw);
+        mapViewport.unproject(raw);
         Vector2 mousePos = new Vector2(raw.x, raw.y);
 
         Field f = null;
