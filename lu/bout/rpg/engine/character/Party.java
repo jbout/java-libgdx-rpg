@@ -4,7 +4,11 @@ import java.util.LinkedList;
 
 public class Party {
 
-    private LinkedList<Character> members;
+    // for serialization
+    public Party() {
+    }
+
+    protected LinkedList<Character> members;
 
     public Party(Character member)
     {
@@ -20,5 +24,10 @@ public class Party {
     public LinkedList<Character> getMembers()
     {
         return members;
+    }
+
+    public void addMember(Character character)
+    {
+        members.add(character);
     }
 }

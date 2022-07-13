@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.campaign.CampaignBuilder;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
@@ -29,6 +30,7 @@ import lu.bout.rpg.battler.map.MapScreen;
 import lu.bout.rpg.battler.campaign.screen.VictoryScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
 import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
@@ -86,13 +88,13 @@ public class RpgGame extends Game {
 		charScreen.showCharacter(character);
 	}
 
-	public void startBattle(Encounter encounter, MapScreen screen) {
-		battleScreen.startBattle(encounter, screen);
+	public void startBattle(PlayerParty party, Party monsters, MapScreen screen) {
+		battleScreen.startBattle(party, monsters, screen);
 		this.setScreen(battleScreen);
 	}
 
-	protected void launchDungeon(PlayerCharacter player, DungeonChapter chapter) {
-		mapScreen.enterDungeon(new Party(player), chapter);
+	protected void launchDungeon(PlayerParty party, DungeonChapter chapter) {
+		mapScreen.enterDungeon(party, chapter);
 		this.setScreen(mapScreen);
 	}
 
@@ -101,15 +103,15 @@ public class RpgGame extends Game {
 		renderChapter(state.getCurrentChapter());
 	}
 
-	public void goToChapter(Chapter chapter) {
-		this.state.currentChapter = chapter.getId();
+	public void goToChapter(String chapterId) {
+		Chapter chapter = state.campaignState.transition(state.playerParty, chapterId);
 		getSaveService().update(this.state);
 		renderChapter(chapter);
 	}
 
 	private void renderChapter(Chapter chapter) {
 		if (chapter instanceof DungeonChapter) {
-			launchDungeon(state.playerCharacter, (DungeonChapter)chapter);
+			launchDungeon(state.getPlayerParty(), (DungeonChapter)chapter);
 		} else {
 			if (chapter instanceof NarrativeChapter) {
 				this.setScreen(new NarrativeScreen(this, (NarrativeChapter) chapter));

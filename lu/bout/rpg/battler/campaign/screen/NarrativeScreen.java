@@ -42,6 +42,6 @@ public class NarrativeScreen extends MenuScreen {
     }
 
     public void advance() {
-        game.goToChapter(game.state.campaign.getChapter(chapter.next));
+        game.goToChapter(chapter.next);
     }
 }

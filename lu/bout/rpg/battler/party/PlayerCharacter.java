@@ -1,8 +1,9 @@
 package lu.bout.rpg.battler.party;
 
+import lu.bout.rpg.battler.battle.BattleMini;
 import lu.bout.rpg.engine.character.Character;
 
-public class PlayerCharacter extends Character {
+public class PlayerCharacter extends Character implements BattleMini {
 
     private String name;
 
@@ -23,6 +24,10 @@ public class PlayerCharacter extends Character {
 
     public int getPortaitId() {
         return portraitId;
+    }
+
+    public String getTextureName() {
+        return "enemy/sample-hero.png";
     }
 
     @Override

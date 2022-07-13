@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.Map;
 
-import lu.bout.rpg.battler.world.GameMonster;
-import lu.bout.rpg.engine.character.Player;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class CombatSprite extends Sprite {
@@ -25,14 +23,10 @@ public class CombatSprite extends Sprite {
 
     public static CombatSprite createSprite(Participant participant, boolean isPlayer) {
         Texture t;
-        if (isPlayer) {
-            t = new Texture("enemy/sample-hero.png");
+        if (participant.getCharacter() instanceof BattleMini) {
+            t = new Texture(((BattleMini)participant.getCharacter()).getTextureName());
         } else {
-            if (participant.getCharacter() instanceof GameMonster) {
-                t = new Texture(((GameMonster)participant.getCharacter()).texture);
-            } else {
-                t = new Texture("enemy/pipo-enemy001.png");
-            }
+            t = new Texture("enemy/pipo-enemy001.png");
         }
         return new CombatSprite(t, participant);
     }

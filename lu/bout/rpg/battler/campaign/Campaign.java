@@ -28,10 +28,11 @@ public class Campaign {
         startId = chapter.getId();
     }
 
-    public void addChapter(Chapter chapter) {
+    public Chapter addChapter(Chapter chapter) {
         if (this.chapters.containsKey(chapter.getId())) {
             Gdx.app.log("Error", "Duplicate chapter id " + chapter.getId());
         }
         chapters.put(chapter.getId(), chapter);
+        return chapter;
     }
 }

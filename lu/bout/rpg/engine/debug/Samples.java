@@ -1,7 +1,7 @@
 package lu.bout.rpg.engine.debug;
 
+import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
-import lu.bout.rpg.engine.character.Player;
 import lu.bout.rpg.engine.character.Monster;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.Encounter;
@@ -22,7 +22,7 @@ public abstract class Samples {
         return new Encounter(new Party(m1), new Party(m2), Encounter.TYPE_BALANCED);
     }
 
-    public static Encounter getSampleEncounter(Player player)
+    public static Encounter getSampleEncounter(Character player)
     {
         Party monsterParty = new Party(new Monster(3));
         monsterParty.getMembers().add(new Monster(5));

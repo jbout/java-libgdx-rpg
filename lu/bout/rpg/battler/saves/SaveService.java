@@ -24,7 +24,7 @@ public class SaveService {
     public void add(GameState state) {
         SaveMetadata save = new SaveMetadata();
         save.id = this.getNextId();
-        save.name = state.campaign.name;
+        save.name = state.getCampaignName();
         state.saveId = save.getId();
         save(save, state);
     }

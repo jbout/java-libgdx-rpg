@@ -31,6 +31,7 @@ import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.CampaignBuilder;
 import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.saves.GameState;
 
 public class NewGameScreen extends MenuScreen {
@@ -130,20 +131,14 @@ public class NewGameScreen extends MenuScreen {
         });
 
         root.add(button0).align(Align.right);
-//        stage.addActor(button0);
     }
 
     private void generatePortraits() {
         PortraitService portraitService = new PortraitService();
         keys = portraitService.getRandomIds(PORTRAIT_OPTION_COUNT);
         for (int i = 0; i < PORTRAIT_OPTION_COUNT; i++) {
-/*            Pixmap p = portraitService.getScaled(keys[i], PORTRAIT_SIZE, PORTRAIT_SIZE);
-            portraits[i].setDrawable(new TextureRegionDrawable(new TextureRegion(new Texture(p))));
-
- */
             Texture t = portraitService.getPortrait(keys[i]);
             portraits[i].setDrawable(new TextureRegionDrawable(new TextureRegion(t)));
-            //p.dispose();
         }
     }
 
@@ -157,7 +152,7 @@ public class NewGameScreen extends MenuScreen {
 
         PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), keys[selectButton]);
 
-        GameState state = GameState.newGame(player , (new CampaignBuilder()).build2stepDungeon());
+        GameState state = GameState.newGame(new PlayerParty(player), (new CampaignBuilder()).build2stepDungeon());
         game.getSaveService().add(state);
         game.launchGame(state);
     }

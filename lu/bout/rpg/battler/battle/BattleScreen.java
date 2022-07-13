@@ -24,6 +24,8 @@ import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
 import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
 import lu.bout.rpg.battler.battle.minigame.timingGame.TimingGame;
+import lu.bout.rpg.battler.party.PlayerParty;
+import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.Encounter;
 import lu.bout.rpg.engine.combat.Combat;
@@ -109,7 +111,8 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		}
 	}
 
-	public void startBattle(Encounter encounter, Screen caller) {
+	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
+		Encounter encounter = new Encounter(party, enemies, Encounter.TYPE_BALANCED);
 		setupMinigame(); // might have changed
 		this.caller = caller;
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
@@ -120,7 +123,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		partyScreen.setParty(encounter.getPlayerParty());
 		combat = new Combat(encounter);
 		for (Participant participant: combat.getParticipants()) {
-			boolean isPlayer = participant.getCharacter() == game.state.playerCharacter;
+			boolean isPlayer = participant.getCharacter() == party.getPlayerCharacter();
 			if (isPlayer) {
 				player = participant;
 			}

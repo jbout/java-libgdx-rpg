@@ -1,7 +1,5 @@
 package lu.bout.rpg.battler.campaign.chapter;
 
-import lu.bout.rpg.battler.map.DungeonMap;
-
 public class NarrativeChapter extends Chapter {
 
     public String story;

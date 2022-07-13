@@ -3,6 +3,7 @@ package lu.bout.rpg.battler.map;
 import com.badlogic.gdx.math.MathUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MapFactory {
@@ -29,9 +30,22 @@ public class MapFactory {
         goal.connectTo(0, new Field(goal.getMapPosX(), goal.getMapPosY()+1, Field.TYPE_FINISH));
         // overlap a second path with a dead-end
         Field second = generatePath(start, depth - distance, false);
-        tryAddDeadEnd(second);
+        if (nrDeadEnds > 0) {
+            tryAddDeadEnd(second);
+        } else {
+            // we shouldn't add a dead-end so lets try to connect
+            if (!tryConnect(second)) {
+                // nothing to connect to, dead-end it is
+                tryAddDeadEnd(second);
+            }
+        }
         // overlap a third path with multiple deadends
-        Field third = generatePath(start, depth - distance * 2, true);
+        Field third = generatePath(start, depth - distance * 2, nrDeadEnds > 2);
+        if (third.getConnections().size() == 0) {
+            if (!tryConnect(third)) {
+                tryAddDeadEnd(third);
+            }
+        }
 
         return new DungeonMap(start, depth + 1);
     }
@@ -50,17 +64,18 @@ public class MapFactory {
                 x = current.getMapPosX() + dir;
                 isTriangle = ((lastDir == -1 && dir == 1) || (lastDir == 1 && dir == -1));
             } while (isTriangle || x < 0 || x >= 5);
+            // two new path fragments? drop a dead end
             if (withDeadEnds && lastNew == true && map[x][y] ==  null) {
-                // drop a dead end and continue from path
-                int existingX;
+                int continueFromX;
                 do {
-                    existingX = MathUtils.random(4);
-                } while (map[existingX][y] == null);
+                    // find a non null path to continue from
+                    continueFromX = MathUtils.random(4);
+                } while (map[continueFromX][y] == null);
                 map[x][y] = new Field(x, y, Field.TYPE_RETURN_FIELD);
                 current.connectTo(dir, map[x][y]);
                 lastDir = 0;
                 lastNew = false;
-                current = map[existingX][y];
+                current = map[continueFromX][y];
             } else {
                 if (map[x][y] ==  null) {
                     generateRandomField(x,y);
@@ -90,24 +105,43 @@ public class MapFactory {
         return map[x][y];
     }
 
-    protected Field tryAddDeadEnd(Field from) {
+    protected boolean tryConnect(Field from) {
+        boolean success = false;
+        // try every direction in a random order
         Integer[] directions={-1, 0, 1};
         List<Integer> possibleDirections = Arrays.asList(directions);
+        Collections.shuffle(possibleDirections);
 
-        int emptyDir = 99;
         for (int dir: possibleDirections) {
             boolean inBounds = (from.getMapPosX() + dir) >= 0 && (from.getMapPosX() + dir) <= 4;
-            if (inBounds && map[from.getMapPosX() + dir][from.getMapPosY() + 1] == null) {
-                emptyDir = dir;
+            if (inBounds && map[from.getMapPosX() + dir][from.getMapPosY() + 1] != null) {
+                from.connectTo(dir, map[from.getMapPosX() + dir][from.getMapPosY() + 1]);
+                success = true;
                 break;
             }
         }
-        Field deadend = null;
-        if (emptyDir != 99) {
-            deadend = new Field(from.getMapPosX() + emptyDir, from.getMapPosY()+1, Field.TYPE_RETURN_FIELD);
-            map[from.getMapPosX() + emptyDir][from.getMapPosY() + 1] = deadend;
-            from.connectTo(emptyDir, deadend);
+        return success;
+    }
+
+    /**
+     * Try to find a spot to put down a dead-end
+     * @param from
+     * @return
+     */
+    protected void tryAddDeadEnd(Field from) {
+        // try every direction in a random order
+        Integer[] directions={-1, 0, 1};
+        List<Integer> possibleDirections = Arrays.asList(directions);
+        Collections.shuffle(possibleDirections);
+
+        for (int dir: possibleDirections) {
+            boolean inBounds = (from.getMapPosX() + dir) >= 0 && (from.getMapPosX() + dir) <= 4;
+            if (inBounds && map[from.getMapPosX() + dir][from.getMapPosY() + 1] == null) {
+                Field deadend = new Field(from.getMapPosX() + dir, from.getMapPosY()+1, Field.TYPE_RETURN_FIELD);
+                map[from.getMapPosX() + dir][from.getMapPosY() + 1] = deadend;
+                from.connectTo(dir, deadend);
+                break;
+            }
         }
-        return deadend;
     }
 }

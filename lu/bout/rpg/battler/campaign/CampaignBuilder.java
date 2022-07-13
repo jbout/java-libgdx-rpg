@@ -1,15 +1,23 @@
 package lu.bout.rpg.battler.campaign;
 
+import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
+import lu.bout.rpg.battler.campaign.storyAction.AddNpcAction;
 import lu.bout.rpg.battler.map.MapFactory;
+import lu.bout.rpg.battler.party.PlayerCharacter;
 
 public class CampaignBuilder {
 
+    public static PlayerCharacter getRandomNpc() {
+        PortraitService p = new PortraitService();
+        return new PlayerCharacter("Friend", p.getRandomIds(1)[0]);
+    }
+
     public Campaign build2stepDungeon() {
         NarrativeChapter intro = new NarrativeChapter("intro", "Welcome to this simple dungeon crawl.");
-        NarrativeChapter intermezzo = new NarrativeChapter("inter", "You made it this far, but lets see how you fare from here.");
+        NarrativeChapter intermezzo = new NarrativeChapter("inter", "You made it this far, and a friend comes to your aid for the dungeon ahead.");
         MapFactory mapper = new MapFactory(15, 5);
         DungeonChapter dungeon = new DungeonChapter("d", mapper.generate());
         mapper = new MapFactory(5, 0);
@@ -20,8 +28,9 @@ public class CampaignBuilder {
         campaign.setStartChapter(intro);
         campaign.addChapter(smallDungeon);
         campaign.addChapter(intermezzo);
+        intermezzo.addAfterAction(new AddNpcAction(getRandomNpc()));
         campaign.addChapter(dungeon);
-        campaign.addChapter(new VictoryChapter());
+        campaign.addChapter(v);
         intro.setNext(smallDungeon);
         smallDungeon.setOnSuccess(intermezzo);
         intermezzo.setNext(dungeon);

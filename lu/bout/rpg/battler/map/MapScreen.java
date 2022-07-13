@@ -15,13 +15,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -29,12 +24,14 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
@@ -49,7 +46,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     private final Viewport uiViewport;
 
     protected Stage uiStage;
-    PlayerPortrait portrait;
+    List<PlayerPortrait> portraits;
 
     OrthographicCamera camera;
     Viewport mapViewport;
@@ -69,7 +66,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     private DungeonChapter chapter;
     DungeonMap dungeonMap;
-    Party playerParty;
+    PlayerParty playerParty;
     LinkedList<FieldSprite> fieldSprites;
     Map<Circle, Field> options;
     Field current;
@@ -108,7 +105,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         dot = new Texture("map/dot.png");
     }
 
-    public void enterDungeon(Party party, DungeonChapter chapter) {
+    public void enterDungeon(PlayerParty party, DungeonChapter chapter) {
         playerParty = party;
         this.chapter = chapter;
         dungeonMap = chapter.map;
@@ -139,15 +136,20 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         root.row();
         root.add().growX().expandY().bottom();
 
-        table.row();
-        portrait = new PlayerPortrait(game.state.playerCharacter, game.getSkin());
-        portrait.addListener(new ClickListener() {
-            public void clicked (InputEvent event, float x, float y) {
-                showPlayer(game.state.playerCharacter);
+        portraits = new LinkedList<>();
+        for (Character character: playerParty.getMembers()) {
+            if (character instanceof PlayerCharacter) {
+                table.row();
+                PlayerPortrait portrait = new PlayerPortrait((PlayerCharacter) character, game.getSkin());
+                portrait.addListener(new ClickListener() {
+                    public void clicked (InputEvent event, float x, float y) {
+                        showPlayer(game.state.playerCharacter);
+                    }
+                });
+                table.add(portrait);
+                portraits.add(portrait);
             }
-        });
-        // one row per party member
-        table.add(portrait);
+        }
     }
 
     private void showPlayer(PlayerCharacter character) {
@@ -176,7 +178,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         if (!current.isOpen()) {
             switch (current.getType()) {
                 case Field.TYPE_FINISH:
-                    game.goToChapter(game.state.campaign.getChapter(chapter.onSuccessChapterId));
+                    game.goToChapter(chapter.onSuccessChapterId);
                     break;
                 case Field.TYPE_MONSTER:
                     triggerFight(field);
@@ -184,7 +186,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
                 case Field.TYPE_TREASURE:
                     for (Character character : playerParty.getMembers()) {
                         character.healsPercent(0.5f);
-                        portrait.updateHp();
+                        updateUi();
                         open(current);
                     }
                     break;
@@ -225,7 +227,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         if (MathUtils.random(2) == 1) {
             monsterParty.getMembers().add(beastiarum.getRandomMonster());
         }
-        game.startBattle(new Encounter(playerParty, monsterParty, Encounter.TYPE_BALANCED), this);
+        game.startBattle(playerParty, monsterParty, this);
     }
 
     private FieldSprite getSprite(Field field) {
@@ -251,11 +253,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public void combatEnded(Combat combat, boolean playerWon) {
-        portrait.updateHp();
+        updateUi();
         if (playerWon) {
             open(current);
         } else {
             game.gameOver();
+        }
+    }
+
+    private void updateUi() {
+        for (PlayerPortrait portrait: portraits) {
+            portrait.updateHp();
         }
     }
 
