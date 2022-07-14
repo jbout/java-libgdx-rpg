@@ -162,10 +162,20 @@ public class RpgGame extends Game {
 		parameter.shadowOffsetX = 0;
 		parameter.shadowOffsetY = 0;
 		parameter.size = 36;
-		BitmapFont font36 = generator.generateFont(parameter); // font size 24 pixels
+		BitmapFont font36 = generator.generateFont(parameter);
 		parameter.color = Color.WHITE;
-		BitmapFont font36white = generator.generateFont(parameter); // font size 24 pixels
+		BitmapFont font36white = generator.generateFont(parameter);
 		generator.dispose();
+
+		generator = new FreeTypeFontGenerator(Gdx.files.internal("font/bloody.ttf"));
+		parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.color = Color.WHITE;
+		parameter.borderWidth = 0;
+		parameter.shadowOffsetX = 0;
+		parameter.shadowOffsetY = 0;
+		parameter.size = 36;
+		parameter.characters = "0123456789 .KMGT+";
+		BitmapFont bloodyFont = generator.generateFont(parameter);
 
 		Label.LabelStyle labelStyle = new Label.LabelStyle();
 		labelStyle.font = font36;
@@ -173,8 +183,13 @@ public class RpgGame extends Game {
 		Label.LabelStyle whiteLabelStyle = new Label.LabelStyle();
 		whiteLabelStyle.font = font36white;
 
+		Label.LabelStyle bloodyLabelStyle = new Label.LabelStyle();
+		bloodyLabelStyle.font = bloodyFont;
+
+
 		skin.add("default", labelStyle);
 		skin.add("white", whiteLabelStyle);
+		skin.add("blood", bloodyLabelStyle);
 		skin.get(TextButton.TextButtonStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).font = font36;
 		skin.get(SelectBox.SelectBoxStyle.class).listStyle.font = font36;

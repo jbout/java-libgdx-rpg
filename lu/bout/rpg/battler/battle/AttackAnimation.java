@@ -1,6 +1,7 @@
 package lu.bout.rpg.battler.battle;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class AttackAnimation implements BattleAnimation {
 
@@ -10,10 +11,12 @@ public class AttackAnimation implements BattleAnimation {
     CombatSprite attacker;
     CombatSprite attackTarget;
     Vector2 targetVector;
+    int damage;
 
-    public AttackAnimation(CombatSprite attacker, CombatSprite attackTarget) {
+    public AttackAnimation(CombatSprite attacker, CombatSprite attackTarget, int damage) {
         this.attacker = attacker;
         this.attackTarget = attackTarget;
+        this.damage = damage;
         targetVector = new Vector2(
                 attackTarget.baseX + (attackTarget.getWidth() / 2) - (attacker.getWidth() / 2),
                 attackTarget.baseY + (attackTarget.getHeight() / 2) - (attacker.getHeight() / 2)
@@ -29,9 +32,9 @@ public class AttackAnimation implements BattleAnimation {
         attacker.setX((attacker.baseX * (1-percent)) + (targetVector.x * percent));
         attacker.setY((attacker.baseY * (1-(percent*0.5f))) + (targetVector.y * (percent*0.5f)));
         timeElapsed = timeElapsed + delta;
-        if (percent < 0.5f && timeElapsed > ATTACK_DURATION / 2) {
+        if ( timeElapsed > ATTACK_DURATION / 2 && timeElapsed - delta < ATTACK_DURATION / 2) {
             attackTarget.updateHealth();
-            attackTarget.drawShake(0.25f);
+            attackTarget.drawDamaged(damage);
         }
         if (timeElapsed > ATTACK_DURATION) {
             done = true;

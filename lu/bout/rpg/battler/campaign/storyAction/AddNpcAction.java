@@ -7,6 +7,10 @@ public class AddNpcAction extends StoryAction {
 
     PlayerCharacter character;
 
+    // Serializaton constructor
+    public AddNpcAction() {
+    }
+
     public AddNpcAction(PlayerCharacter character) {
         this.character = character;
     }

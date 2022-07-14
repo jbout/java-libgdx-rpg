@@ -3,6 +3,7 @@ package lu.bout.rpg.battler.battle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.Map;
 
@@ -16,23 +17,24 @@ public class CombatSprite extends Sprite {
 
     Participant participant;
     SimpleHealthbar healthBar;
-    float shakeDuration = 0;
     float baseX, baseY;
     BattleAnimation animation = null;
     float lastHp;
+    Skin skin;
 
-    public static CombatSprite createSprite(Participant participant, boolean isPlayer) {
+    public static CombatSprite createSprite(Participant participant, Skin skin) {
         Texture t;
         if (participant.getCharacter() instanceof BattleMini) {
             t = new Texture(((BattleMini)participant.getCharacter()).getTextureName());
         } else {
             t = new Texture("enemy/pipo-enemy001.png");
         }
-        return new CombatSprite(t, participant);
+        return new CombatSprite(t, participant, skin);
     }
 
-    public CombatSprite(Texture t, Participant participant) {
+    public CombatSprite(Texture t, Participant participant, Skin skin) {
         super(t);
+        this.skin = skin;
         this.participant = participant;
         this.healthBar = new SimpleHealthbar(this.getWidth() / 2, 10);
         updateHealth();
@@ -49,19 +51,22 @@ public class CombatSprite extends Sprite {
         if (participant.isAlive() || animation != null) {
             super.draw(batch);
             healthBar.draw(batch, this.getX() + this.getWidth() / 4, this.getY(), lastHp);
+            if (animation instanceof DamagedAnimation) {
+                ((DamagedAnimation) animation).draw(batch);
+            }
         }
     }
 
-    public void drawShake(float duration) {
-        animation = new ShakeAnimation(this, duration);
+    public void drawDamaged(int damage) {
+        animation = new DamagedAnimation(this, damage, skin);
     }
 
     public void drawDeath() {
         animation = new DeathAnimation(this);
     }
 
-    public void drawAttack(CombatSprite enemy) {
-        animation = new AttackAnimation(this, enemy);
+    public void drawAttack(CombatSprite enemy, int damage) {
+        animation = new AttackAnimation(this, enemy, damage);
     }
 
     public void updateHealth() {

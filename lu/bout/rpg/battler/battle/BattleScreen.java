@@ -127,7 +127,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 			if (isPlayer) {
 				player = participant;
 			}
-			CombatSprite e = CombatSprite.createSprite(participant, isPlayer);
+			CombatSprite e = CombatSprite.createSprite(participant, game.getSkin());
 			sprites.add(e);
 		}
 		positionCombatSprites();
@@ -266,9 +266,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 	@Override
 	public void receiveCombatEvent(CombatEvent event) {
 		if (event instanceof AttackEvent) {
-			Participant target = ((AttackEvent) event).getTarget();
-			getSpriteforParticipant(((AttackEvent) event).getActor()).drawAttack(getSpriteforParticipant(target));
-			this.waitTime = CombatSprite.ATTACK_DURATION;
+			this.renderAttack((AttackEvent) event);
 		}
 		if (event instanceof DeathEvent) {
 			getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
@@ -285,6 +283,13 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 			isCombatOver = true;
 			isPlayerWinner = ((CombatEndedEvent) event).isPlayerWinner();
 		}
+	}
+
+	private void renderAttack(AttackEvent attackEvent) {
+		Participant attacker = attackEvent.getActor();
+		Participant target = attackEvent.getTarget();
+		getSpriteforParticipant(attacker).drawAttack(getSpriteforParticipant(target), attackEvent.getDamage());
+		waitTime = CombatSprite.ATTACK_DURATION;
 	}
 
 	private CombatSprite getSpriteforParticipant(Participant participant) {

@@ -140,10 +140,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         for (Character character: playerParty.getMembers()) {
             if (character instanceof PlayerCharacter) {
                 table.row();
-                PlayerPortrait portrait = new PlayerPortrait((PlayerCharacter) character, game.getSkin());
+                final PlayerPortrait portrait = new PlayerPortrait((PlayerCharacter) character, game.getSkin());
                 portrait.addListener(new ClickListener() {
                     public void clicked (InputEvent event, float x, float y) {
-                        showPlayer(game.state.playerCharacter);
+                        showPlayer(portrait.getPlayer());
                     }
                 });
                 table.add(portrait);

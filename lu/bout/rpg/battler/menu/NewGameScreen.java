@@ -6,26 +6,21 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
@@ -49,10 +44,7 @@ public class NewGameScreen extends MenuScreen {
     public NewGameScreen(RpgGame rpgGame) {
         super(rpgGame);
 
-        Table root = new Table();
-        Rectangle bounds = this.getUsableSurface();
-        root.setBounds(bounds.x, bounds.y, bounds.getWidth(), bounds.getHeight());
-        stage.addActor(root);
+        Table root = getRootTable();
 
         root.defaults().padTop(10);
         root.defaults().padBottom(50);
@@ -122,15 +114,27 @@ public class NewGameScreen extends MenuScreen {
 
         root.row();
 
-        Button button0 = new TextButton("Create",game.getSkin());
-        button0.setColor(Color.GREEN);
+        Table buttonTable = new Table();
+
+        Button button0 = new TextButton("Cancel",game.getSkin());
+        button0.setColor(Color.GRAY);
         button0.addListener(new ClickListener() {
+            public void clicked (InputEvent event, float x, float y) {
+                game.showMenu();
+            }
+        });
+        buttonTable.add(button0).padRight(20);
+
+        Button button1 = new TextButton("Start",game.getSkin());
+        button1.setColor(Color.GREEN);
+        button1.addListener(new ClickListener() {
             public void clicked (InputEvent event, float x, float y) {
                 createGame();
             }
         });
+        buttonTable.add(button1);
 
-        root.add(button0).align(Align.right);
+        root.add(buttonTable).align(Align.right);
     }
 
     private void generatePortraits() {

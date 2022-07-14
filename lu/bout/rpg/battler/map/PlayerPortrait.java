@@ -61,4 +61,8 @@ public class PlayerPortrait extends Table {
     public void updateHp() {
         healthBar.setValue(player.getHp());
     }
+
+    public PlayerCharacter getPlayer() {
+        return player;
+    }
 }

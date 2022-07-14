@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -50,6 +51,15 @@ public abstract class MenuScreen implements Screen {
         Label.LabelStyle titleStyle = new Label.LabelStyle();
         titleStyle.font = font100;
         return titleStyle;
+    }
+
+    protected Table getRootTable() {
+        Table root = new Table();
+        //root.defaults().expand();
+        Rectangle bounds = this.getUsableSurface();
+        root.setBounds(bounds.x, bounds.y, bounds.getWidth(), bounds.getHeight());
+        stage.addActor(root);
+        return root;
     }
 
     protected Rectangle getUsableSurface() {
