@@ -2,20 +2,24 @@ package lu.bout.rpg.battler.party;
 
 import lu.bout.rpg.battler.battle.BattleMini;
 import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.system.simplejrpg.SampleFighter;
 
-public class PlayerCharacter extends Character implements BattleMini {
+public class PlayerCharacter extends SampleFighter implements BattleMini {
 
     private String name;
 
     private int portraitId;
 
+    private String miniName = "enemy/sample-hero.png";
+
     // to serialize
     public PlayerCharacter() {
     }
 
-    public PlayerCharacter(String playerName, int portraitId) {
+    public PlayerCharacter(String playerName, int portraitId, int level) {
         name = playerName;
         this.portraitId = portraitId;
+        this.setLevel(level);
     }
 
     public String getName() {
@@ -26,12 +30,11 @@ public class PlayerCharacter extends Character implements BattleMini {
         return portraitId;
     }
 
-    public String getTextureName() {
-        return "enemy/sample-hero.png";
+    public void setBattleMini(String textureName) {
+        miniName = textureName;
     }
 
-    @Override
-    public int getMaxhp() {
-        return 200;
+    public String getMiniTextureName() {
+        return miniName;
     }
 }

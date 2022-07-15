@@ -24,7 +24,9 @@ import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
 import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
 import lu.bout.rpg.battler.battle.minigame.timingGame.TimingGame;
+import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
+import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.Encounter;
@@ -40,6 +42,7 @@ import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
+	enum CombatState {ongoing, won, lost};
 	static final int INITIAL_DIFFICULTY = 3;
 
 	RpgGame game;
@@ -50,13 +53,13 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	private Texture bg;
 	private Texture brick;
+	private LinkedList<CombatSprite> sprites;
 
+	private Encounter encounter;
 	private Combat combat;
 	private Screen caller;
-	private LinkedList<CombatSprite> sprites;
 	private Participant player;
-	boolean isCombatOver;
-	boolean isPlayerWinner;
+	CombatState state = CombatState.ongoing;
 
 	private Vector3 touchPosRaw;
 	private Vector2 touchPos;
@@ -112,7 +115,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 	}
 
 	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
-		Encounter encounter = new Encounter(party, enemies, Encounter.TYPE_BALANCED);
+		encounter = new Encounter(party, enemies, Encounter.TYPE_BALANCED);
 		setupMinigame(); // might have changed
 		this.caller = caller;
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
@@ -134,13 +137,25 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		combat.addListener(this);
 		difficulty = INITIAL_DIFFICULTY;
 		isPaused = false;
-		isCombatOver = false;
+		state = CombatState.ongoing;
 	}
 
 	public void endBattle() {
 		isPaused = true;
+		if (state == CombatState.won) {
+			int xp = 0;
+			for (Character monster :encounter.getOpponentParty().getMembers()) {
+				xp += monster.getLevel() * 250;
+			}
+			LinkedList<Character> players = encounter.getPlayerParty().getMembers();
+			for (Character player : players) {
+				if (player instanceof PlayerCharacter && player.getHp() > 0) {
+					((PlayerCharacter)player).earnXp(xp / players.size());
+				}
+			}
+		}
 		if (caller instanceof BattleFeedback) {
-			((BattleFeedback)caller).combatEnded(combat, isPlayerWinner);
+			((BattleFeedback)caller).combatEnded(combat, state == CombatState.won);
 		}
 		// only navigate if the battle feedback did not trigger a navigation
 		if (game.getScreen() == this) {
@@ -178,13 +193,11 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 	public void show() {
 	}
 
-	boolean first = true;
-
 	@Override
 	public void render(float delta) {
 		if (!isPaused) {
 			if (waitTime == 0) {
-				if (isCombatOver) {
+				if (state != CombatState.ongoing) {
 					this.endBattle();
 				} else {
 					combat.advanceTimer(Math.min(1, (int) (delta * 200)));
@@ -272,16 +285,15 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 			getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
 		}
 		if (event instanceof ReadyEvent && ((ReadyEvent)event).getActor() == player) {
-			Participant target = combat.getEnemies(player).get(0);
-			if (target != null) {
-				minigame.init(difficulty, new AttackCommand(target));
+			LinkedList<Participant> targets = combat.getEnemies(player);
+			if (targets.size() > 0) {
+				minigame.init(difficulty, new AttackCommand(targets.get(0)));
 				lowerScreen = minigame;
 				isPaused = true;
 			}
 		}
 		if (event instanceof CombatEndedEvent) {
-			isCombatOver = true;
-			isPlayerWinner = ((CombatEndedEvent) event).isPlayerWinner();
+			state = ((CombatEndedEvent) event).isPlayerWinner() ? CombatState.won : CombatState.lost;
 		}
 	}
 

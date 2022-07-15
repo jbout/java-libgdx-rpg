@@ -25,7 +25,7 @@ public class CombatSprite extends Sprite {
     public static CombatSprite createSprite(Participant participant, Skin skin) {
         Texture t;
         if (participant.getCharacter() instanceof BattleMini) {
-            t = new Texture(((BattleMini)participant.getCharacter()).getTextureName());
+            t = new Texture(((BattleMini)participant.getCharacter()).getMiniTextureName());
         } else {
             t = new Texture("enemy/pipo-enemy001.png");
         }

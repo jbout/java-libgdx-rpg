@@ -1,5 +1,5 @@
 package lu.bout.rpg.battler.battle;
 
 public interface BattleMini {
-    public String getTextureName();
+    public String getMiniTextureName();
 }

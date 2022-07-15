@@ -12,7 +12,9 @@ public class CampaignBuilder {
 
     public static PlayerCharacter getRandomNpc() {
         PortraitService p = new PortraitService();
-        return new PlayerCharacter("Friend", p.getRandomIds(1)[0]);
+        PlayerCharacter player = new PlayerCharacter("Friend", p.getRandomIds(1)[0], 6);
+        player.setBattleMini("enemy/sample-hero2.png");
+        return player;
     }
 
     public Campaign build2stepDungeon() {

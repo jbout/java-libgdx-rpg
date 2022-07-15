@@ -10,12 +10,16 @@ abstract public class Character {
 
     abstract public int getMaxhp();
 
+    abstract public int getDamage();
+
+    abstract public int getLevel();
+
     public int getHp() {
         return hp;
     }
 
     public void takesDamage(int dmg) {
-        hp -= dmg;
+        hp = Math.max(0, hp - dmg);
     }
 
     public void healsPercent(float percent) {

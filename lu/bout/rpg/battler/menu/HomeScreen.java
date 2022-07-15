@@ -18,8 +18,9 @@ import lu.bout.rpg.battler.saves.SaveMetadata;
 public class HomeScreen extends MenuScreen {
 
     TextButton continueButton;
+    SelectBox<String> selectBox;
 
-	public HomeScreen(final RpgGame game) {
+    public HomeScreen(final RpgGame game) {
         super(game);
 
         Label label = new Label("RPG Battle",getTitleStyle());
@@ -51,7 +52,7 @@ public class HomeScreen extends MenuScreen {
         stage.addActor(button1);
 
         String[] values = new String[]{"Simon Says", "Light's out", "Timing"};
-        SelectBox<String> selectBox = new SelectBox<>(game.getSkin());
+        selectBox = new SelectBox<>(game.getSkin());
         selectBox.setAlignment(Align.center);
         selectBox.setName("Minigame");
         selectBox.setColor(Color.GREEN);
@@ -60,18 +61,10 @@ public class HomeScreen extends MenuScreen {
         selectBox.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         selectBox.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.3f);
         selectBox.addListener(new ChangeListener(){
-            private RpgGame game;
-
-            public EventListener setGame(RpgGame game) {
-                this.game = game;
-                return this;
-            }
-            @Override
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                game.getPreferences().putInteger("minigame", ((SelectBox<String>)actor).getSelectedIndex());
-                game.getPreferences().flush();
+                savePreferredMinigame();
             }
-        }.setGame(game));
+        });
         stage.addActor(selectBox);
 
         Button button2 = new TextButton("Statistics",game.getSkin());
@@ -84,6 +77,11 @@ public class HomeScreen extends MenuScreen {
             }
         });
         stage.addActor(button2);
+    }
+
+    private void savePreferredMinigame() {
+        game.getPreferences().putInteger("minigame", selectBox.getSelectedIndex());
+        game.getPreferences().flush();
     }
 
     private void continueGame() {

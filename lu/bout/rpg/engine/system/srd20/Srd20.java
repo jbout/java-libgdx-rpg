@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lu.bout.rpg.engine.system.Attribute;
-import lu.bout.rpg.engine.system.CharacterClass;
+import lu.bout.rpg.engine.system.CharacterKlass;
 import lu.bout.rpg.engine.system.System;
 
 public class Srd20 extends System {
@@ -20,8 +20,8 @@ public class Srd20 extends System {
         return attributes;
     }
 
-    public List<CharacterClass> getClasses() {
-        List<CharacterClass> classes = new ArrayList();
+    public List<CharacterKlass> getClasses() {
+        List<CharacterKlass> classes = new ArrayList();
         return classes;
     }
 

@@ -30,7 +30,7 @@ public class PlayerPortrait extends Table {
         playerName.setColor(Color.WHITE);
         subTable.add(playerName).left();
 
-        healthBar = new ProgressBar(0, player.getMaxhp(), 1, false, skin, "healthbar");
+        healthBar = new ProgressBar(0, player.getMaxhp(), 1, false, skin, "health");
         healthBar.setAnimateDuration(0.0f);
         subTable.row();
         subTable.add(healthBar);

@@ -195,17 +195,18 @@ public class RpgGame extends Game {
 		skin.get(SelectBox.SelectBoxStyle.class).listStyle.font = font36;
 		skin.get(TextField.TextFieldStyle.class).font = font36;
 
-		skin.add("healthbar", generateProgressBarStyle());
+		skin.add("health", generateProgressBarStyle(Color.RED, Color.BLACK));
+		skin.add("xp", generateProgressBarStyle(Color.YELLOW, Color.BLACK));
 
 		return skin;
 	}
 
-	private ProgressBar.ProgressBarStyle generateProgressBarStyle() {
+	private ProgressBar.ProgressBarStyle generateProgressBarStyle(Color before, Color after) {
 		ProgressBar.ProgressBarStyle style = new ProgressBar.ProgressBarStyle();
 
-		style.background = getColoredDrawable(10, 10, Color.RED);
-		style.knob = getColoredDrawable(0, 10, Color.GREEN);
-		style.knobBefore = getColoredDrawable(10, 10, Color.GREEN);
+		style.background = getColoredDrawable(10, 10, after);
+		style.knob = getColoredDrawable(0, 10, before);
+		style.knobBefore = getColoredDrawable(10, 10, before);
 
 		return style;
 	}

@@ -14,8 +14,17 @@ public class Monster extends Character {
         this.hp = getMaxhp();
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public int getMaxhp()
     {
         return level * 5;
+    }
+
+    @Override
+    public int getDamage() {
+        return Math.max(1, (int)(level * (Math.random() + 0.5)));
     }
 }

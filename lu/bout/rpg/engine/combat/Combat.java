@@ -146,7 +146,7 @@ public class Combat {
 	
 	private void attackAction(Participant who, Participant whom) {
 		// TODO calculate damage
-		int dmg = 10;
+		int dmg = who.getCharacter().getDamage();
 		CombatEvent event = new AttackEvent(this, who, whom, dmg);
 		whom.takesDamage(dmg);
 		this.propagate(event);

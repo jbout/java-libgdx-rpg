@@ -20,7 +20,8 @@ public class MonsterAi implements CombatAi, CombatListener {
 	public CombatCommand getAttackCommand(Combat c) {
 		LinkedList<Participant> enemies = c.getEnemies(monster);
 		if (enemies.size() > 0) {
-			return new AttackCommand(enemies.get(0));
+			int target = (int)(Math.random() * enemies.size());
+			return new AttackCommand(enemies.get(target));
 		} else {
 			return null;
 		}

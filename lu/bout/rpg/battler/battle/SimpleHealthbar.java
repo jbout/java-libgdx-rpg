@@ -17,6 +17,23 @@ public class SimpleHealthbar extends Rectangle {
     public SimpleHealthbar(float width, float height) {
         super(0,0,width, height);
         border = height / 10;
+        buildRedOnBlack();
+    }
+
+    public void buildRedOnBlack() {
+        int pixHeight = 10;
+        int pixWidth = (int)(10f * width / height );
+        // making the border exactly 1 pixel
+        Pixmap pixmap = new Pixmap(pixWidth, pixHeight, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.BLACK);
+        pixmap.fill();
+        background = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
+        pixmap.setColor(Color.RED);
+        pixmap.fillRectangle(0,1, pixWidth, pixHeight-2);
+        health = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
+    }
+
+    public void buildGreenOnRed() {
         int pixHeight = 10;
         int pixWidth = (int)(10f * width / height );
         // making the border exactly 1 pixel
@@ -32,6 +49,7 @@ public class SimpleHealthbar extends Rectangle {
         pixmap.fillRectangle(0,1, pixWidth, pixHeight-2);
         health = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
     }
+
 
     public void draw(Batch batch, float x, float y, float percent) {
         background.draw(batch, x, y, this.width, this.height);

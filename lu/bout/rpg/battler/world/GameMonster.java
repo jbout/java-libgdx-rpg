@@ -12,7 +12,7 @@ public class GameMonster extends Monster implements BattleMini {
         this.texture = texture;
     }
 
-    public String getTextureName() {
+    public String getMiniTextureName() {
         return texture;
     }
 }

@@ -154,7 +154,7 @@ public class NewGameScreen extends MenuScreen {
 
         int selectButton = buttonMap.get(buttonGroup.getChecked());
 
-        PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), keys[selectButton]);
+        PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), keys[selectButton], 10);
 
         GameState state = GameState.newGame(new PlayerParty(player), (new CampaignBuilder()).build2stepDungeon());
         game.getSaveService().add(state);
