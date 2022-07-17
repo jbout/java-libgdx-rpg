@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.battle;
+package lu.bout.rpg.battler.battle.animation;
 
 public interface BattleAnimation {
 

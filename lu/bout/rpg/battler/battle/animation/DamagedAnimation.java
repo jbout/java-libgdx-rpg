@@ -1,10 +1,13 @@
-package lu.bout.rpg.battler.battle;
+package lu.bout.rpg.battler.battle.animation;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+import lu.bout.rpg.battler.battle.CombatSprite;
 
 public class DamagedAnimation implements BattleAnimation {
 
@@ -26,14 +29,15 @@ public class DamagedAnimation implements BattleAnimation {
 
     public boolean animate(float delta) {
         boolean done = false;
-        subject.setX(subject.baseX + (MathUtils.random() - 0.5f) * 10);
-        subject.setY(subject.baseY + (MathUtils.random() - 0.5f) * 10);
+        subject.setCenter(subject.getBaseCenter().add(new Vector2(
+                        (MathUtils.random() - 0.5f) * 10,
+                        (MathUtils.random() - 0.5f) * 10
+        )));
         timeElapsed += delta;
         label.setY(label.getY() + (delta * riseSpeed));
         if (timeElapsed > DURATION) {
             done = true;
-            subject.setX(subject.baseX);
-            subject.setY(subject.baseY);
+            subject.setCenter(subject.getBaseCenter());
         }
         return done;
     }

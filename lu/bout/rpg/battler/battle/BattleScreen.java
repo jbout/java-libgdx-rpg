@@ -182,7 +182,7 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		for (CombatSprite sprite: sprites) {
 			int teamid = sprite.getParticipant().getTeamId();
 			int pos = xPos.getAndIncrement(teamid, 0, 1);
-			sprite.setCenterXY(
+			sprite.setBaseCenter(
 					RpgGame.WIDTH / count.get(teamid, 0) * (pos + 0.5f),
 					yPos.get(teamid, 0)
 			);

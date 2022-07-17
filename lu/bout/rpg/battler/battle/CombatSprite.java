@@ -3,10 +3,15 @@ package lu.bout.rpg.battler.battle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.Map;
 
+import lu.bout.rpg.battler.battle.animation.AttackAnimation;
+import lu.bout.rpg.battler.battle.animation.BattleAnimation;
+import lu.bout.rpg.battler.battle.animation.DamagedAnimation;
+import lu.bout.rpg.battler.battle.animation.DeathAnimation;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class CombatSprite extends Sprite {
@@ -17,7 +22,7 @@ public class CombatSprite extends Sprite {
 
     Participant participant;
     SimpleHealthbar healthBar;
-    float baseX, baseY;
+    Vector2 baseCenter;
     BattleAnimation animation = null;
     float lastHp;
     Skin skin;
@@ -36,7 +41,7 @@ public class CombatSprite extends Sprite {
         super(t);
         this.skin = skin;
         this.participant = participant;
-        this.healthBar = new SimpleHealthbar(this.getWidth() / 2, 10);
+        this.healthBar = new SimpleHealthbar(Math.min(this.getWidth() / 2, 50), 10);
         updateHealth();
     }
 
@@ -75,10 +80,18 @@ public class CombatSprite extends Sprite {
         lastHp = hp / participant.getCharacter().getMaxhp();
     }
 
-    public void setCenterXY(float x, float y) {
+    public void setBaseCenter(float x, float y) {
         setCenter(x,y);
-        this.baseX = getX();
-        this.baseY = getY();
+        baseCenter = new Vector2(x,y);
+    }
+
+    public Vector2 getBaseCenter() {
+        return new Vector2(baseCenter);
+    }
+
+    // Convenience helper
+    public void setCenter(Vector2 center) {
+        setCenter(center.x, center.y);
     }
 
     public Participant getParticipant() {

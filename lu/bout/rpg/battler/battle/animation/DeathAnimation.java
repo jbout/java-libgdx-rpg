@@ -1,8 +1,5 @@
-package lu.bout.rpg.battler.battle;
+package lu.bout.rpg.battler.battle.animation;
 
-import com.badlogic.gdx.math.MathUtils;
-
-import lu.bout.rpg.battler.battle.BattleAnimation;
 import lu.bout.rpg.battler.battle.CombatSprite;
 
 public class DeathAnimation implements BattleAnimation {
