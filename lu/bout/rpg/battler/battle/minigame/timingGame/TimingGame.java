@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import lu.bout.rpg.battler.battle.minigame.GameFeedback;
+import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
@@ -16,14 +16,14 @@ public class TimingGame extends Rectangle implements MiniGame {
     Texture barOk;
     Sprite slider;
 
-    private GameFeedback callback;
+    private MiniGameFeedback callback;
     private CombatCommand commandToRun;
     float posX = 0;
     float okWidth;
 
     float speed;
 
-    public TimingGame(GameFeedback callback, int x, int y, int width, int height) {
+    public TimingGame(MiniGameFeedback callback, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.callback = callback;
 

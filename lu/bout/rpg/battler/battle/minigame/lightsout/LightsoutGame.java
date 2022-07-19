@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashSet;
 
-import lu.bout.rpg.battler.battle.minigame.GameFeedback;
+import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
@@ -27,12 +27,12 @@ public class LightsoutGame extends Rectangle implements MiniGame {
     TextureRegion timer;
     TextureAtlas runes;
 
-    private GameFeedback callback;
+    private MiniGameFeedback callback;
     private CombatCommand commandToRun;
 
     float timeleft;
 
-    public LightsoutGame(GameFeedback callback, int x, int y, int width, int height) {
+    public LightsoutGame(MiniGameFeedback callback, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.callback = callback;
 

@@ -3,6 +3,7 @@ package lu.bout.rpg.battler.battle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,7 +20,8 @@ import java.util.LinkedList;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.SubScreen;
-import lu.bout.rpg.battler.battle.minigame.GameFeedback;
+import lu.bout.rpg.battler.assets.AssetConsumer;
+import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
 import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
@@ -40,7 +42,10 @@ import lu.bout.rpg.engine.combat.event.DeathEvent;
 import lu.bout.rpg.engine.combat.event.ReadyEvent;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
-public class BattleScreen implements Screen, GameFeedback, CombatListener {
+public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, AssetConsumer {
+
+	private static final AssetDescriptor FILE_CAVE_BG = new AssetDescriptor("cave_bg.PNG", Texture.class);
+	private static final AssetDescriptor FILE_CAVE_BBRICK = new AssetDescriptor("cave_bricks_01.png", Texture.class);
 
 	enum CombatState {ongoing, won, lost};
 	static final int INITIAL_DIFFICULTY = 3;
@@ -77,16 +82,23 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 
 	public BattleScreen(final RpgGame game) {
 		this.game = game;
+	}
+
+	@Override
+	public AssetDescriptor[] getRequiredFiles() {
+		return new AssetDescriptor[]{
+				FILE_CAVE_BG,
+				FILE_CAVE_BBRICK
+		};
+	}
+
+	private void init() {
 		partyScreen = new PartyScreen();
 		lowerScreen = partyScreen;
 		stats = Gdx.app.getPreferences("stats");
-		create();
-	}
-
-	public void create () {
 		batch = new SpriteBatch();
-		bg = new Texture("cave_bg.PNG");
-		brick = new Texture("cave_bricks_01.png");
+		bg = (Texture) game.getAssetService().get(FILE_CAVE_BG);
+		brick = (Texture) game.getAssetService().get(FILE_CAVE_BBRICK);
 
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
@@ -96,25 +108,10 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		sprites = new LinkedList<CombatSprite>();
 	}
 
-	public void setupMinigame () {
-		int minigameRequested = game.getPreferences().getInteger("minigame");
-		if (minigameType != minigameRequested) {
-			switch (minigameRequested) {
-				case 1:
-					minigame = new LightsoutGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
-					break;
-				case 2:
-					minigame = new TimingGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
-					break;
-				case 0:
-				default:
-					minigame = new SimonSays(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
-			}
-			minigameType = minigameRequested;
-		}
-	}
-
 	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
+		if (batch == null) {
+			init();
+		}
 		encounter = new Encounter(party, enemies, Encounter.TYPE_BALANCED);
 		setupMinigame(); // might have changed
 		this.caller = caller;
@@ -140,7 +137,26 @@ public class BattleScreen implements Screen, GameFeedback, CombatListener {
 		state = CombatState.ongoing;
 	}
 
-	public void endBattle() {
+
+	private void setupMinigame () {
+		int minigameRequested = game.getPreferences().getInteger("minigame");
+		if (minigameType != minigameRequested) {
+			switch (minigameRequested) {
+				case 1:
+					minigame = new LightsoutGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
+					break;
+				case 2:
+					minigame = new TimingGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
+					break;
+				case 0:
+				default:
+					minigame = new SimonSays(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
+			}
+			minigameType = minigameRequested;
+		}
+	}
+
+	private void endBattle() {
 		isPaused = true;
 		if (state == CombatState.won) {
 			int xp = 0;

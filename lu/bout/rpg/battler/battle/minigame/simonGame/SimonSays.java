@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import lu.bout.rpg.battler.battle.minigame.GameFeedback;
+import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
@@ -34,10 +34,10 @@ public class SimonSays extends Rectangle implements MiniGame {
     TextureAtlas runes;
     SimonSprite sprite;
 
-    private GameFeedback callback;
+    private MiniGameFeedback callback;
     private CombatCommand commandToRun;
 
-    public SimonSays(GameFeedback callback, int x, int y, int width, int height) {
+    public SimonSays(MiniGameFeedback callback, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.callback = callback;
 
