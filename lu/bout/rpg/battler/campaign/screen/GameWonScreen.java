@@ -10,14 +10,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import lu.bout.rpg.battler.RpgGame;
 
-public class VictoryScreen implements Screen, GestureDetector.GestureListener {
+public class GameWonScreen implements Screen, GestureDetector.GestureListener {
 
     final RpgGame game;
 
     OrthographicCamera camera;
     Texture bg;
 
-	public VictoryScreen(final RpgGame game) {
+	public GameWonScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();

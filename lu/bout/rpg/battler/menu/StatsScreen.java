@@ -25,12 +25,15 @@ public class StatsScreen extends MenuScreen {
 
 	public StatsScreen(final RpgGame game) {
         super(game);
-
         stats = Gdx.app.getPreferences("stats");
+    }
 
+    @Override
+    protected void init() {
+        super.init();
         Table root = getRootTable();
 
-        Label label = new Label("Stats",getTitleStyle());
+        Label label = new Label("Stats", game.getSkin(), "title");
         label.setAlignment(Align.center);
         root.add(label);
 

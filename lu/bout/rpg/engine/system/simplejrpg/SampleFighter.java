@@ -32,7 +32,7 @@ public class SampleFighter extends Character {
 
     public void earnXp(int bonusXp) {
         xp += bonusXp;
-        if (xp > xpToNextLevel()) {
+        if (xp >= xpToNextLevel()) {
             xp = xp - xpToNextLevel();
             level += 1;
             healsPercent(100);

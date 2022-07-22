@@ -7,29 +7,29 @@ import lu.bout.rpg.engine.character.Monster;
 
 public class Beastiarum {
 
-    final static String monsterjson = "{\n" +
-            "  \"templates\" : [\n" +
-            "    {\n" +
-            "      \"name\" : \"bat\",\n" +
-            "      \"level\" : 2,\n" +
-            "      \"texture\" : \"enemy/pipo-enemy001.png\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"name\" : \"beetle\",\n" +
-            "      \"level\" : 4,\n" +
-            "      \"texture\" : \"enemy/pipo-enemy004.png\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"name\" : \"snake\",\n" +
-            "      \"level\" : 6,\n" +
-            "      \"texture\" : \"enemy/pipo-enemy003.png\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"name\" : \"wulf\",\n" +
-            "      \"level\" : 8,\n" +
-            "      \"texture\" : \"enemy/pipo-enemy002.png\"\n" +
-            "    }\n" +
-            "  ]\n" +
+    final static String monsterjson = "{" +
+            "  \"templates\" : [" +
+            "    {" +
+            "      \"name\" : \"bat\"," +
+            "      \"level\" : 2," +
+            "      \"texture\" : \"enemy/pipo-enemy001.png\"" +
+            "    }," +
+            "    {" +
+            "      \"name\" : \"beetle\"," +
+            "      \"level\" : 4," +
+            "      \"texture\" : \"enemy/pipo-enemy004.png\"" +
+            "    }," +
+            "    {" +
+            "      \"name\" : \"snake\"," +
+            "      \"level\" : 6," +
+            "      \"texture\" : \"enemy/pipo-enemy003.png\"" +
+            "    }," +
+            "    {" +
+            "      \"name\" : \"wulf\"," +
+            "      \"level\" : 8," +
+            "      \"texture\" : \"enemy/pipo-enemy002.png\"" +
+            "    }" +
+            "  ]" +
             "}";
 
     MonsterTemplate[] templates;

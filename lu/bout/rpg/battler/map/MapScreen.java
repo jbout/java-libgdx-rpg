@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
@@ -36,7 +35,6 @@ import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.Combat;
-import lu.bout.rpg.engine.combat.Encounter;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
 
@@ -70,11 +68,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     LinkedList<FieldSprite> fieldSprites;
     Map<Circle, Field> options;
     Field current;
+    Circle currentHitBox;
 
     Field movingTo = null;
     FieldSprite movingToSprite = null;
     float movingTime;
     float moveDuration = 0.5f;
+    private Vector2 dragPos;
 
     public MapScreen(final RpgGame game) {
         this.game = game;
@@ -98,10 +98,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         portal = new Texture("map/portal2.png");
         heal = new Texture("map/heal.png");
 
-        Pixmap pixmap = new Pixmap(49, 49, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fillCircle(24,24, 20);
-        dot = new Texture(pixmap);
         dot = new Texture("map/dot.png");
     }
 
@@ -171,6 +167,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     public void arriveAt(Field field) {
         current = field;
+        currentHitBox = getSprite(field).getBoundaries();
         movingTo = null;
         Gdx.app.log("Game", "Moved to " + current.getMapPosY() + "x" + current.getMapPosY()
                 + " type:" + current.getType() + " "
@@ -315,7 +312,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
                 arriveAt(movingTo);
             }
         } else {
-            game.batch.draw(marker, spot.getX(), spot.getY() + 20);
+            if (dragPos == null) {
+                game.batch.draw(marker, spot.getX(), spot.getY() + 20);
+            } else {
+                game.batch.draw(marker, dragPos.x-20, dragPos.y - 20);
+            }
         }
         game.batch.end();
 
@@ -370,23 +371,22 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
+        Vector3 raw = new Vector3(x, y, 0);
+        mapViewport.unproject(raw);
+        Vector2 mousePos = new Vector2(raw.x, raw.y);
+        if (currentHitBox.contains(mousePos)) {
+            dragPos = mousePos;
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        Vector3 raw = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        mapViewport.unproject(raw);
-        Vector2 mousePos = new Vector2(raw.x, raw.y);
-
-        Field f = null;
-        for (Map.Entry<Circle, Field> destination: options.entrySet()) {
-            if (destination.getKey().contains(mousePos)) {
-                f = destination.getValue();
-            }
-        }
+        Field f = getFieldAtUnprojected(x, y);
         if (f != null) {
             goTo(f);
+            return true;
         }
         return false;
     }
@@ -403,12 +403,25 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        moveCamera(deltaY);
+        if (dragPos != null) {
+            Vector3 raw = new Vector3(x, y, 0);
+            mapViewport.unproject(raw);
+            dragPos = new Vector2(raw.x, raw.y);
+        } else {
+            moveCamera(deltaY);
+        }
         return true;
     }
 
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {
+        if (dragPos != null) {
+            Field f = getFieldAtUnprojected(x, y);
+            if (f != null) {
+                arriveAt(f);
+            }
+        }
+        dragPos = null;
         return false;
     }
 
@@ -425,5 +438,26 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     @Override
     public void pinchStop() {
 
+    }
+
+    /**
+     * Shared code from drag and drop or tap, to see if navigation is possible
+     * @param x
+     * @param y
+     */
+    private Field getFieldAtUnprojected(float x, float y) {
+        dragPos = null;
+        Vector3 raw = new Vector3(x, y, 0);
+        mapViewport.unproject(raw);
+        Vector2 mousePos = new Vector2(raw.x, raw.y);
+
+        Field f = null;
+        // destinations change on move so only move after loop
+        for (Map.Entry<Circle, Field> destination: options.entrySet()) {
+            if (destination.getKey().contains(mousePos)) {
+                f = destination.getValue();
+            }
+        }
+        return f;
     }
 }

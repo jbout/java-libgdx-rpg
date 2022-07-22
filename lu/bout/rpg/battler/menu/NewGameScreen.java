@@ -43,13 +43,17 @@ public class NewGameScreen extends MenuScreen {
 
     public NewGameScreen(RpgGame rpgGame) {
         super(rpgGame);
+    }
 
+    @Override
+    protected void init() {
+        super.init();
         Table root = getRootTable();
 
         root.defaults().padTop(10);
         root.defaults().padBottom(50);
 
-        Label label = new Label("New Game",getTitleStyle());
+        Label label = new Label("New Game", game.getSkin(), "title");
         root.add(label);
         root.row();
 

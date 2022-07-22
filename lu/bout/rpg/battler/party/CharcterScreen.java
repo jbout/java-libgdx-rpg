@@ -36,9 +36,8 @@ public class CharcterScreen extends MenuScreen {
 
 	public CharcterScreen(final RpgGame game) {
         super(game);
-
         characterImage = new Image();
-        characterName = new Label("name", getTitleStyle());
+        characterName = new Label("name", game.getSkin(), "title");
         characterKlass = new Label("klass", game.getSkin());
         characterHealth = new Label("1/1", game.getSkin());
         healthBar = new ProgressBar(0, 1, 1, false, game.getSkin(), "health");
@@ -46,6 +45,14 @@ public class CharcterScreen extends MenuScreen {
         characterXp = new Label("1/1", game.getSkin());
         xpBar = new ProgressBar(0, 1, 1, false, game.getSkin(), "xp");
         xpBar.setAnimateDuration(0);
+        attributeLabels = new HashMap<>();
+        attributeLabels.put("str", new Label("1", game.getSkin()));
+        attributeLabels.put("con", new Label("1", game.getSkin()));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
 
         Table root = getRootTable();
         root.defaults().expandY().pad(10);
@@ -78,12 +85,7 @@ public class CharcterScreen extends MenuScreen {
         root.add(details).grow();
 
         root.row();
-        attributeLabels = new HashMap<>();
-        attributeLabels.put("str", new Label("1", game.getSkin()));
-        attributeLabels.put("con", new Label("1", game.getSkin()));
-
         root.add(createAttributTable()).colspan(2).align(Align.left);
-
 
         root.row();
         Button button1 = new TextButton("Return",game.getSkin());
@@ -132,40 +134,4 @@ public class CharcterScreen extends MenuScreen {
         game.setScreen(returnTo);
     }
 
-    @Override
-    public void show() {
-        Gdx.input.setInputProcessor(stage);
-    }
-
-    @Override
-    public void render(float delta) {
-        ScreenUtils.clear(0.776f, 0.643f, 0.466f, 1);
-        stage.act(delta);
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
-    }
 }

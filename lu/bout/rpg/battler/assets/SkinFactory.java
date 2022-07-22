@@ -14,8 +14,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+import org.w3c.dom.Text;
 
 import lu.bout.rpg.battler.RpgGame;
 
@@ -24,6 +28,7 @@ public class SkinFactory implements AssetConsumer {
     private static final AssetDescriptor FILE_SKIN = new AssetDescriptor("skin/flat-earth-ui.json", Skin.class);
     private static final AssetDescriptor FILE_FONT_DEFAULT = new AssetDescriptor("font/Amble-Light.ttf", FreeTypeFontGenerator.class);
     private static final AssetDescriptor FILE_FONT_BLOOD = new AssetDescriptor("font/bloody.ttf", FreeTypeFontGenerator.class);
+    private static final AssetDescriptor FILE_WINDOW_BG = new AssetDescriptor("bg2.9.png", Texture.class);
 
     private RpgGame  game;
 
@@ -36,6 +41,7 @@ public class SkinFactory implements AssetConsumer {
                 FILE_SKIN
                 ,FILE_FONT_DEFAULT
                 ,FILE_FONT_BLOOD
+                ,FILE_WINDOW_BG
         };
     }
 
@@ -48,10 +54,20 @@ public class SkinFactory implements AssetConsumer {
         parameter.borderWidth = 0;
         parameter.shadowOffsetX = 0;
         parameter.shadowOffsetY = 0;
+        parameter.size = 18;
+        BitmapFont font18 = generator.generateFont(parameter);
         parameter.size = 36;
         BitmapFont font36 = generator.generateFont(parameter);
         parameter.color = Color.WHITE;
         BitmapFont font36white = generator.generateFont(parameter);
+
+        parameter.size = 100;
+        parameter.borderWidth = 3;
+        parameter.color = Color.BROWN;
+        parameter.shadowOffsetX = 10;
+        parameter.shadowOffsetY = 10;
+        parameter.shadowColor = new Color(0x8b451333); // 0xcfa772FF
+        BitmapFont font100 = generator.generateFont(parameter);
         generator.dispose();
 
         generator = (FreeTypeFontGenerator) game.getAssetService().get(FILE_FONT_BLOOD);
@@ -64,6 +80,9 @@ public class SkinFactory implements AssetConsumer {
         parameter.characters = "0123456789 .KMGT+";
         BitmapFont bloodyFont = generator.generateFont(parameter);
 
+        Label.LabelStyle labelStyle18 = new Label.LabelStyle();
+        labelStyle18.font = font18;
+
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = font36;
 
@@ -73,17 +92,24 @@ public class SkinFactory implements AssetConsumer {
         Label.LabelStyle bloodyLabelStyle = new Label.LabelStyle();
         bloodyLabelStyle.font = bloodyFont;
 
+        Label.LabelStyle titleStyle = new Label.LabelStyle();
+        titleStyle.font = font100;
 
+        skin.add("small", labelStyle18);
         skin.add("default", labelStyle);
         skin.add("white", whiteLabelStyle);
         skin.add("blood", bloodyLabelStyle);
+        skin.add("title", titleStyle);
         skin.get(TextButton.TextButtonStyle.class).font = font36;
         skin.get(SelectBox.SelectBoxStyle.class).font = font36;
         skin.get(SelectBox.SelectBoxStyle.class).listStyle.font = font36;
         skin.get(TextField.TextFieldStyle.class).font = font36;
 
         skin.add("health", generateProgressBarStyle(Color.RED, Color.BLACK));
-        skin.add("xp", generateProgressBarStyle(Color.YELLOW, Color.BLACK));
+        skin.add("xp", generateProgressBarStyle(Color.GREEN, Color.BLACK));
+
+        Texture windowBg = (Texture) game.getAssetService().get(FILE_WINDOW_BG);
+        skin.add("dialog", new WindowStyle(font36, Color.WHITE, new TextureRegionDrawable(windowBg)));
 
         return skin;
     }

@@ -158,24 +158,16 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	private void endBattle() {
 		isPaused = true;
-		if (state == CombatState.won) {
-			int xp = 0;
-			for (Character monster :encounter.getOpponentParty().getMembers()) {
-				xp += monster.getLevel() * 250;
-			}
-			LinkedList<Character> players = encounter.getPlayerParty().getMembers();
-			for (Character player : players) {
-				if (player instanceof PlayerCharacter && player.getHp() > 0) {
-					((PlayerCharacter)player).earnXp(xp / players.size());
-				}
-			}
-		}
 		if (caller instanceof BattleFeedback) {
 			((BattleFeedback)caller).combatEnded(combat, state == CombatState.won);
 		}
-		// only navigate if the battle feedback did not trigger a navigation
-		if (game.getScreen() == this) {
-			game.setScreen(caller);
+		int xp = 0;
+		for (Character monster :encounter.getOpponentParty().getMembers()) {
+			xp += monster.getLevel() * 250;
+		}
+		// only show loot if the battle feedback did not trigger a navigation (ganeover)
+		if (state == CombatState.won && game.getScreen() == this) {
+			game.showLoot(encounter.getPlayerParty(), xp, caller);
 		}
 	}
 
@@ -219,8 +211,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 					combat.advanceTimer(Math.min(1, (int) (delta * 200)));
 				}
 			} else {
-				waitTime -= delta;
-				waitTime = waitTime < 0 ? 0 : waitTime;
+				waitTime = Math.max(0, waitTime - delta);
 			}
 		}
 		boolean isTouched = Gdx.input.isTouched();

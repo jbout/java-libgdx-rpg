@@ -21,6 +21,11 @@ public class NarrativeScreen extends MenuScreen {
     public NarrativeScreen(RpgGame game, final NarrativeChapter chapter) {
         super(game);
         this.chapter = chapter;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
         Table root = getRootTable();
 
         Label label = new Label(chapter.story, game.getSkin());

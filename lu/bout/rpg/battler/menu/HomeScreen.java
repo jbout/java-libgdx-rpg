@@ -22,8 +22,12 @@ public class HomeScreen extends MenuScreen {
 
     public HomeScreen(final RpgGame game) {
         super(game);
+    }
 
-        Label label = new Label("RPG Battle",getTitleStyle());
+    @Override
+    protected void init() {
+        super.init();
+        Label label = new Label("RPG Battle", game.getSkin(), "title");
         label.setSize(Gdx.graphics.getWidth(),200);
         label.setPosition(0,Gdx.graphics.getHeight()-400);
         label.setAlignment(Align.center);

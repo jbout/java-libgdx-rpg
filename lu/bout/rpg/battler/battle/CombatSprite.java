@@ -41,7 +41,7 @@ public class CombatSprite extends Sprite {
         super(t);
         this.skin = skin;
         this.participant = participant;
-        this.healthBar = new SimpleHealthbar(Math.min(this.getWidth() / 2, 50), 10);
+        this.healthBar = new SimpleHealthbar(Math.max(this.getWidth() / 2, 40), 10);
         updateHealth();
     }
 
@@ -55,7 +55,7 @@ public class CombatSprite extends Sprite {
         }
         if (participant.isAlive() || animation != null) {
             super.draw(batch);
-            healthBar.draw(batch, this.getX() + this.getWidth() / 4, this.getY(), lastHp);
+            healthBar.draw(batch, this.getX() + (this.getWidth() - healthBar.getWidth()) / 2, this.getY(), lastHp);
             if (animation instanceof DamagedAnimation) {
                 ((DamagedAnimation) animation).draw(batch);
             }

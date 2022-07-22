@@ -2,6 +2,7 @@ package lu.bout.rpg.battler.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -15,8 +16,11 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.assets.AssetConsumer;
 
-public abstract class MenuScreen implements Screen {
+public abstract class MenuScreen implements Screen, AssetConsumer {
+
+    private static final AssetDescriptor FILE_MENU_BG = new AssetDescriptor("bg_01.png", Texture.class);
 
     protected final RpgGame game;
 
@@ -24,33 +28,26 @@ public abstract class MenuScreen implements Screen {
 
     private Image bgImage;
 
-	public MenuScreen(final RpgGame game) {
-        this.game = game;
-        stage = new Stage(new ScreenViewport());
 
-        bgImage = new Image(new Texture("bg_01.png"));
-        bgImage.setPosition(
-            (Gdx.graphics.getWidth() - bgImage.getWidth()) / 2,
-            (Gdx.graphics.getHeight() - bgImage.getHeight()) / 2
-        );
-        stage.addActor(bgImage);
+    public AssetDescriptor[] getRequiredFiles() {
+        return new AssetDescriptor[]{
+                FILE_MENU_BG
+        };
     }
 
-    protected Label.LabelStyle getTitleStyle() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font/Amble-Light.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 100;
-        parameter.borderWidth = 3;
-        parameter.color = Color.BROWN;
-        parameter.shadowOffsetX = 10;
-        parameter.shadowOffsetY = 10;
-        parameter.shadowColor = new Color(0xcfa772ff);
-        BitmapFont font100 = generator.generateFont(parameter); // font size 24 pixels
-        generator.dispose();
+	public MenuScreen(final RpgGame game) {
+        this.game = game;
+    }
 
-        Label.LabelStyle titleStyle = new Label.LabelStyle();
-        titleStyle.font = font100;
-        return titleStyle;
+    protected void init() {
+        stage = new Stage(new ScreenViewport());
+
+        bgImage = new Image((Texture) game.getAssetService().get(FILE_MENU_BG));
+        bgImage.setPosition(
+                (Gdx.graphics.getWidth() - bgImage.getWidth()) / 2,
+                (Gdx.graphics.getHeight() - bgImage.getHeight()) / 2
+        );
+        stage.addActor(bgImage);
     }
 
     protected Table getRootTable() {
@@ -68,6 +65,9 @@ public abstract class MenuScreen implements Screen {
 
     @Override
     public void show() {
+        if (stage == null) {
+            init();
+        }
         Gdx.input.setInputProcessor(stage);
     }
 

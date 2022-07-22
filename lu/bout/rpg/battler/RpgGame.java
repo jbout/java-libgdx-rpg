@@ -3,6 +3,7 @@ package lu.bout.rpg.battler;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,13 +11,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import lu.bout.rpg.battler.assets.AssetService;
 import lu.bout.rpg.battler.assets.SkinFactory;
 import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.battle.loot.VictoryScreen;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
+import lu.bout.rpg.battler.campaign.screen.GameWonScreen;
 import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
 import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
-import lu.bout.rpg.battler.campaign.screen.VictoryScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
@@ -39,6 +41,7 @@ public class RpgGame extends Game {
 	public BattleScreen battleScreen;
 	public MapScreen mapScreen;
 	public CharcterScreen charScreen;
+	private VictoryScreen lootScreen;
 
 	public SpriteBatch batch;
 	public BitmapFont font;
@@ -64,9 +67,11 @@ public class RpgGame extends Game {
 
 		battleScreen = new BattleScreen(this);
 		assetService.preload(battleScreen);
-		mapScreen = new MapScreen(this);
 		homeScreen = new HomeScreen(this);
+		assetService.preload(homeScreen);
+		mapScreen = new MapScreen(this);
 		charScreen = new CharcterScreen(this);
+		lootScreen = new VictoryScreen(this);
 
 		showMenu();
 	}
@@ -83,6 +88,12 @@ public class RpgGame extends Game {
 		battleScreen.startBattle(party, monsters, screen);
 		this.setScreen(battleScreen);
 	}
+
+	public void showLoot(Party p, int xp, Screen screen) {
+		lootScreen.showLoot(p, xp, screen);
+		this.setScreen(lootScreen);
+	}
+
 
 	protected void launchDungeon(PlayerParty party, DungeonChapter chapter) {
 		mapScreen.enterDungeon(party, chapter);
@@ -108,7 +119,7 @@ public class RpgGame extends Game {
 				this.setScreen(new NarrativeScreen(this, (NarrativeChapter) chapter));
 			} else {
 				if (chapter instanceof VictoryChapter) {
-					this.setScreen(new VictoryScreen(this));
+					this.setScreen(new GameWonScreen(this));
 				} else {
 					Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
 					gameOver();
@@ -124,7 +135,7 @@ public class RpgGame extends Game {
 	}
 
 	public void dungeonFinished() {
-		this.setScreen(new VictoryScreen(this));
+		this.setScreen(new GameWonScreen(this));
 	}
 
 	// Shared resources
