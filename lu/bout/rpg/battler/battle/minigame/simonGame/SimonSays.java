@@ -77,6 +77,10 @@ public class SimonSays extends Rectangle implements MiniGame {
         elapsed = 0;
     }
 
+    public void changeCommand(CombatCommand command) {
+        commandToRun = command;
+    }
+
     public Array<SimonButton> generateButtons(int nr) {
         Array<SimonButton> circleButtons = new Array<SimonButton>();
         double step = 2 * Math.PI / nr;

@@ -7,6 +7,8 @@ public interface MiniGame extends SubScreen {
 
     public void init(int difficulty, CombatCommand command);
 
+    public void changeCommand(CombatCommand command);
+
     public CombatCommand getCommandToRun();
 
     public void dispose();

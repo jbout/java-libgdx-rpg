@@ -42,6 +42,9 @@ public class TimingGame extends Rectangle implements MiniGame {
         posX = (float) Math.PI;
     }
 
+    public void changeCommand(CombatCommand command) {
+        commandToRun = command;
+    }
 
     public void render(SpriteBatch batch, float delta, Vector2 inputVector) {
         posX += delta * speed;

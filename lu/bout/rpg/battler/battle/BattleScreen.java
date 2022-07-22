@@ -26,7 +26,6 @@ import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
 import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
 import lu.bout.rpg.battler.battle.minigame.timingGame.TimingGame;
-import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
@@ -45,7 +44,8 @@ import lu.bout.rpg.engine.combat.participant.Participant;
 public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, AssetConsumer {
 
 	private static final AssetDescriptor FILE_CAVE_BG = new AssetDescriptor("cave_bg.PNG", Texture.class);
-	private static final AssetDescriptor FILE_CAVE_BBRICK = new AssetDescriptor("cave_bricks_01.png", Texture.class);
+	private static final AssetDescriptor FILE_CAVE_BRICK = new AssetDescriptor("cave_bricks_01.png", Texture.class);
+	private static final AssetDescriptor FILE_UP_ARROW = new AssetDescriptor("battle/uparrow.png", Texture.class);
 
 	enum CombatState {ongoing, won, lost};
 	static final int INITIAL_DIFFICULTY = 3;
@@ -58,6 +58,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	private Texture bg;
 	private Texture brick;
+	private Texture upArrow;
 	private LinkedList<CombatSprite> sprites;
 
 	private Encounter encounter;
@@ -75,6 +76,9 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 	private PartyScreen partyScreen;
 	private Preferences stats;
 
+	private CombatSprite target = null;
+	private Participant lastTarget = null;
+
 	private boolean isPaused = true;
 	private float waitTime = 0;
 
@@ -88,7 +92,8 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 	public AssetDescriptor[] getRequiredFiles() {
 		return new AssetDescriptor[]{
 				FILE_CAVE_BG,
-				FILE_CAVE_BBRICK
+				FILE_CAVE_BRICK,
+				FILE_UP_ARROW
 		};
 	}
 
@@ -98,14 +103,15 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		stats = Gdx.app.getPreferences("stats");
 		batch = new SpriteBatch();
 		bg = (Texture) game.getAssetService().get(FILE_CAVE_BG);
-		brick = (Texture) game.getAssetService().get(FILE_CAVE_BBRICK);
+		brick = (Texture) game.getAssetService().get(FILE_CAVE_BRICK);
+		upArrow = (Texture) game.getAssetService().get(FILE_UP_ARROW);
 
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(RpgGame.WIDTH, RpgGame.HEIGHT, RpgGame.WIDTH, (int)(RpgGame.HEIGHT * 1.5), camera);
 
 		touchPosRaw = new Vector3();
 		touchPos = new Vector2();
-		sprites = new LinkedList<CombatSprite>();
+		sprites = new LinkedList<>();
 	}
 
 	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
@@ -118,7 +124,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
 		for (CombatSprite sprite: sprites) {
 			sprite.getTexture().dispose();
-		};
+		}
 		sprites = new LinkedList<CombatSprite>();
 		partyScreen.setParty(encounter.getPlayerParty());
 		combat = new Combat(encounter);
@@ -197,8 +203,85 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		}
 	}
 
+	public void setTarget(CombatSprite e) {
+		target = e;
+		lastTarget = e.getParticipant();
+		minigame.changeCommand(new AttackCommand(target.getParticipant()));
+	}
+
+	@Override
+	public void minigameEnded(boolean success, MiniGame game, long timeElapsed) {
+		String statsKey = minigameType + "-" + difficulty + "-" + (success ? "s" : "l");
+		stats.putInteger(statsKey, stats.getInteger(statsKey, 0) + 1);
+		stats.flush();
+		if (success) {
+			difficulty++;
+			player.setNextCommand(game.getCommandToRun());
+		} else {
+			difficulty = INITIAL_DIFFICULTY;
+			player.setNextCommand(new IdleCommand());
+		}
+		lowerScreen = partyScreen;
+		target = null;
+		isPaused = false;
+	}
+
+	@Override
+	public void receiveCombatEvent(CombatEvent event) {
+		if (event instanceof AttackEvent) {
+			this.renderAttack((AttackEvent) event);
+		}
+		if (event instanceof DeathEvent) {
+			getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
+		}
+		if (event instanceof ReadyEvent && ((ReadyEvent)event).getActor() == player) {
+			attemptAttack();
+		}
+		if (event instanceof CombatEndedEvent) {
+			state = ((CombatEndedEvent) event).isPlayerWinner() ? CombatState.won : CombatState.lost;
+		}
+	}
+
+	private void attemptAttack() {
+		Participant potentialTarget = null;
+		if (lastTarget != null && lastTarget.isAlive()) {
+			potentialTarget = lastTarget;
+		} else {
+			LinkedList<Participant> targets = combat.getEnemies(player);
+			if (targets.size() > 0) {
+				potentialTarget = targets.get(0);
+			}
+		}
+		if (potentialTarget != null) {
+			lastTarget = potentialTarget;
+			target = getSpriteforParticipant(potentialTarget);
+			minigame.init(difficulty, new AttackCommand(potentialTarget));
+			lowerScreen = minigame;
+			isPaused = true;
+		}
+	}
+
+	private void renderAttack(AttackEvent attackEvent) {
+		Participant attacker = attackEvent.getActor();
+		Participant target = attackEvent.getTarget();
+		getSpriteforParticipant(attacker).drawAttack(getSpriteforParticipant(target), attackEvent.getDamage());
+		waitTime = CombatSprite.ATTACK_DURATION;
+	}
+
+	private CombatSprite getSpriteforParticipant(Participant participant) {
+		CombatSprite sprite = null;
+		for (CombatSprite c: sprites) {
+			if (c.getParticipant() == participant) {
+				sprite = c;
+				break;
+			}
+		}
+		return sprite;
+	}
+
 	@Override
 	public void show() {
+		Gdx.input.setInputProcessor(null);
 	}
 
 	@Override
@@ -230,6 +313,12 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 		for (CombatSprite e : sprites) {
 			e.draw(batch, delta);
+			if (isTouched && e.getHitbox().contains(touchPos) && target != null) {
+				setTarget(e);
+			}
+		}
+		if (target != null) {
+			batch.draw(upArrow, target.getX() + (target.getWidth() - upArrow.getWidth()) / 2, target.getY() - 2 - upArrow.getHeight());
 		}
 		lowerScreen.render(batch, delta, isTouched ? touchPos : null);
 		batch.end();
@@ -261,64 +350,9 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 	public void dispose () {
 		for (CombatSprite sprite: sprites) {
 			sprite.getTexture().dispose();
-		};
+		}
 		minigame.dispose();
 		batch.dispose();
 		bg.dispose();
-	}
-
-	@Override
-	public void minigameEnded(boolean success, MiniGame game, long timeElapsed) {
-		String statsKey = minigameType + "-" + difficulty + "-" + (success ? "s" : "l");
-		stats.putInteger(statsKey, stats.getInteger(statsKey, 0) + 1);
-		stats.flush();
-		if (success) {
-			difficulty++;
-			player.setNextCommand(game.getCommandToRun());
-		} else {
-			difficulty = INITIAL_DIFFICULTY;
-			player.setNextCommand(new IdleCommand());
-		}
-		lowerScreen = partyScreen;
-		isPaused = false;
-	}
-
-	@Override
-	public void receiveCombatEvent(CombatEvent event) {
-		if (event instanceof AttackEvent) {
-			this.renderAttack((AttackEvent) event);
-		}
-		if (event instanceof DeathEvent) {
-			getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
-		}
-		if (event instanceof ReadyEvent && ((ReadyEvent)event).getActor() == player) {
-			LinkedList<Participant> targets = combat.getEnemies(player);
-			if (targets.size() > 0) {
-				minigame.init(difficulty, new AttackCommand(targets.get(0)));
-				lowerScreen = minigame;
-				isPaused = true;
-			}
-		}
-		if (event instanceof CombatEndedEvent) {
-			state = ((CombatEndedEvent) event).isPlayerWinner() ? CombatState.won : CombatState.lost;
-		}
-	}
-
-	private void renderAttack(AttackEvent attackEvent) {
-		Participant attacker = attackEvent.getActor();
-		Participant target = attackEvent.getTarget();
-		getSpriteforParticipant(attacker).drawAttack(getSpriteforParticipant(target), attackEvent.getDamage());
-		waitTime = CombatSprite.ATTACK_DURATION;
-	}
-
-	private CombatSprite getSpriteforParticipant(Participant participant) {
-		CombatSprite sprite = null;
-		for (CombatSprite c: sprites) {
-			if (c.getParticipant() == participant) {
-				sprite = c;
-				break;
-			}
-		}
-		return sprite;
 	}
 }

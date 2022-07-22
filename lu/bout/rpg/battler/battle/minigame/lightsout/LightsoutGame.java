@@ -44,7 +44,6 @@ public class LightsoutGame extends Rectangle implements MiniGame {
         Texture timebg = new Texture("minigame/time.png");
         timebg.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.Repeat);
         timer = new TextureRegion(timebg,0,0,timebg.getWidth(),height);
-
     }
 
     public void init(int difficulty, CombatCommand command) {
@@ -102,6 +101,10 @@ public class LightsoutGame extends Rectangle implements MiniGame {
         }
         randomize();
         timeleft = SOLVE_TIME;
+    }
+
+    public void changeCommand(CombatCommand command) {
+        commandToRun = command;
     }
 
     private void clickButton(int x, int y) {

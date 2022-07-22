@@ -3,6 +3,7 @@ package lu.bout.rpg.battler.battle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
@@ -92,6 +93,10 @@ public class CombatSprite extends Sprite {
     // Convenience helper
     public void setCenter(Vector2 center) {
         setCenter(center.x, center.y);
+    }
+
+    public Rectangle getHitbox() {
+        return new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     public Participant getParticipant() {
