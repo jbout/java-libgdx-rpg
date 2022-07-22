@@ -2,7 +2,6 @@ package lu.bout.rpg.battler.battle.loot;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -42,7 +41,6 @@ public class VictoryScreen implements Screen {
         };
         partyList = new PartyActor(game.getSkin());
         Label title = new Label("Victory", game.getSkin(), "title");
-        //title.setColor(new Color(0x8b4513ff));
         dialog.getContentTable().add(title).expandX().align(Align.center);
         dialog.getContentTable().row();
         dialog.getContentTable().add(partyList).growX();
@@ -59,15 +57,14 @@ public class VictoryScreen implements Screen {
         region.flip(false, true);
         bgImage.setDrawable(new TextureRegionDrawable(region));
         bgImage.setBounds(
-                (Gdx.graphics.getWidth() - screenShot.getWidth()) / 2,
-                (Gdx.graphics.getHeight() - screenShot.getHeight()) / 2,
+                0,0,
                 screenShot.getWidth(),
                 screenShot.getHeight()
         );
         screenShot.dispose();
         partyList.setParty(party);
         dialog.show(stage);
-        partyList.showXpGain(xp);
+        partyList.gainXp(xp);
     }
 
     private void closeLootScreen() {
@@ -81,6 +78,7 @@ public class VictoryScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        stage.getViewport().apply();
         ScreenUtils.clear(0, 0, 0, 1);
         stage.act(delta);
         stage.draw();

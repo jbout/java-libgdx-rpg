@@ -1,13 +1,11 @@
 package lu.bout.rpg.battler.battle.loot;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 
-import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 
 public class CharacterXpBar extends Table {
@@ -74,7 +72,7 @@ public class CharacterXpBar extends Table {
         xpBar.setValue(player.getXp());
     }
 
-    public void earnXp(int xp) {
+    public void gainXp(int xp) {
         totalXp = xp;
         updateFields();
         animateXp(xp);
