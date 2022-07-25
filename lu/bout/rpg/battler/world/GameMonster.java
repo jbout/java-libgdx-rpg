@@ -7,6 +7,10 @@ public class GameMonster extends Monster implements BattleMini {
 
     public String texture;
 
+    public GameMonster() {
+        super();
+    }
+
     public GameMonster(int level, String texture) {
         super(level);
         this.texture = texture;

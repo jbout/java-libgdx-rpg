@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.battle.BattleFeedback;
+import lu.bout.rpg.battler.battle.BattleScreen;
 import lu.bout.rpg.engine.character.Party;
 
 public class VictoryScreen implements Screen {
@@ -68,6 +70,9 @@ public class VictoryScreen implements Screen {
     }
 
     private void closeLootScreen() {
+        if (next instanceof BattleFeedback) {
+            ((BattleFeedback)next).combatEnded(true);
+        }
         game.setScreen(next);
     }
 

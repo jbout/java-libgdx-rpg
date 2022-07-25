@@ -45,6 +45,10 @@ public class Field {
         return  connections;
     }
 
+    public String getMapPos() {
+        return getMapPosX() + ":" + getMapPosY();
+    }
+
     public int getMapPosX() {
         return posX;
     }

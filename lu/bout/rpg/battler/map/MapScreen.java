@@ -107,7 +107,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         dungeonMap = chapter.map;
         fieldSprites = new LinkedList<>();
         // 2*150 padding + 50 sprite height
-        maxScroll = dungeonMap.depth * Y_DISTANCE + 350;
+        maxScroll = dungeonMap.getDepth() * Y_DISTANCE + 350;
         bg.setRegionHeight((int) maxScroll);
         addSprite(dungeonMap.getStart());
         //unfoldAll();
@@ -210,19 +210,24 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     private void showConnections(Field field) {
         options = new HashMap<>();
         for (Connection connection :field.getConnections()) {
-            FieldSprite sprite = addSprite(connection.getDestination());
-            options.put(sprite.getBoundaries(), connection.getDestination());
+            FieldSprite sprite = addSprite(dungeonMap.getField(connection.getDestination()));
+            options.put(sprite.getBoundaries(), sprite.getField());
         }
     }
 
     public void triggerFight(Field field) {
-        Beastiarum beastiarum = Beastiarum.getInstance();
-        Party monsterParty = new Party(beastiarum.getRandomMonster());
-        if (MathUtils.random(2) == 1) {
-            monsterParty.getMembers().add(beastiarum.getRandomMonster());
-        }
-        if (MathUtils.random(2) == 1) {
-            monsterParty.getMembers().add(beastiarum.getRandomMonster());
+        Party monsterParty = null;
+        if (field instanceof EncounterField) {
+            monsterParty = ((EncounterField)field).getEnemiesParty();
+        } else {
+            Beastiarum beastiarum = Beastiarum.getInstance();
+            monsterParty = new Party(beastiarum.getRandomMonster());
+            if (MathUtils.random(2) == 1) {
+                monsterParty.getMembers().add(beastiarum.getRandomMonster());
+            }
+            if (MathUtils.random(2) == 1) {
+                monsterParty.getMembers().add(beastiarum.getRandomMonster());
+            }
         }
         game.startBattle(playerParty, monsterParty, this);
     }
@@ -249,7 +254,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     }
 
     @Override
-    public void combatEnded(Combat combat, boolean playerWon) {
+    public void combatEnded(boolean playerWon) {
         updateUi();
         if (playerWon) {
             open(current);
@@ -331,18 +336,19 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     }
 
     private void focusCamera(Field field) {
-        float offSetCurrent = getSprite(field).getY();
-        camera.position.set(camera.viewportWidth/2,Math.max(camera.viewportHeight/2, offSetCurrent),0);
+        safeMoveCamera(getSprite(field).getY());
     }
 
     private void moveCamera(float deltaY) {
-        float newY = camera.position.y + deltaY;
-        newY = Math.max(camera.viewportHeight/2 , newY);
-        newY = Math.min(maxScroll - (camera.viewportHeight/2) , newY);
-        camera.position.set(camera.position.x,newY,0);
+        safeMoveCamera(camera.position.y + deltaY);
     }
 
-    @Override
+    private void safeMoveCamera(float y) {
+        y = MathUtils.clamp(y, camera.viewportHeight/2, maxScroll - (camera.viewportHeight/2));
+        camera.position.set(camera.viewportWidth/2, y,0);
+    }
+
+        @Override
     public void resize(int width, int height) {
         uiStage.getViewport().update(width, height, true);
         mapViewport.update(width, height);

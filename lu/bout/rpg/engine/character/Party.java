@@ -8,11 +8,10 @@ public class Party {
     public Party() {
     }
 
-    protected LinkedList<Character> members;
+    protected LinkedList<Character> members = new LinkedList<Character>();
 
     public Party(Character member)
     {
-        members = new LinkedList<Character>();
         members.add(member);
     }
 

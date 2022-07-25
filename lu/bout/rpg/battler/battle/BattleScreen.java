@@ -164,9 +164,6 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	private void endBattle() {
 		isPaused = true;
-		if (caller instanceof BattleFeedback) {
-			((BattleFeedback)caller).combatEnded(combat, state == CombatState.won);
-		}
 		int xp = 0;
 		for (Character monster :encounter.getOpponentParty().getMembers()) {
 			xp += monster.getLevel() * 250;
@@ -174,6 +171,10 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		// only show loot if the battle feedback did not trigger a navigation (ganeover)
 		if (state == CombatState.won && game.getScreen() == this) {
 			game.showLoot(encounter.getPlayerParty(), xp, caller);
+		} else {
+			if (caller instanceof BattleFeedback) {
+				((BattleFeedback)caller).combatEnded(false);
+			}
 		}
 	}
 

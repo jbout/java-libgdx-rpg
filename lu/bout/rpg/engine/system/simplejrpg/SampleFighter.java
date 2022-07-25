@@ -54,6 +54,6 @@ public class SampleFighter extends Character {
 
     @Override
     public int getMaxhp() {
-        return  50 + getConstitution() * 2;
+        return  10 + getConstitution() * 2;
     }
 }

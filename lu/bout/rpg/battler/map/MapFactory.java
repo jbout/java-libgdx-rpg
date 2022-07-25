@@ -1,5 +1,6 @@
 package lu.bout.rpg.battler.map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 
 import java.util.Arrays;
@@ -8,46 +9,56 @@ import java.util.List;
 
 public class MapFactory {
 
+    EncounterFactory encounterFactory;
     int width;
     int depth;
     int nrDeadEnds;
+    int minlvl;
+    int maxlvl;
 
     Field start;
     Field[][] map;
+    DungeonMap dungeonMap;
 
-    public MapFactory(int depth, int nrDeadEnds) {
+    public MapFactory(EncounterFactory e, int depth, int nrDeadEnds, int minlvlEnemies, int maxlvlEnemies) {
+        Gdx.app.log("Game", "Building dungeon with enemies " + minlvlEnemies + "-" + maxlvlEnemies);
+        this.encounterFactory = e;
         this.width = 5;
         this.depth = depth;
         this.nrDeadEnds = nrDeadEnds;
+        minlvl = minlvlEnemies;
+        maxlvl = maxlvlEnemies;
         start = new Field(2, 0);
         map = new Field[width][depth+1];
     }
 
     public DungeonMap generate() {
-        int distance = depth / 5;
-        // generate the correct path
-        Field goal = generatePath(start, depth, false);
-        goal.connectTo(0, new Field(goal.getMapPosX(), goal.getMapPosY()+1, Field.TYPE_FINISH));
-        // overlap a second path with a dead-end
-        Field second = generatePath(start, depth - distance, false);
-        if (nrDeadEnds > 0) {
-            tryAddDeadEnd(second);
-        } else {
-            // we shouldn't add a dead-end so lets try to connect
-            if (!tryConnect(second)) {
-                // nothing to connect to, dead-end it is
+        if (dungeonMap == null) {
+            int distance = depth / 5;
+            dungeonMap = new DungeonMap(start, depth + 1);
+            // generate the correct path
+            Field endOfPath = generatePath(start, depth-1, false);
+            endOfPath.connectTo(0, createField(endOfPath, 0, Field.TYPE_FINISH));
+            // overlap a second path with a dead-end
+            Field second = generatePath(start, depth - distance, false);
+            if (nrDeadEnds > 0) {
                 tryAddDeadEnd(second);
+            } else {
+                // we shouldn't add a dead-end so lets try to connect
+                if (!tryConnect(second)) {
+                    // nothing to connect to, dead-end it is
+                    tryAddDeadEnd(second);
+                }
+            }
+            // overlap a third path with multiple deadends
+            Field third = generatePath(start, depth - distance * 2, nrDeadEnds > 2);
+            if (third.getConnections().size() == 0) {
+                if (!tryConnect(third)) {
+                    tryAddDeadEnd(third);
+                }
             }
         }
-        // overlap a third path with multiple deadends
-        Field third = generatePath(start, depth - distance * 2, nrDeadEnds > 2);
-        if (third.getConnections().size() == 0) {
-            if (!tryConnect(third)) {
-                tryAddDeadEnd(third);
-            }
-        }
-
-        return new DungeonMap(start, depth + 1);
+        return dungeonMap;
     }
 
     protected Field generatePath(Field from, int steps, boolean withDeadEnds) {
@@ -71,8 +82,7 @@ public class MapFactory {
                     // find a non null path to continue from
                     continueFromX = MathUtils.random(4);
                 } while (map[continueFromX][y] == null);
-                map[x][y] = new Field(x, y, Field.TYPE_RETURN_FIELD);
-                current.connectTo(dir, map[x][y]);
+                current.connectTo(dir, createField(x, y, Field.TYPE_RETURN_FIELD));
                 lastDir = 0;
                 lastNew = false;
                 current = map[continueFromX][y];
@@ -101,8 +111,7 @@ public class MapFactory {
                 type = Field.TYPE_MONSTER; // 50%
             }
         }
-        map[x][y] = new Field(x, y, type);
-        return map[x][y];
+        return createField(x, y, type);
     }
 
     protected boolean tryConnect(Field from) {
@@ -137,11 +146,27 @@ public class MapFactory {
         for (int dir: possibleDirections) {
             boolean inBounds = (from.getMapPosX() + dir) >= 0 && (from.getMapPosX() + dir) <= 4;
             if (inBounds && map[from.getMapPosX() + dir][from.getMapPosY() + 1] == null) {
-                Field deadend = new Field(from.getMapPosX() + dir, from.getMapPosY()+1, Field.TYPE_RETURN_FIELD);
-                map[from.getMapPosX() + dir][from.getMapPosY() + 1] = deadend;
-                from.connectTo(dir, deadend);
+                from.connectTo(dir, createField(from, dir, Field.TYPE_RETURN_FIELD));
                 break;
             }
         }
+    }
+
+    protected Field createField(Field from, int dir, int type) {
+        return createField(from.getMapPosX() + dir, from.getMapPosY()+1, type);
+    }
+
+    protected Field createField(int x, int y, int type) {
+        int lvl = minlvl + Math.round(((float)y / depth) * (maxlvl-minlvl));
+        Field newField = type == Field.TYPE_MONSTER
+                ? new EncounterField(x, y, encounterFactory.generateEnemyParty(lvl))
+                : new Field(x, y, type);
+        addField(newField);
+        return newField;
+    }
+
+    protected void addField(Field field) {
+        map[field.getMapPosX()][field.getMapPosY()] = field;
+        dungeonMap.addField(field);
     }
 }

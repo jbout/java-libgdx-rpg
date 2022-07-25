@@ -4,6 +4,10 @@ public class Monster extends Character {
 
     int level;
 
+    // for serialization only
+    public Monster() {
+    }
+
     public Monster(int level) {
         this.setLevel(level);
     }

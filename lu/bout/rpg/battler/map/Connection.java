@@ -1,11 +1,13 @@
 package lu.bout.rpg.battler.map;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class Connection {
     public static final int LEFT = -1;
     public static final int STRAIGHT = 0;
     public static final int RIGHT = +1;
 
-    private Field destination;
+    private String destination;
     private int direction;
 
     // for json serialization
@@ -14,14 +16,14 @@ public class Connection {
 
     public Connection(int direction, Field destination) {
         this.direction = direction;
-        this.destination = destination;
+        this.destination = destination.getMapPos();
     }
 
     public int getDirection() {
         return direction;
     }
 
-    public Field getDestination() {
+    public String getDestination() {
         return destination;
     }
 }
