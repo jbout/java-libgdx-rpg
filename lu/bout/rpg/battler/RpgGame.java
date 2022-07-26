@@ -69,6 +69,7 @@ public class RpgGame extends Game {
 		assetService.preload(battleScreen);
 		homeScreen = new HomeScreen(this);
 		assetService.preload(homeScreen);
+		assetService.preload(MapScreen.getRequiredFiles());
 		mapScreen = new MapScreen(this);
 		charScreen = new CharcterScreen(this);
 		lootScreen = new VictoryScreen(this);

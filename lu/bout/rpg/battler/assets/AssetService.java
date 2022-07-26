@@ -17,10 +17,14 @@ public class AssetService {
 
     }
 
-    public void preload(AssetConsumer consumer) {
-        for (AssetDescriptor s: consumer.getRequiredFiles()) {
+    public void preload(AssetDescriptor[] descriptors) {
+        for (AssetDescriptor s: descriptors) {
             manager.load(s);
         }
+    }
+
+    public void preload(AssetConsumer consumer) {
+        preload(consumer.getRequiredFiles());
     }
 
     public synchronized Object get (AssetDescriptor assetDescriptor) {

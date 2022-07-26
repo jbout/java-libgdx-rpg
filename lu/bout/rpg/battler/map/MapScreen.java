@@ -3,9 +3,11 @@ package lu.bout.rpg.battler.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Circle;
@@ -38,6 +40,9 @@ import lu.bout.rpg.engine.combat.Combat;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
 
+    private static final AssetDescriptor FILE_CAVE_BG = new AssetDescriptor("map/cave_texture.jpg", Texture.class);
+    private static final AssetDescriptor FILE_CAVE_ATLAS = new AssetDescriptor("map/cave_map.atlas", TextureAtlas.class);
+
     static final int Y_DISTANCE = 190;
 
     final RpgGame game;
@@ -50,17 +55,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     Viewport mapViewport;
     float maxScroll;
 
-    TextureRegion bg;
-
-    Texture left;
-    Texture straight;
-    Texture right;
-    Texture marker;
-    Texture swords;
-    Texture portal;
-    Texture heal;
-
-    Texture dot;
+    private final Texture bgTexture;
+    private final TextureRegion bg;
+    private final TextureAtlas mapTextures;
+    private final TextureRegion left;
+    private final TextureRegion straight;
+    private final TextureRegion right;
+    private final TextureRegion marker;
 
     private DungeonChapter chapter;
     DungeonMap dungeonMap;
@@ -76,6 +77,13 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     float moveDuration = 0.5f;
     private Vector2 dragPos;
 
+    public static AssetDescriptor[] getRequiredFiles() {
+        return new AssetDescriptor[]{
+                FILE_CAVE_BG,
+                FILE_CAVE_ATLAS
+        };
+    }
+
     public MapScreen(final RpgGame game) {
         this.game = game;
 
@@ -85,20 +93,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
         uiViewport = new ScreenViewport();
 
-        Texture bgTexture = new Texture("map/cave_texture.jpg");
+        bgTexture = (Texture) game.getAssetService().get(FILE_CAVE_BG);
         bgTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.Repeat);
         bg = new TextureRegion(bgTexture,0,0,bgTexture.getWidth(),Gdx.graphics.getHeight());
 
-        // TODO use atlas
-        left = new Texture("map/left.png");
-        straight = new Texture("map/straight.png");
-        right = new Texture("map/right.png");
-        marker = new Texture("map/marker.png");
-        swords = new Texture("map/swords.png");
-        portal = new Texture("map/portal2.png");
-        heal = new Texture("map/heal.png");
+        mapTextures = (TextureAtlas) game.getAssetService().get(FILE_CAVE_ATLAS);
 
-        dot = new Texture("map/dot.png");
+        left = mapTextures.findRegion("left");
+        straight = mapTextures.findRegion("straight");
+        right = mapTextures.findRegion("right");
+        marker = mapTextures.findRegion("marker");
     }
 
     public void enterDungeon(PlayerParty party, DungeonChapter chapter) {
@@ -246,7 +250,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     private FieldSprite addSprite(Field field) {
         FieldSprite sprite = getSprite(field);
         if (sprite == null) {
-            sprite = new FieldSprite(field, dot, swords, portal, heal);
+            sprite = new FieldSprite(field, mapTextures);
             sprite.setPosition(133 + 133 * field.getMapPosX(), 150 + field.getMapPosY() * Y_DISTANCE);
             fieldSprites.add(sprite);
         }
@@ -264,6 +268,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     }
 
     private void updateUi() {
+        getSprite(current).updateSprite();
         for (PlayerPortrait portrait: portraits) {
             portrait.updateHp();
         }
@@ -372,7 +377,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     @Override
     public void dispose() {
         uiStage.dispose();
-        // TODO lots of disposing
+        bgTexture.dispose();
+        mapTextures.dispose();
     }
 
     @Override

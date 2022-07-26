@@ -4,22 +4,40 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Circle;
 
 public class FieldSprite extends Sprite {
 
-    // TODO texture management
     private Field field;
-    private Texture swords;
-    private Texture portal;
-    private Texture heal;
+    private TextureAtlas atlas;
 
-    public FieldSprite(Field field, Texture dot, Texture swords, Texture portal, Texture heal) {
-        super(dot);
+    public FieldSprite(Field field, TextureAtlas mapTextures) {
+        super();
+        setSize(50,50);
         this.field = field;
-        this.swords = swords;
-        this.portal = portal;
-        this.heal = heal;
+        atlas = mapTextures;
+        updateSprite();
+    }
+
+    public void updateSprite() {
+        int type = field.isOpen() ? Field.TYPE_EMPTY : field.getType();
+        switch (type) {
+            case Field.TYPE_RETURN_FIELD:
+                setRegion(atlas.findRegion("dot_trapdoor"));
+                break;
+            case Field.TYPE_MONSTER:
+                setRegion(atlas.findRegion("dot_swords"));
+                break;
+            case Field.TYPE_TREASURE:
+                setRegion(atlas.findRegion("dot_heal"));
+                break;
+            case Field.TYPE_FINISH:
+                setRegion(atlas.findRegion("gate"));
+                break;
+            default:
+                setRegion(atlas.findRegion("dot"));
+        }
     }
 
     public Circle getBoundaries() {
@@ -29,20 +47,4 @@ public class FieldSprite extends Sprite {
     public Field getField() {
         return field;
     }
-
-    @Override
-    public void draw (Batch batch) {
-        super.draw(batch);
-        if (!this.getField().isOpen() && this.getField().getType() == Field.TYPE_MONSTER) {
-            batch.draw(swords, getVertices(), 0, getVertices().length);
-        }
-        if (this.getField().getType() == Field.TYPE_RETURN_FIELD) {
-            batch.draw(portal, getVertices(), 0, getVertices().length);
-        }
-        if (!this.getField().isOpen() && this.getField().getType() == Field.TYPE_TREASURE) {
-            batch.draw(heal, getVertices(), 0, getVertices().length);
-        }
-
-    }
-
 }

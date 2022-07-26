@@ -292,7 +292,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 				if (state != CombatState.ongoing) {
 					this.endBattle();
 				} else {
-					combat.advanceTimer(Math.min(1, (int) (delta * 200)));
+					combat.advanceTimer(Math.min(1, (int) (delta * 300)));
 				}
 			} else {
 				waitTime = Math.max(0, waitTime - delta);
