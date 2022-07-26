@@ -208,6 +208,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
                 + (field.isOpen ? "(open)" : "(closed)"));
 
         field.open();
+        getSprite(field).updateSprite();
         showConnections(field);
     }
 
@@ -268,7 +269,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     }
 
     private void updateUi() {
-        getSprite(current).updateSprite();
         for (PlayerPortrait portrait: portraits) {
             portrait.updateHp();
         }

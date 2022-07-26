@@ -36,7 +36,6 @@ public class HomeScreen extends MenuScreen {
         continueButton = new TextButton("No game found",game.getSkin());
         continueButton.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         continueButton.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.5f);
-        continueButton.setColor(Color.GREEN);
         continueButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 continueGame();
@@ -47,7 +46,6 @@ public class HomeScreen extends MenuScreen {
         Button button1 = new TextButton("New Game",game.getSkin());
         button1.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         button1.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.4f);
-        button1.setColor(Color.GREEN);
         button1.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new NewGameScreen(game));
@@ -59,7 +57,6 @@ public class HomeScreen extends MenuScreen {
         selectBox = new SelectBox<>(game.getSkin());
         selectBox.setAlignment(Align.center);
         selectBox.setName("Minigame");
-        selectBox.setColor(Color.GREEN);
         selectBox.setItems(values);
         selectBox.setSelectedIndex(game.getPreferences().getInteger("minigame", 0));
         selectBox.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
@@ -74,7 +71,6 @@ public class HomeScreen extends MenuScreen {
         Button button2 = new TextButton("Statistics",game.getSkin());
         button2.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
         button2.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.2f);
-        button2.setColor(Color.GREEN);
         button2.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new StatsScreen(game));
@@ -103,7 +99,7 @@ public class HomeScreen extends MenuScreen {
             continueButton.setColor(Color.GRAY);
             continueButton.setDisabled(true);
         } else {
-            continueButton.setColor(Color.GREEN);
+            continueButton.setColor(Color.WHITE);
             continueButton.setText("Continue");
             continueButton.setDisabled(false);
         }

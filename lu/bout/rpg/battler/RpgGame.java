@@ -4,12 +4,12 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import lu.bout.rpg.battler.assets.AssetService;
-import lu.bout.rpg.battler.assets.SkinFactory;
 import lu.bout.rpg.battler.battle.BattleScreen;
 import lu.bout.rpg.battler.battle.loot.VictoryScreen;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
@@ -29,6 +29,8 @@ import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.engine.character.Party;
 
 public class RpgGame extends Game {
+
+	private static final AssetDescriptor FILE_SKIN = new AssetDescriptor("skin/rpgskin.json", Skin.class);
 
 	public final static int WIDTH = 800; // 720
 	public final static int HEIGHT = 1333; // 1200
@@ -55,12 +57,11 @@ public class RpgGame extends Game {
 		// shared resources
 
 		assetService = new AssetService();
+		assetService.preload(new AssetDescriptor[]{FILE_SKIN});
 		preferences = Gdx.app.getPreferences("minigame");
 		batch = new SpriteBatch();
 		font = new BitmapFont();
-		SkinFactory skinFactory = new SkinFactory(this);
-		assetService.preload(skinFactory);
-		sharedSkin = skinFactory.generateSkin();
+		sharedSkin = (Skin) assetService.get(FILE_SKIN);
 		saveService = new SaveService();
 
 		// init screens

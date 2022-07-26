@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -94,7 +93,7 @@ public class NewGameScreen extends MenuScreen {
         generatePortraits();
         portraitSelect.row();
 
-        Button shuffleButton = new TextButton("shuffle",game.getSkin());
+        TextButton shuffleButton = new TextButton("shuffle",game.getSkin());
         shuffleButton.addListener(new ClickListener() {
             public void clicked (InputEvent event, float x, float y) {
                 generatePortraits();
@@ -121,7 +120,7 @@ public class NewGameScreen extends MenuScreen {
         Table buttonTable = new Table();
 
         Button button0 = new TextButton("Cancel",game.getSkin());
-        button0.setColor(Color.GRAY);
+        button0.setColor(Color.YELLOW);
         button0.addListener(new ClickListener() {
             public void clicked (InputEvent event, float x, float y) {
                 game.showMenu();
@@ -130,7 +129,6 @@ public class NewGameScreen extends MenuScreen {
         buttonTable.add(button0).padRight(20);
 
         Button button1 = new TextButton("Start",game.getSkin());
-        button1.setColor(Color.GREEN);
         button1.addListener(new ClickListener() {
             public void clicked (InputEvent event, float x, float y) {
                 createGame();
