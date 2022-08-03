@@ -14,7 +14,7 @@ public class Field {
     LinkedList<Connection> connections;
     int type;
 
-    boolean isOpen = false;
+    private boolean isOpen = false;
 
     // for json serialization
     public Field() {

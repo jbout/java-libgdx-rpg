@@ -5,19 +5,19 @@ import lu.bout.rpg.battler.campaign.CampaignState;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 
-public class AddNpcAction extends StoryAction {
+public class GoToChapterAction extends StoryAction {
 
-    PlayerCharacter character;
+    String chapterId;
 
     // Serializaton constructor
-    public AddNpcAction() {
+    public GoToChapterAction() {
     }
 
-    public AddNpcAction(PlayerCharacter character) {
-        this.character = character;
+    public GoToChapterAction(String chapterId) {
+        this.chapterId = chapterId;
     }
 
     public void run(RpgGame game, PlayerParty party) {
-        party.addMember(character);
+        game.goToChapter(chapterId);
     }
 }

@@ -27,4 +27,8 @@ public class Chapter {
     public List<StoryAction> getAfter() {
         return after;
     }
+
+    public List<StoryAction> getBefore() {
+        return before;
+    }
 }

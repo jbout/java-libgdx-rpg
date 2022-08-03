@@ -14,10 +14,14 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -31,6 +35,7 @@ import java.util.Map;
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
+import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.Beastiarum;
@@ -63,7 +68,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
     private final TextureRegion right;
     private final TextureRegion marker;
 
-    private DungeonChapter chapter;
+    private StoryAction onSuccess;
+    private StoryAction onFlee;
+
     DungeonMap dungeonMap;
     PlayerParty playerParty;
     LinkedList<FieldSprite> fieldSprites;
@@ -105,16 +112,17 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         marker = mapTextures.findRegion("marker");
     }
 
-    public void enterDungeon(PlayerParty party, DungeonChapter chapter) {
+    public void enterDungeon(PlayerParty party, DungeonMap map, StoryAction onSuccess) {
         playerParty = party;
-        this.chapter = chapter;
-        dungeonMap = chapter.map;
+        dungeonMap = map;
+        this.onSuccess = onSuccess;
+        onFlee = null;
         fieldSprites = new LinkedList<>();
         // 2*150 padding + 50 sprite height
         maxScroll = dungeonMap.getDepth() * Y_DISTANCE + 350;
         bg.setRegionHeight((int) maxScroll);
         addSprite(dungeonMap.getStart());
-        //unfoldAll();
+        unfoldAll();
         buildUi();
         arriveAt(dungeonMap.getStart());
     }
@@ -131,11 +139,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         uiStage.addActor(root);
 
         Table table = new Table();
-        table.defaults().space(20);
-        root.add(table).left().padTop(100);
-        root.row();
-        root.add().growX().expandY().bottom();
-
         portraits = new LinkedList<>();
         for (Character character: playerParty.getMembers()) {
             if (character instanceof PlayerCharacter) {
@@ -150,15 +153,35 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
                 portraits.add(portrait);
             }
         }
+
+        table.defaults().space(20);
+        root.add(table).left().padTop(60).expand().align(Align.topLeft);
+        root.row();
+        if (onFlee != null) {
+            TextButton fleeButton = new TextButton("Flee", game.getSkin());
+            fleeButton.addListener(new ChangeListener() {
+                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                    fleeDungeon();
+                }
+            });
+            root.add(fleeButton).align(Align.bottomRight);
+        }
+
     }
 
     private void showPlayer(PlayerCharacter character) {
         game.showCharacter(character);
     }
 
+    private void fleeDungeon() {
+        onFlee.run(game, playerParty);
+    }
+
     private void unfoldAll() {
         for (Field f: dungeonMap.getAllFields()) {
-            open(f);
+            if (f.isOpen()) {
+                showConnections(f);
+            }
         }
     }
 
@@ -175,11 +198,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         movingTo = null;
         Gdx.app.log("Game", "Moved to " + current.getMapPosY() + "x" + current.getMapPosY()
                 + " type:" + current.getType() + " "
-                + (current.isOpen ? "(open)" : "(closed)"));
+                + (current.isOpen() ? "(open)" : "(closed)"));
         if (!current.isOpen()) {
             switch (current.getType()) {
                 case Field.TYPE_FINISH:
-                    game.goToChapter(chapter.onSuccessChapterId);
+                    onSuccess.run(game, playerParty);
                     break;
                 case Field.TYPE_MONSTER:
                     triggerFight(field);
@@ -205,7 +228,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
 
     public void open(Field field) {
         Gdx.app.log("Game", "opening " + field.getMapPosY() + "x" + field.getMapPosY()
-                + (field.isOpen ? "(open)" : "(closed)"));
+                + (field.isOpen() ? "(open)" : "(closed)"));
 
         field.open();
         getSprite(field).updateSprite();
@@ -471,5 +494,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
             }
         }
         return f;
+    }
+
+    public void allowFlee(StoryAction onFlee) {
+        this.onFlee = onFlee;
+        buildUi();
     }
 }

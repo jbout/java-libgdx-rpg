@@ -1,5 +1,6 @@
 package lu.bout.rpg.battler.campaign;
 
+import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.party.PlayerParty;
@@ -25,11 +26,14 @@ public class CampaignState {
         return campaign.getChapter(currentChapter);
     }
 
-    public Chapter transition(PlayerParty party, String nextChapterId) {
+    public Chapter transition(RpgGame game, String nextChapterId) {
         for (StoryAction action: getCurrentChapter().getAfter()) {
-            action.run(party);
+            action.run(game, game.state.getPlayerParty());
         }
         currentChapter = nextChapterId;
+        for (StoryAction action: getCurrentChapter().getBefore()) {
+            action.run(game, game.state.getPlayerParty());
+        }
         return getCurrentChapter();
     }
 }

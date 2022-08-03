@@ -2,12 +2,17 @@ package lu.bout.rpg.battler.campaign;
 
 import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
+import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.storyAction.AddNpcAction;
+import lu.bout.rpg.battler.campaign.storyAction.GoToChapterAction;
 import lu.bout.rpg.battler.map.EncounterFactory;
 import lu.bout.rpg.battler.map.MapFactory;
 import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.world.city.DungeonLocation;
+import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.LocationMap;
 
 public class CampaignBuilder {
 
@@ -43,6 +48,31 @@ public class CampaignBuilder {
         smallDungeon.setOnSuccess(intermezzo);
         intermezzo.setNext(dungeon);
         dungeon.setOnSuccess(v);
+        return campaign;
+    }
+
+    public Campaign buildFreeRoamCampaign() {
+        Campaign campaign = new Campaign();
+        VictoryChapter v = new VictoryChapter("v");
+        LocationMap map = new LocationMap();
+        Location village = new Location();
+        village.name = "Village";
+        Location inn = new Location();
+        inn.name = "Inn";
+
+        EncounterFactory e = new EncounterFactory();
+        MapFactory mapper = new MapFactory(e,15, 5, 5, 12);
+        Location dungeon = new DungeonLocation(mapper.generate(), new GoToChapterAction("V"));
+        dungeon.name = "Dungeon";
+        map.addLocation(village);
+        map.addLocation(inn);
+        map.addLocation(dungeon);
+        map.linkLocations(village, inn);
+        map.linkLocations(inn, village);
+        map.linkLocations(village, dungeon);
+        map.linkLocations(dungeon, village);
+        FreeRoamChapter free = new FreeRoamChapter("free", map, village);
+        campaign.setStartChapter(free);
         return campaign;
     }
 

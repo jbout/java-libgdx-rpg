@@ -31,11 +31,11 @@ public class NarrativeScreen extends MenuScreen {
         label.setWrap(true);
         label.setAlignment(Align.center);
         ScrollPane pane = new ScrollPane(label, game.getSkin());
-        root.add(pane).fill().expand();
+        root.add(pane).grow();
 
         root.row();
         TextButton continueButton = new TextButton("Continue",game.getSkin());
-        continueButton.setColor(Color.GREEN);
+        //continueButton.setColor(Color.GREEN);
         continueButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 advance();

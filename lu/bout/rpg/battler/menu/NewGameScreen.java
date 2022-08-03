@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
+import lu.bout.rpg.battler.campaign.Campaign;
 import lu.bout.rpg.battler.campaign.CampaignBuilder;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
@@ -35,10 +36,11 @@ public class NewGameScreen extends MenuScreen {
 
     TextField playerNameField;
 
-    ButtonGroup<Button> buttonGroup;
+    ButtonGroup<Button> portraitGroup;
     HashMap<Button, Integer> buttonMap;
     Image[] portraits;
-    int[] keys;
+    int[] portraitIds;
+    SelectBox<String> selectBox;
 
     public NewGameScreen(RpgGame rpgGame) {
         super(rpgGame);
@@ -73,7 +75,7 @@ public class NewGameScreen extends MenuScreen {
 
         Table portraitSelect = new Table();
         portraits = new Image[PORTRAIT_OPTION_COUNT];
-        buttonGroup = new ButtonGroup<>();
+        portraitGroup = new ButtonGroup<>();
         Button.ButtonStyle style = new Button.ButtonStyle();
         Pixmap redSquare = new Pixmap(PORTRAIT_SIZE + 10, PORTRAIT_SIZE + 10, Pixmap.Format.RGB888);
         redSquare.setColor(Color.RED);
@@ -88,7 +90,7 @@ public class NewGameScreen extends MenuScreen {
             buttonMap.put(portraitButton, i);
             portraitButton.add(portraits[i]).size(PORTRAIT_SIZE ,PORTRAIT_SIZE);
             portraitSelect.add(portraitButton).pad(10);
-            buttonGroup.add(portraitButton);
+            portraitGroup.add(portraitButton);
         }
         generatePortraits();
         portraitSelect.row();
@@ -108,8 +110,8 @@ public class NewGameScreen extends MenuScreen {
         Table scenarioTable = new Table();
         scenarioTable.add(new Label("Scenario", game.getSkin())).fill();
         scenarioTable.row();
-        String[] values = new String[]{"2 Step dungeon"};
-        SelectBox<String> selectBox = new SelectBox<>(game.getSkin());
+        String[] values = new String[]{"2 Step dungeon", "Free Roam"};
+        selectBox = new SelectBox<>(game.getSkin());
         selectBox.setItems(values);
         selectBox.setAlignment(Align.center);
         scenarioTable.add(selectBox).fill().expandX();
@@ -141,9 +143,9 @@ public class NewGameScreen extends MenuScreen {
 
     private void generatePortraits() {
         PortraitService portraitService = new PortraitService();
-        keys = portraitService.getRandomIds(PORTRAIT_OPTION_COUNT);
+        portraitIds = portraitService.getRandomIds(PORTRAIT_OPTION_COUNT);
         for (int i = 0; i < PORTRAIT_OPTION_COUNT; i++) {
-            Texture t = portraitService.getPortrait(keys[i]);
+            Texture t = portraitService.getPortrait(portraitIds[i]);
             portraits[i].setDrawable(new TextureRegionDrawable(new TextureRegion(t)));
         }
     }
@@ -154,11 +156,16 @@ public class NewGameScreen extends MenuScreen {
         game.getPreferences().putString("lastname", playerNameField.getText());
         game.getPreferences().flush();
 
-        int selectButton = buttonMap.get(buttonGroup.getChecked());
+        int selectedPortrait = buttonMap.get(portraitGroup.getChecked());
+        int selectedScenario = selectBox.getSelectedIndex();
+        Campaign campaign = selectedScenario == 0
+            ? (new CampaignBuilder()).build2stepDungeon()
+            : (new CampaignBuilder()).buildFreeRoamCampaign()
+        ;
 
-        PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), keys[selectButton], 8);
+        PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), portraitIds[selectedPortrait], 8);
 
-        GameState state = GameState.newGame(new PlayerParty(player), (new CampaignBuilder()).build2stepDungeon());
+        GameState state = GameState.newGame(new PlayerParty(player), campaign);
         game.getSaveService().add(state);
         game.launchGame(state);
     }

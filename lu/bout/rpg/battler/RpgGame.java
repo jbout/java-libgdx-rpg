@@ -12,11 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import lu.bout.rpg.battler.assets.AssetService;
 import lu.bout.rpg.battler.battle.BattleScreen;
 import lu.bout.rpg.battler.battle.loot.VictoryScreen;
+import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.screen.GameWonScreen;
 import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
 import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
+import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
+import lu.bout.rpg.battler.map.DungeonMap;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.map.MapScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
@@ -26,6 +29,9 @@ import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
+import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.LocationMap;
+import lu.bout.rpg.battler.world.city.LocationScreen;
 import lu.bout.rpg.engine.character.Party;
 
 public class RpgGame extends Game {
@@ -44,6 +50,7 @@ public class RpgGame extends Game {
 	public MapScreen mapScreen;
 	public CharcterScreen charScreen;
 	private VictoryScreen lootScreen;
+	private LocationScreen locationscreen;
 
 	public SpriteBatch batch;
 	public BitmapFont font;
@@ -74,6 +81,7 @@ public class RpgGame extends Game {
 		mapScreen = new MapScreen(this);
 		charScreen = new CharcterScreen(this);
 		lootScreen = new VictoryScreen(this);
+		locationscreen = new LocationScreen(this);
 
 		showMenu();
 	}
@@ -96,9 +104,20 @@ public class RpgGame extends Game {
 		this.setScreen(lootScreen);
 	}
 
+	public void showLocation(LocationMap map, Location location) {
+		locationscreen.showLocation(map, location);
+		this.setScreen(locationscreen);
+	}
 
-	protected void launchDungeon(PlayerParty party, DungeonChapter chapter) {
-		mapScreen.enterDungeon(party, chapter);
+	public void showDungeon(DungeonChapter chapter) {
+		gotoDungeon(chapter.getMap(), chapter.getOnSuccessAction(), null);
+	}
+
+	public void gotoDungeon(DungeonMap map, StoryAction onSuccess, StoryAction onFlee) {
+		mapScreen.enterDungeon(state.getPlayerParty(), map, onSuccess);
+		if (onFlee != null) {
+			mapScreen.allowFlee(onFlee);
+		}
 		this.setScreen(mapScreen);
 	}
 
@@ -108,14 +127,14 @@ public class RpgGame extends Game {
 	}
 
 	public void goToChapter(String chapterId) {
-		Chapter chapter = state.campaignState.transition(state.playerParty, chapterId);
+		Chapter chapter = state.campaignState.transition(this, chapterId);
 		getSaveService().update(this.state);
 		renderChapter(chapter);
 	}
 
 	private void renderChapter(Chapter chapter) {
 		if (chapter instanceof DungeonChapter) {
-			launchDungeon(state.getPlayerParty(), (DungeonChapter)chapter);
+			showDungeon((DungeonChapter)chapter);
 		} else {
 			if (chapter instanceof NarrativeChapter) {
 				this.setScreen(new NarrativeScreen(this, (NarrativeChapter) chapter));
@@ -123,8 +142,13 @@ public class RpgGame extends Game {
 				if (chapter instanceof VictoryChapter) {
 					this.setScreen(new GameWonScreen(this));
 				} else {
-					Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
-					gameOver();
+					if (chapter instanceof FreeRoamChapter) {
+						FreeRoamChapter free = (FreeRoamChapter) chapter;
+						showLocation(free.getMap(), free.getCurrentLocation());
+					} else {
+						Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());
+						gameOver();
+					}
 				}
 			}
 		}
