@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.map;
+package lu.bout.rpg.battler.dungeon;
 
 import lu.bout.rpg.engine.character.Party;
 

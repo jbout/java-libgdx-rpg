@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.LinkedList;
 
-import lu.bout.rpg.battler.SubScreen;
+import lu.bout.rpg.battler.shared.SubScreen;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
 

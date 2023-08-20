@@ -1,7 +1,5 @@
 package lu.bout.rpg.battler.world.city;
 
-import com.badlogic.gdx.utils.IntIntMap;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -18,6 +16,11 @@ public class LocationMap {
     public void addLocation(Location location) {
         location.id = locations.size();
         locations.put("" + location.id, location);
+    }
+
+    public void doubleLink(Location from, Location to) {
+        linkLocations(from, to);
+        linkLocations(to, from);
     }
 
     public void linkLocations(Location from, Location to) {

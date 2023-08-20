@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.VillageLocation;
 import lu.bout.rpg.battler.world.city.LocationMap;
 
 public class FreeRoamChapter extends Chapter {
@@ -22,7 +23,7 @@ public class FreeRoamChapter extends Chapter {
 
     public FreeRoamChapter() {};
 
-    public FreeRoamChapter(String id, LocationMap map, Location start) {
+    public FreeRoamChapter(String id, LocationMap map, VillageLocation start) {
         this.id = id;
         this.map = map;
         this.currentLocation = start.getId();

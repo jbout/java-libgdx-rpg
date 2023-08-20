@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler;
+package lu.bout.rpg.battler.shared;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;

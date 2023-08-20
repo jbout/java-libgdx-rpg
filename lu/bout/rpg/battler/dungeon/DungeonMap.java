@@ -1,6 +1,4 @@
-package lu.bout.rpg.battler.map;
-
-import com.badlogic.gdx.math.Vector2;
+package lu.bout.rpg.battler.dungeon;
 
 import java.util.HashMap;
 import java.util.LinkedList;

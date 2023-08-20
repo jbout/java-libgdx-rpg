@@ -19,8 +19,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import lu.bout.rpg.battler.RpgGame;
-import lu.bout.rpg.battler.SubScreen;
+import lu.bout.rpg.battler.battle.minigame.japanese.WordSearchGame;
+import lu.bout.rpg.battler.shared.SubScreen;
 import lu.bout.rpg.battler.assets.AssetConsumer;
+import lu.bout.rpg.battler.battle.loot.VictoryDialog;
 import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
@@ -55,6 +57,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	private OrthographicCamera camera;
 	private Viewport viewport;
+	int lastWidth, lastHeight = 0;
 
 	private Texture bg;
 	private Texture brick;
@@ -74,6 +77,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 	private MiniGame minigame;
 	private int minigameType = -1;
 	private PartyScreen partyScreen;
+	private VictoryDialog victoryDialog;
 	private Preferences stats;
 
 	private CombatSprite target = null;
@@ -86,6 +90,7 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	public BattleScreen(final RpgGame game) {
 		this.game = game;
+		sprites = new LinkedList<>();
 	}
 
 	@Override
@@ -111,7 +116,8 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 		touchPosRaw = new Vector3();
 		touchPos = new Vector2();
-		sprites = new LinkedList<>();
+
+		victoryDialog = new VictoryDialog(game);
 	}
 
 	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
@@ -147,12 +153,18 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 	private void setupMinigame () {
 		int minigameRequested = game.getPreferences().getInteger("minigame");
 		if (minigameType != minigameRequested) {
+			if (minigame != null) {
+				minigame.dispose();
+			}
 			switch (minigameRequested) {
 				case 1:
 					minigame = new LightsoutGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 					break;
 				case 2:
 					minigame = new TimingGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2);
+					break;
+				case 3:
+					minigame = new WordSearchGame(this, 0, 0, RpgGame.WIDTH, RpgGame.HEIGHT / 2, game.getSkin().getFont("nobilty-48"));
 					break;
 				case 0:
 				default:
@@ -170,7 +182,8 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		}
 		// only show loot if the battle feedback did not trigger a navigation (ganeover)
 		if (state == CombatState.won && game.getScreen() == this) {
-			game.showLoot(encounter.getPlayerParty(), xp, caller);
+			victoryDialog.showLoot(encounter.getPlayerParty(), xp, caller);
+			game.showDialog(victoryDialog);
 		} else {
 			if (caller instanceof BattleFeedback) {
 				((BattleFeedback)caller).combatEnded(false);
@@ -327,9 +340,13 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 
 	@Override
 	public void resize(int width, int height) {
-		viewport.update(width, height, true);
-		positionCombatSprites();
-		Gdx.app.log("Game", "Resize : " + width + " - " + height);
+		if (width != lastWidth && height != lastHeight) {
+			lastWidth = width;
+			lastHeight = height;
+			viewport.update(width, height, true);
+			positionCombatSprites();
+			Gdx.app.log("Game", "Resize : " + width + " - " + height);
+		}
 	}
 
 	@Override
@@ -352,8 +369,14 @@ public class BattleScreen implements Screen, MiniGameFeedback, CombatListener, A
 		for (CombatSprite sprite: sprites) {
 			sprite.getTexture().dispose();
 		}
-		minigame.dispose();
-		batch.dispose();
-		bg.dispose();
+		if (minigame != null) {
+			minigame.dispose();
+		}
+		if (batch != null) {
+			batch.dispose();
+		}
+		if (bg != null) {
+			bg.dispose();
+		}
 	}
 }

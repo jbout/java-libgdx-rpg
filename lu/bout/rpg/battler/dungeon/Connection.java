@@ -1,6 +1,4 @@
-package lu.bout.rpg.battler.map;
-
-import com.badlogic.gdx.math.Vector2;
+package lu.bout.rpg.battler.dungeon;
 
 public class Connection {
     public static final int LEFT = -1;

@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.battle.loot;
+package lu.bout.rpg.battler.shared;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -16,44 +16,24 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
-import lu.bout.rpg.battler.battle.BattleScreen;
+import lu.bout.rpg.battler.battle.loot.PartyActor;
 import lu.bout.rpg.engine.character.Party;
 
-public class VictoryScreen implements Screen {
+public class DialogScreen implements Screen {
 
     private final RpgGame game;
     Stage stage;
     Image bgImage;
-    Screen next;
-    PartyActor partyList;
-    private Dialog dialog;
+    Dialog currentDialog;
 
-    public VictoryScreen(RpgGame rpgGame) {
+    public DialogScreen(RpgGame rpgGame) {
         game = rpgGame;
-    }
-
-    public void init() {
         stage = new Stage(new ScreenViewport());
         bgImage = new Image();
         stage.addActor(bgImage);
-        dialog = new Dialog("", game.getSkin(), "dialog") {
-            public void result(Object obj) {
-                closeLootScreen();
-            }
-        };
-        partyList = new PartyActor(game.getSkin());
-        Label title = new Label("Victory", game.getSkin(), "title");
-        dialog.getContentTable().add(title).expandX().align(Align.center);
-        dialog.getContentTable().row();
-        dialog.getContentTable().add(partyList).growX();
-        dialog.button("OK").pad(25);
     }
 
-    public void showLoot(final Party party, int xp, final Screen nextScreen) {
-        if (stage == null) {
-            init();
-        }
-        next = nextScreen;
+    public void showDialog(final Dialog dialog) {
         Pixmap screenShot = Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         TextureRegion region = new TextureRegion(new Texture(screenShot));
         region.flip(false, true);
@@ -64,16 +44,11 @@ public class VictoryScreen implements Screen {
                 screenShot.getHeight()
         );
         screenShot.dispose();
-        partyList.setParty(party);
-        dialog.show(stage);
-        partyList.gainXp(xp);
-    }
-
-    private void closeLootScreen() {
-        if (next instanceof BattleFeedback) {
-            ((BattleFeedback)next).combatEnded(true);
+        if (currentDialog != null) {
+            currentDialog.remove();
         }
-        game.setScreen(next);
+        currentDialog = dialog;
+        dialog.show(stage);
     }
 
     @Override
@@ -106,11 +81,9 @@ public class VictoryScreen implements Screen {
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
-
     }
 }

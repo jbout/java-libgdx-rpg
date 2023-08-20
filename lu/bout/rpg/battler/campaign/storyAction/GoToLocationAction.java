@@ -7,6 +7,7 @@ import lu.bout.rpg.battler.campaign.chapter.Chapter;
 import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.VillageLocation;
 
 public class GoToLocationAction extends StoryAction {
 

@@ -1,6 +1,6 @@
 package lu.bout.rpg.battler.battle.minigame;
 
-import lu.bout.rpg.battler.SubScreen;
+import lu.bout.rpg.battler.shared.SubScreen;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
 public interface MiniGame extends SubScreen {

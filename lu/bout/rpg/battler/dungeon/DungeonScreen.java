@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.map;
+package lu.bout.rpg.battler.dungeon;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -34,16 +34,14 @@ import java.util.Map;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
-import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
-import lu.bout.rpg.engine.combat.Combat;
 
-public class MapScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
+public class DungeonScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
 
     private static final AssetDescriptor FILE_CAVE_BG = new AssetDescriptor("map/cave_texture.jpg", Texture.class);
     private static final AssetDescriptor FILE_CAVE_ATLAS = new AssetDescriptor("map/cave_map.atlas", TextureAtlas.class);
@@ -91,7 +89,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener, Battl
         };
     }
 
-    public MapScreen(final RpgGame game) {
+    public DungeonScreen(final RpgGame game) {
         this.game = game;
 
         camera = new OrthographicCamera();

@@ -1,6 +1,5 @@
-package lu.bout.rpg.battler.map;
+package lu.bout.rpg.battler.dungeon;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 
 import lu.bout.rpg.battler.world.Beastiarum;

@@ -1,19 +1,14 @@
-package lu.bout.rpg.battler.world.city;
+package lu.bout.rpg.battler.campaign.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetDescriptor;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -22,8 +17,13 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.shared.StageScreen;
+import lu.bout.rpg.battler.world.city.DungeonLocation;
+import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.VillageLocation;
+import lu.bout.rpg.battler.world.city.LocationMap;
 
-public class LocationScreen implements Screen {
+public class LocationScreen extends StageScreen {
 
     private static final AssetDescriptor FILE_BG = new AssetDescriptor("town/town_bg.jpg", Texture.class);
     private static final AssetDescriptor FILE_PLANK = new AssetDescriptor("town/plank.9.png", Texture.class);
@@ -32,15 +32,10 @@ public class LocationScreen implements Screen {
     private static final AssetDescriptor FILE_INN = new AssetDescriptor("town/SGI_114.png", Texture.class);
     private static final AssetDescriptor FILE_GENERIC = new AssetDescriptor("town/SGI_addons_178.png", Texture.class);
 
-    protected final RpgGame game;
-
-    protected Stage stage;
-
     private Label title;
     private Table links;
 
     private LocationMap map;
-    private Location current;
 
 
     public static AssetDescriptor[] getRequiredFiles() {
@@ -54,13 +49,12 @@ public class LocationScreen implements Screen {
     }
 
     public LocationScreen(final RpgGame game) {
-        this.game = game;
+        super(game);
         game.getAssetService().preload(getRequiredFiles());
         init();
     }
 
     protected void init() {
-        stage = new Stage(new ScreenViewport());
 
         Table root = new Table();
         root.setFillParent(true);
@@ -83,7 +77,6 @@ public class LocationScreen implements Screen {
 
     public void showLocation(LocationMap map, final Location location) {
         this.map = map;
-        current = location;
         title.setText(location.name);
         links.clearChildren();
         int count = 0;
@@ -130,7 +123,7 @@ public class LocationScreen implements Screen {
         return (new TextureRegionDrawable(bg));
     }
 
-    private Table createButton(Location location) {
+    private Table createButton(VillageLocation location) {
         Table locationTable = new Table();
         Texture bg = (Texture) game.getAssetService().get(FILE_DUNGEON);
         locationTable.setBackground(new TextureRegionDrawable(bg));
@@ -141,44 +134,7 @@ public class LocationScreen implements Screen {
     }
 
     protected void goToLocation(int locationId) {
-        current = map.getLocation(locationId);
-        current.enter(game, map);
+        map.getLocation(locationId).goTo(game, map);
     }
 
-    @Override
-    public void show() {
-        Gdx.input.setInputProcessor(stage);
-    }
-
-    @Override
-    public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 1);
-        stage.act(delta);
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
-    public void dispose() {
-        stage.dispose();
-    }
 }

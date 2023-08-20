@@ -2,7 +2,7 @@ package lu.bout.rpg.battler.campaign.chapter;
 
 import lu.bout.rpg.battler.campaign.storyAction.GoToChapterAction;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
-import lu.bout.rpg.battler.map.DungeonMap;
+import lu.bout.rpg.battler.dungeon.DungeonMap;
 
 public class DungeonChapter extends Chapter {
 

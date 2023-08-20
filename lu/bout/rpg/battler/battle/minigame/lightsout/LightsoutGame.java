@@ -108,8 +108,9 @@ public class LightsoutGame extends Rectangle implements MiniGame {
     }
 
     private void clickButton(int x, int y) {
-        int[][] toTry = {{0,0},{-1,0},{1,0},{0,-1},{0,1}};
-        for (int[] pair: toTry) {
+        buttons[x][y].toogle();
+        int[][] toTry = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int[] pair : toTry) {
             int xpos = x + pair[0];
             int ypos = y + pair[1];
             if (xpos >= 0 && ypos >= 0 && xpos < buttons.length && ypos < buttons[0].length) {
@@ -122,8 +123,12 @@ public class LightsoutGame extends Rectangle implements MiniGame {
 
     private void randomize() {
         do {
-            for (int i = 0; i < 100; i++) {
-                clickButton(MathUtils.random(0, buttons.length - 1), MathUtils.random(0, buttons[0].length - 1));
+            for (int x = 0; x < buttons.length; x++) {
+                for (int y = 0; y < buttons[0].length; y++) {
+                    if (buttons[x][y] != null && MathUtils.randomBoolean()) {
+                        clickButton(x,y);
+                    }
+                }
             }
         } while (isVictory());
     }

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.Campaign;
-import lu.bout.rpg.battler.campaign.CampaignBuilder;
+import lu.bout.rpg.story.premade.CampaignBuilder;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.saves.GameState;

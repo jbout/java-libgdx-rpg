@@ -3,15 +3,14 @@ package lu.bout.rpg.battler;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import lu.bout.rpg.battler.assets.AssetService;
 import lu.bout.rpg.battler.battle.BattleScreen;
-import lu.bout.rpg.battler.battle.loot.VictoryScreen;
 import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
@@ -19,9 +18,10 @@ import lu.bout.rpg.battler.campaign.screen.GameWonScreen;
 import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
 import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
-import lu.bout.rpg.battler.map.DungeonMap;
+import lu.bout.rpg.battler.dungeon.DungeonMap;
+import lu.bout.rpg.battler.shared.DialogScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
-import lu.bout.rpg.battler.map.MapScreen;
+import lu.bout.rpg.battler.dungeon.DungeonScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
@@ -29,9 +29,10 @@ import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
+import lu.bout.rpg.battler.shared.StageScreen;
 import lu.bout.rpg.battler.world.city.Location;
 import lu.bout.rpg.battler.world.city.LocationMap;
-import lu.bout.rpg.battler.world.city.LocationScreen;
+import lu.bout.rpg.battler.campaign.screen.LocationScreen;
 import lu.bout.rpg.engine.character.Party;
 
 public class RpgGame extends Game {
@@ -47,9 +48,9 @@ public class RpgGame extends Game {
 
 	public HomeScreen homeScreen;
 	public BattleScreen battleScreen;
-	public MapScreen mapScreen;
+	public DungeonScreen dungeonScreen;
 	public CharcterScreen charScreen;
-	private VictoryScreen lootScreen;
+	private DialogScreen dialogScreen;
 	private LocationScreen locationscreen;
 
 	public SpriteBatch batch;
@@ -77,11 +78,11 @@ public class RpgGame extends Game {
 		assetService.preload(battleScreen);
 		homeScreen = new HomeScreen(this);
 		assetService.preload(homeScreen);
-		assetService.preload(MapScreen.getRequiredFiles());
-		mapScreen = new MapScreen(this);
+		assetService.preload(DungeonScreen.getRequiredFiles());
+		dungeonScreen = new DungeonScreen(this);
 		charScreen = new CharcterScreen(this);
-		lootScreen = new VictoryScreen(this);
 		locationscreen = new LocationScreen(this);
+		dialogScreen = new DialogScreen(this);
 
 		showMenu();
 	}
@@ -94,14 +95,23 @@ public class RpgGame extends Game {
 		charScreen.showCharacter(character);
 	}
 
-	public void startBattle(PlayerParty party, Party monsters, MapScreen screen) {
+	public void startBattle(PlayerParty party, Party monsters, DungeonScreen screen) {
 		battleScreen.startBattle(party, monsters, screen);
 		this.setScreen(battleScreen);
 	}
 
-	public void showLoot(Party p, int xp, Screen screen) {
-		lootScreen.showLoot(p, xp, screen);
-		this.setScreen(lootScreen);
+	/**
+	 * Dialogs work with Stages, so this is a workaround to work wit screen
+	 * @param dialog
+	 */
+	public void showDialog(final Dialog dialog) {
+		if (this.screen instanceof StageScreen) {
+			((StageScreen) this.screen).showDialog(dialog);
+		} else {
+			// legacy implementation, only works if dialog triggers navigation
+			dialogScreen.showDialog(dialog);
+			this.setScreen(dialogScreen);
+		}
 	}
 
 	public void showLocation(LocationMap map, Location location) {
@@ -114,11 +124,11 @@ public class RpgGame extends Game {
 	}
 
 	public void gotoDungeon(DungeonMap map, StoryAction onSuccess, StoryAction onFlee) {
-		mapScreen.enterDungeon(state.getPlayerParty(), map, onSuccess);
+		dungeonScreen.enterDungeon(state.getPlayerParty(), map, onSuccess);
 		if (onFlee != null) {
-			mapScreen.allowFlee(onFlee);
+			dungeonScreen.allowFlee(onFlee);
 		}
-		this.setScreen(mapScreen);
+		this.setScreen(dungeonScreen);
 	}
 
 	public void launchGame(GameState state) {

@@ -53,7 +53,7 @@ public class HomeScreen extends MenuScreen {
         });
         stage.addActor(button1);
 
-        String[] values = new String[]{"Simon Says", "Light's out", "Timing"};
+        String[] values = new String[]{"Simon Says", "Light's out", "Timing", "Word Search"};
         selectBox = new SelectBox<>(game.getSkin());
         selectBox.setAlignment(Align.center);
         selectBox.setName("Minigame");
