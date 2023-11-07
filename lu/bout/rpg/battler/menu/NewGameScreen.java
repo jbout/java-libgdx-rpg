@@ -40,10 +40,13 @@ public class NewGameScreen extends MenuScreen {
     HashMap<Button, Integer> buttonMap;
     Image[] portraits;
     int[] portraitIds;
-    SelectBox<String> selectBox;
+    SelectBox<CampaignBuilder.CampaignReference> selectBox;
+
+    CampaignBuilder builder;
 
     public NewGameScreen(RpgGame rpgGame) {
         super(rpgGame);
+        builder = new CampaignBuilder();
     }
 
     @Override
@@ -110,9 +113,8 @@ public class NewGameScreen extends MenuScreen {
         Table scenarioTable = new Table();
         scenarioTable.add(new Label("Scenario", game.getSkin())).fill();
         scenarioTable.row();
-        String[] values = new String[]{"2 Step dungeon", "Free Roam"};
         selectBox = new SelectBox<>(game.getSkin());
-        selectBox.setItems(values);
+        selectBox.setItems(builder.getAvailableCampagins());
         selectBox.setAlignment(Align.center);
         scenarioTable.add(selectBox).fill().expandX();
         root.add(scenarioTable).fill().expandX();
@@ -157,11 +159,7 @@ public class NewGameScreen extends MenuScreen {
         game.getPreferences().flush();
 
         int selectedPortrait = buttonMap.get(portraitGroup.getChecked());
-        int selectedScenario = selectBox.getSelectedIndex();
-        Campaign campaign = selectedScenario == 0
-            ? (new CampaignBuilder()).build2stepDungeon()
-            : (new CampaignBuilder()).buildFreeRoamCampaign()
-        ;
+        Campaign campaign = builder.getCampaign(selectBox.getSelected());
 
         PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), portraitIds[selectedPortrait], 8);
 

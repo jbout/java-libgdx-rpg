@@ -172,7 +172,7 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
     }
 
     private void fleeDungeon() {
-        onFlee.run(game, playerParty);
+        onFlee.run(game);
     }
 
     private void unfoldAll() {
@@ -194,13 +194,13 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         current = field;
         currentHitBox = getSprite(field).getBoundaries();
         movingTo = null;
-        Gdx.app.log("Game", "Moved to " + current.getMapPosY() + "x" + current.getMapPosY()
+        Gdx.app.log("Game", "Moved to " + current.getMapPosX() + "x" + current.getMapPosY()
                 + " type:" + current.getType() + " "
                 + (current.isOpen() ? "(open)" : "(closed)"));
         if (!current.isOpen()) {
             switch (current.getType()) {
                 case Field.TYPE_FINISH:
-                    onSuccess.run(game, playerParty);
+                    onSuccess.run(game);
                     break;
                 case Field.TYPE_MONSTER:
                     triggerFight(field);

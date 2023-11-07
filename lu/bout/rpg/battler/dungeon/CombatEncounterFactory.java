@@ -5,13 +5,13 @@ import com.badlogic.gdx.math.MathUtils;
 import lu.bout.rpg.battler.world.Beastiarum;
 import lu.bout.rpg.engine.character.Party;
 
-public class EncounterFactory {
+public class CombatEncounterFactory {
 
     private static final float p = 0.33f;
 
     private Beastiarum beastiarum;
 
-    public EncounterFactory() {
+    public CombatEncounterFactory() {
         beastiarum = Beastiarum.getInstance();
     }
 

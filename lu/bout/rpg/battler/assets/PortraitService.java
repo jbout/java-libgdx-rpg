@@ -3,7 +3,6 @@ package lu.bout.rpg.battler.assets;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -51,6 +50,24 @@ public class PortraitService {
                 0, 0, scaled.getWidth(), scaled.getHeight()
         );
         return scaled;
+    }
+
+    public Texture getRoundPortrait(int id, int size) {
+        Pixmap source = getScaled(id, size, size);
+        Pixmap result = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+        result.setBlending(Pixmap.Blending.None);
+        result.setColor(1f, 1f, 1f, 1f);
+        result.fillCircle(size / 2, size / 2, size/2-1);
+
+        for (int x = 0; x < result.getWidth(); x++) {
+            for (int y = 0; y < result.getHeight(); y++) {
+                result.drawPixel(x, y, source.getPixel(x, y) & result.getPixel(x, y));
+            }
+        }
+        result.setColor(0f, 0f, 0f, 1f);
+        result.drawCircle(size/2, size/2, size/2-1);
+
+        return new Texture(result);
     }
 
     private int getPortraitCount() {

@@ -1,11 +1,8 @@
 package lu.bout.rpg.battler.campaign.screen;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -13,14 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.shared.StageScreen;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
-import lu.bout.rpg.battler.world.city.VillageLocation;
+import lu.bout.rpg.battler.world.city.PeopleEncounter;
 import lu.bout.rpg.battler.world.city.LocationMap;
 
 public class LocationScreen extends StageScreen {
@@ -34,6 +30,7 @@ public class LocationScreen extends StageScreen {
 
     private Label title;
     private Table links;
+    private Table encounters;
 
     private LocationMap map;
 
@@ -72,13 +69,17 @@ public class LocationScreen extends StageScreen {
         links.defaults().pad(5);
         root.add(links).grow();
         root.row();
-        root.add(new Label("noone here", game.getSkin())).colspan(2).growX();
+        encounters = new Table();
+        encounters.align(Align.left);
+        root.add(encounters).colspan(2).growX().pad(15);
+        //new Label("noone here", game.getSkin())
     }
 
     public void showLocation(LocationMap map, final Location location) {
         this.map = map;
         title.setText(location.name);
         links.clearChildren();
+        encounters.clearChildren();
         int count = 0;
         for (final Location loc : map.getConnections(location)) {
             Actor icon = buildLocationIcon(loc);
@@ -92,18 +93,21 @@ public class LocationScreen extends StageScreen {
                 links.row();
             }
         }
+        for (PeopleEncounter encounter: location.getEncounters()) {
+            encounters.add(buildEncounterIcon(encounter));
+        }
     }
 
     private Actor buildLocationIcon(Location location) {
         Table locationTable = new Table();
-        locationTable.setBackground(getIcon(location));
+        locationTable.setBackground(getLocationIcon(location));
         Label label = new Label(location.name, game.getSkin(), "location");
         label.setAlignment(Align.center);
         locationTable.add(label).growX().align(Align.bottom).expandY().padBottom(10);
         return new Button(locationTable, game.getSkin());
     }
 
-    private Drawable getIcon(Location location) {
+    private Drawable getLocationIcon(Location location) {
         Texture bg;
         if (location instanceof DungeonLocation) {
             bg = (Texture) game.getAssetService().get(FILE_DUNGEON);
@@ -123,14 +127,16 @@ public class LocationScreen extends StageScreen {
         return (new TextureRegionDrawable(bg));
     }
 
-    private Table createButton(VillageLocation location) {
-        Table locationTable = new Table();
-        Texture bg = (Texture) game.getAssetService().get(FILE_DUNGEON);
-        locationTable.setBackground(new TextureRegionDrawable(bg));
-        Label label = new Label(location.name, game.getSkin(), "location");
-        label.setAlignment(Align.center);
-        locationTable.add(label).growX().align(Align.bottom).expandY().padBottom(10);
-        return locationTable;
+    private Actor buildEncounterIcon(final PeopleEncounter encounter) {
+        PortraitService p = new PortraitService();
+        Drawable drawable = new TextureRegionDrawable(p.getRoundPortrait(encounter.getActor().getPortaitId(), 149));
+        Button icon = new Button(drawable);
+        icon.addListener(new ChangeListener(){
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                encounter.getAction().run(game);
+            }
+        });
+        return icon;
     }
 
     protected void goToLocation(int locationId) {

@@ -1,8 +1,6 @@
 package lu.bout.rpg.battler.dungeon;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -21,9 +19,7 @@ public class PlayerPortrait extends Table {
         super();
         this.player = player;
         PortraitService p = new PortraitService();
-        Texture t = p.getPortrait(player.getPortaitId());
-        portrait = new Image(buildRoundPortrait(player.getPortaitId(), 99));
-        t.dispose();
+        portrait = new Image(p.getRoundPortrait(player.getPortaitId(), 99));
         add(portrait);
         Table subTable = new Table();
         Label playerName = new Label(player.getName(), skin, "white");
@@ -37,25 +33,6 @@ public class PlayerPortrait extends Table {
         add(subTable).spaceLeft(10);
 
         updateHp();
-    }
-
-    private Texture buildRoundPortrait(int id, int size) {
-        PortraitService p = new PortraitService();
-        Pixmap source = p.getScaled(player.getPortaitId(), size, size);
-        Pixmap result = new Pixmap(size, size, Pixmap.Format.RGBA8888);
-        result.setBlending(Pixmap.Blending.None);
-        result.setColor(1f, 1f, 1f, 1f);
-        result.fillCircle(size / 2, size / 2, size/2-1);
-
-        for (int x = 0; x < result.getWidth(); x++) {
-            for (int y = 0; y < result.getHeight(); y++) {
-                result.drawPixel(x, y, source.getPixel(x, y) & result.getPixel(x, y));
-            }
-        }
-        result.setColor(0f, 0f, 0f, 1f);
-        result.drawCircle(size/2, size/2, size/2-1);
-
-        return new Texture(result);
     }
 
     public void updateHp() {

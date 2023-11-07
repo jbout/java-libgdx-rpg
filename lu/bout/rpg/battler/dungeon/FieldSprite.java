@@ -38,7 +38,8 @@ public class FieldSprite extends Sprite {
     }
 
     public Circle getBoundaries() {
-        return new Circle(this.getX() + this.getWidth() / 2, this.getY() + this.getWidth() / 2, this.getWidth() / 2);
+        // making the circle double sized
+        return new Circle(this.getX() + this.getWidth() / 2, this.getY() + this.getWidth() / 2, this.getWidth());
     }
 
     public Field getField() {

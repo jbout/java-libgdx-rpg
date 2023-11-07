@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -33,7 +34,7 @@ import sun.font.TrueTypeFont;
 
 public class WordSearchGame extends BaseGame {
 
-    private static final int BORDER_CHAR = 20;
+    private static final int BORDER_CHAR = 32;
 
     private Challenge currentChallenge;
 
@@ -96,6 +97,7 @@ public class WordSearchGame extends BaseGame {
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             ShapeRenderer shapeRenderer = new ShapeRenderer();
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
             shapeRenderer.setColor(new Color(0.5f, 0.1f, 0.1f, 0.5f));
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
@@ -104,7 +106,7 @@ public class WordSearchGame extends BaseGame {
             if (hover != null) {
                 for (int[] coord: getSelected(downChar, hover)) {
                     grid[coord[0]][coord[1]].getBoundingRectangle().getCenter(tmpVector);
-                    shapeRenderer.circle(tmpVector.x, tmpVector.y, 32);
+                    shapeRenderer.circle(tmpVector.x, tmpVector.y, 64);
                 }
             } else {
                 //shapeRenderer.circle(tmpVector.x, tmpVector.y, 32);
@@ -118,7 +120,7 @@ public class WordSearchGame extends BaseGame {
 
     private int[][] getSelected(int[] from, int[] to) {
         boolean inLine = from[0] == to[0] || from[1] == to[1] || Math.abs(from[0]-to[0]) == Math.abs(from[1]-to[1]);
-        if (!inLine) {
+        if (!inLine || Arrays.equals(from,to)) {
             return new int[0][];
         }
         int length = Math.max(Math.abs(from[0]-to[0]), Math.abs(from[1]-to[1])) + 1;

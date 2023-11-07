@@ -5,5 +5,5 @@ import lu.bout.rpg.battler.campaign.CampaignState;
 import lu.bout.rpg.battler.party.PlayerParty;
 
 public abstract class StoryAction {
-    public abstract void run(RpgGame game, PlayerParty party);
+    public abstract void run(RpgGame game);
 }

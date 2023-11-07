@@ -3,30 +3,56 @@ package lu.bout.rpg.story.premade;
 import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.Campaign;
 import lu.bout.rpg.battler.campaign.chapter.DungeonChapter;
-import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
+import lu.bout.rpg.battler.campaign.chapter.HubChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.storyAction.AddNpcAction;
 import lu.bout.rpg.battler.campaign.storyAction.GoToChapterAction;
-import lu.bout.rpg.battler.dungeon.EncounterFactory;
+import lu.bout.rpg.battler.dungeon.CombatEncounterFactory;
 import lu.bout.rpg.battler.dungeon.MapFactory;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
+import lu.bout.rpg.battler.world.city.PeopleEncounter;
 import lu.bout.rpg.battler.world.city.VillageLocation;
 import lu.bout.rpg.battler.world.city.LocationMap;
 
 public class CampaignBuilder {
 
-    public static PlayerCharacter getRandomNpc() {
-        PortraitService p = new PortraitService();
-        PlayerCharacter player = new PlayerCharacter("Friend", p.getRandomIds(1)[0], 5);
-        player.setBattleMini("enemy/sample-hero2.png");
-        return player;
+    public static class CampaignReference {
+        String id;
+        String label;
+
+        protected CampaignReference(String id, String label) {
+            this.id = id;
+            this.label = label;
+        }
+
+        public String toString() {
+            return label;
+        }
+    }
+
+    public CampaignReference[] getAvailableCampagins() {
+        return new CampaignReference[] {
+                new CampaignReference("2step", "2 Step dungeon"),
+                new CampaignReference("free", "Free Roam"),
+        };
+    }
+
+    public Campaign getCampaign(CampaignReference ref) {
+        switch (ref.id) {
+            case "2step":
+                return build2stepDungeon();
+            case "free":
+                return buildFreeRoamCampaign();
+            default:
+                throw new RuntimeException("Campaign " + ref.id + " not found");
+        }
     }
 
     public Campaign build2stepDungeon() {
-        EncounterFactory e = new EncounterFactory();
+        CombatEncounterFactory e = new CombatEncounterFactory();
         NarrativeChapter intro = new NarrativeChapter("intro", "Welcome to this simple dungeon crawl.");
 
         MapFactory mapper = new MapFactory(e,5, 0, 2, 6);
@@ -55,24 +81,28 @@ public class CampaignBuilder {
 
     public Campaign buildFreeRoamCampaign() {
         Campaign campaign = new Campaign();
+        PlayerCharacter friend = getRandomNpc();
         VictoryChapter v = new VictoryChapter("v");
         LocationMap map = new LocationMap();
         VillageLocation village = new VillageLocation();
         village.name = "Village";
         VillageLocation inn = new VillageLocation();
         inn.name = "Inn";
+        PeopleEncounter meetFriend = new PeopleEncounter(friend);
+        meetFriend.onClickOnce(new AddNpcAction(friend));
+        inn.addEncounter(meetFriend);
 
-        EncounterFactory e = new EncounterFactory();
+        CombatEncounterFactory e = new CombatEncounterFactory();
         MapFactory mapper = new MapFactory(e,15, 5, 5, 12);
         Location dungeon = new DungeonLocation(mapper.generate(), new GoToChapterAction("V"));
         dungeon.name = "Dungeon";
-        inn.setAfterEnter(new AddNpcAction(getRandomNpc()));
+        //inn.setAfterEnter(new AddNpcAction(friend));
         map.addLocation(village);
         map.addLocation(inn);
         map.addLocation(dungeon);
         map.doubleLink(village, inn);
         map.doubleLink(village, dungeon);
-        FreeRoamChapter free = new FreeRoamChapter("free", map, village);
+        HubChapter free = new HubChapter("free", map, village);
         campaign.setStartChapter(free);
         return campaign;
     }
@@ -87,4 +117,12 @@ public class CampaignBuilder {
         campaign.name = "Night of the Zealot";
         return campaign;
     }
+
+    protected static PlayerCharacter getRandomNpc() {
+        PortraitService p = new PortraitService();
+        PlayerCharacter player = new PlayerCharacter("Friend", p.getRandomIds(1)[0], 5);
+        player.setBattleMini("enemy/sample-hero2.png");
+        return player;
+    }
+
 }

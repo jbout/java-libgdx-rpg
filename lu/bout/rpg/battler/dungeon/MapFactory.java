@@ -9,7 +9,7 @@ import java.util.List;
 
 public class MapFactory {
 
-    EncounterFactory encounterFactory;
+    CombatEncounterFactory encounterFactory;
     int width;
     int depth;
     int nrDeadEnds;
@@ -20,7 +20,7 @@ public class MapFactory {
     Field[][] map;
     DungeonMap dungeonMap;
 
-    public MapFactory(EncounterFactory e, int depth, int nrDeadEnds, int minlvlEnemies, int maxlvlEnemies) {
+    public MapFactory(CombatEncounterFactory e, int depth, int nrDeadEnds, int minlvlEnemies, int maxlvlEnemies) {
         Gdx.app.log("Game", "Building dungeon with enemies " + minlvlEnemies + "-" + maxlvlEnemies);
         this.encounterFactory = e;
         this.width = 5;

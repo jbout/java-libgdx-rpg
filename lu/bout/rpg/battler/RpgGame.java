@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import lu.bout.rpg.battler.assets.AssetService;
 import lu.bout.rpg.battler.battle.BattleScreen;
-import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
+import lu.bout.rpg.battler.campaign.chapter.HubChapter;
 import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.screen.GameWonScreen;
@@ -152,8 +152,8 @@ public class RpgGame extends Game {
 				if (chapter instanceof VictoryChapter) {
 					this.setScreen(new GameWonScreen(this));
 				} else {
-					if (chapter instanceof FreeRoamChapter) {
-						FreeRoamChapter free = (FreeRoamChapter) chapter;
+					if (chapter instanceof HubChapter) {
+						HubChapter free = (HubChapter) chapter;
 						showLocation(free.getMap(), free.getCurrentLocation());
 					} else {
 						Gdx.app.log("Game", "Unmanaged Chapter " + chapter.getClass().getSimpleName());

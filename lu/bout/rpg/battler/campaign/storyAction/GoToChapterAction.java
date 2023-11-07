@@ -17,7 +17,7 @@ public class GoToChapterAction extends StoryAction {
         this.chapterId = chapterId;
     }
 
-    public void run(RpgGame game, PlayerParty party) {
+    public void run(RpgGame game) {
         game.goToChapter(chapterId);
     }
 }

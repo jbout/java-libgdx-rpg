@@ -4,10 +4,9 @@ import com.badlogic.gdx.Gdx;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.campaign.chapter.Chapter;
-import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
+import lu.bout.rpg.battler.campaign.chapter.HubChapter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.city.Location;
-import lu.bout.rpg.battler.world.city.VillageLocation;
 
 public class GoToLocationAction extends StoryAction {
 
@@ -21,10 +20,10 @@ public class GoToLocationAction extends StoryAction {
         this.locationId = location.getId();
     }
 
-    public void run(RpgGame game, PlayerParty party) {
+    public void run(RpgGame game) {
         Chapter chapter = game.state.getCurrentChapter();
-        if (chapter instanceof FreeRoamChapter) {
-            FreeRoamChapter free = (FreeRoamChapter) chapter;
+        if (chapter instanceof HubChapter) {
+            HubChapter free = (HubChapter) chapter;
             free.goToLocation(game, locationId);
         } else {
             Gdx.app.log("Game", "Unable to change location to " + locationId + " if not freeroaming");

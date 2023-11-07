@@ -1,7 +1,7 @@
 package lu.bout.rpg.battler.world.city;
 
 import lu.bout.rpg.battler.RpgGame;
-import lu.bout.rpg.battler.campaign.chapter.FreeRoamChapter;
+import lu.bout.rpg.battler.campaign.chapter.HubChapter;
 import lu.bout.rpg.battler.campaign.storyAction.GoToLocationAction;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.dungeon.DungeonMap;
@@ -22,7 +22,7 @@ public class DungeonLocation extends Location {
     };
 
     protected void enter(RpgGame game, LocationMap map) {
-        Location current = FreeRoamChapter.fromGame(game).getCurrentLocation();
+        Location current = HubChapter.fromGame(game).getCurrentLocation();
         game.gotoDungeon(dungeonMap, onSuccess, new GoToLocationAction(current));
     }
 }

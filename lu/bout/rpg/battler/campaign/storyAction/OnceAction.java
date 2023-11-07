@@ -8,7 +8,7 @@ public abstract class OnceAction extends StoryAction {
 
     public abstract void runOnce(RpgGame game);
 
-    public void run(RpgGame game, PlayerParty party) {
+    public void run(RpgGame game) {
         if (run == false) {
             runOnce(game);
             run = true;

@@ -28,11 +28,11 @@ public class CampaignState {
 
     public Chapter transition(RpgGame game, String nextChapterId) {
         for (StoryAction action: getCurrentChapter().getAfter()) {
-            action.run(game, game.state.getPlayerParty());
+            action.run(game);
         }
         currentChapter = nextChapterId;
         for (StoryAction action: getCurrentChapter().getBefore()) {
-            action.run(game, game.state.getPlayerParty());
+            action.run(game);
         }
         return getCurrentChapter();
     }
