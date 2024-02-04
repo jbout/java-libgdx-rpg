@@ -7,6 +7,8 @@ import lu.bout.rpg.engine.character.Party;
 
 public class PlayerParty extends Party {
 
+    Inventory partyInventory;
+
     // for serialization
     public PlayerParty() {
         super();

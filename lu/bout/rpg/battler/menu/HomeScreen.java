@@ -7,18 +7,19 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
+import lu.bout.rpg.battler.campaign.map.MapScreen;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveMetadata;
 
 public class HomeScreen extends MenuScreen {
 
     TextButton continueButton;
-    SelectBox<String> selectBox;
 
     public HomeScreen(final RpgGame game) {
         super(game);
@@ -27,61 +28,66 @@ public class HomeScreen extends MenuScreen {
     @Override
     protected void init() {
         super.init();
-        Label label = new Label("RPG Battle", game.getSkin(), "title");
-        label.setSize(Gdx.graphics.getWidth(),200);
-        label.setPosition(0,Gdx.graphics.getHeight()-400);
-        label.setAlignment(Align.center);
-        stage.addActor(label);
+        Table root = getRootTable();
+        addTitle("RPG Battle");
 
+        root.row().expandY().fillY();
+        Table buttons = new Table();
+        buttons.defaults().expand().fillX();
+        root.add(buttons).width(Gdx.graphics.getWidth() / 2).padBottom(25);
+
+
+        buttons.row();
         continueButton = new TextButton("No game found",game.getSkin());
-        continueButton.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
-        continueButton.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.5f);
         continueButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 continueGame();
             }
         });
-        stage.addActor(continueButton);
+        buttons.add(continueButton);
 
-        Button button1 = new TextButton("New Game",game.getSkin());
-        button1.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
-        button1.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.4f);
-        button1.addListener(new ChangeListener() {
+        buttons.row();
+
+        Button newgameButton = new TextButton("New Game",game.getSkin());
+        newgameButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new NewGameScreen(game));
             }
         });
-        stage.addActor(button1);
+        buttons.add(newgameButton);
 
-        String[] values = new String[]{"Simon Says", "Light's out", "Timing", "Word Search"};
-        selectBox = new SelectBox<>(game.getSkin());
-        selectBox.setAlignment(Align.center);
-        selectBox.setName("Minigame");
-        selectBox.setItems(values);
-        selectBox.setSelectedIndex(game.getPreferences().getInteger("minigame", 0));
-        selectBox.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
-        selectBox.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.3f);
-        selectBox.addListener(new ChangeListener(){
+        buttons.row();
+        Button showMap = new TextButton("Try Map",game.getSkin());
+        showMap.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                savePreferredMinigame();
+                MapScreen map = new MapScreen(game);
+                game.getAssetService().preload(map);
+                map.init();
+                game.setScreen(map);
             }
         });
-        stage.addActor(selectBox);
+        buttons.add(showMap);
+
+        buttons.row();
+        Button settingsButton = new TextButton("Settings",game.getSkin());
+        settingsButton.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                game.setScreen(new SettingsScreen(game));
+            }
+        });
+        buttons.add(settingsButton);
+
+        buttons.row();
 
         Button button2 = new TextButton("Statistics",game.getSkin());
-        button2.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
-        button2.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.2f);
+        //button2.setSize(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 20);
+        //button2.setPosition(Gdx.graphics.getWidth() / 4,Gdx.graphics.getHeight() * 0.2f);
         button2.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.setScreen(new StatsScreen(game));
             }
         });
-        stage.addActor(button2);
-    }
-
-    private void savePreferredMinigame() {
-        game.getPreferences().putInteger("minigame", selectBox.getSelectedIndex());
-        game.getPreferences().flush();
+        buttons.add(button2);
     }
 
     private void continueGame() {

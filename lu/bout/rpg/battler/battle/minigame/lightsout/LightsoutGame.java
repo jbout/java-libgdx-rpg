@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashSet;
 
+import lu.bout.rpg.battler.battle.minigame.RuneButton;
 import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
@@ -18,7 +19,7 @@ public class LightsoutGame extends Rectangle implements MiniGame {
 
     final static int SOLVE_TIME = 7;
 
-    private LightButton[][] buttons;
+    private RuneButton[][] buttons;
 
     private Vector2 lastTouched = null;
 
@@ -81,18 +82,18 @@ public class LightsoutGame extends Rectangle implements MiniGame {
         while (uniqueRuneIds.size() < sizeX * sizeY){
             uniqueRuneIds.add(MathUtils.random(0, 23));
         }
-        Integer[] runes = uniqueRuneIds.toArray(new Integer[uniqueRuneIds.size()]);
-        buttons = new LightButton[sizeX][sizeY];
+        Integer[] runeIds = uniqueRuneIds.toArray(new Integer[uniqueRuneIds.size()]);
+        buttons = new RuneButton[sizeX][sizeY];
         float posx0 = (width - ((sizeX - 1) * 150)) / 2;
         float posy0 = (height - ((sizeY - 1) * 150)) / 2;
         int count = 0;
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
-                buttons[x][y] = new LightButton();
+                buttons[x][y] = new RuneButton(buttonUp, buttonDown, runes);
                 buttons[x][y].radius = 50;
                 buttons[x][y].x = 150 * x + posx0;
                 buttons[x][y].y = 150 * y + posy0;
-                buttons[x][y].setRune(runes[count++]);
+                buttons[x][y].setRune(runeIds[count++]);
                 buttons[x][y].setDown(true);
             }
         }
@@ -137,7 +138,7 @@ public class LightsoutGame extends Rectangle implements MiniGame {
         for (int x = 0; x < buttons.length; x++) {
             for (int y = 0; y < buttons[0].length; y++) {
                 if (buttons[x][y] != null) {
-                    buttons[x][y].render(this, batch);
+                    buttons[x][y].render(batch);
                     if (inputVector != null && buttons[x][y].contains(inputVector)) {
                         if (lastTouched == null || !(lastTouched.x == x && lastTouched.y == y)) {
                             clickButton(x,y);

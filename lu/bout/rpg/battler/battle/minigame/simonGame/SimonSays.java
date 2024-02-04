@@ -16,14 +16,17 @@ import java.util.List;
 
 import lu.bout.rpg.battler.battle.minigame.MiniGameFeedback;
 import lu.bout.rpg.battler.battle.minigame.MiniGame;
+import lu.bout.rpg.battler.battle.minigame.RuneButton;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 
 public class SimonSays extends Rectangle implements MiniGame {
 
+    static private final int BUTTON_RADIUS = 40;
+
     private enum Mode {show, play, finished};
 
-    private Array<SimonButton> buttons;
-    private List<SimonButton> correctOrder;
+    private Array<RuneButton> buttons;
+    private List<RuneButton> correctOrder;
 
     private Mode mode;
     private float elapsed;
@@ -63,9 +66,9 @@ public class SimonSays extends Rectangle implements MiniGame {
         while (uniqueRuneIds.size() < buttons.size){
             uniqueRuneIds.add(MathUtils.random(0, 23));
         }
-        List<SimonButton> clonedButtons = new ArrayList<SimonButton>();
+        List<RuneButton> clonedButtons = new ArrayList<RuneButton>();
         for(Integer runeId : uniqueRuneIds) {
-            SimonButton button = buttons.get(clonedButtons.size());
+            RuneButton button = buttons.get(clonedButtons.size());
             button.setRune(runeId);
             button.setDown(false);
             clonedButtons.add(button);
@@ -81,13 +84,13 @@ public class SimonSays extends Rectangle implements MiniGame {
         commandToRun = command;
     }
 
-    public Array<SimonButton> generateButtons(int nr) {
-        Array<SimonButton> circleButtons = new Array<SimonButton>();
+    public Array<RuneButton> generateButtons(int nr) {
+        Array<RuneButton> circleButtons = new Array<RuneButton>();
         double step = 2 * Math.PI / nr;
-        int radius = (int) ((Math.min(width- SimonButton.RENDER_WIDTH, height - SimonButton.RENDER_HEIGHT)) * 0.4);
+        int radius = (int) ((Math.min(width- BUTTON_RADIUS, height - BUTTON_RADIUS)) * 0.4);
         for (int i = 0; i < nr; i++) {
-            SimonButton circle = new SimonButton();
-            circle.radius = 30;
+            RuneButton circle = new RuneButton(buttonUp, buttonDown, runes);
+            circle.radius = BUTTON_RADIUS;
             circle.x = Math.round((width / 2) + (Math.sin((i+0.5)*step) * radius));
             circle.y = Math.round((height / 2) + (Math.cos((i+0.5)*step) * radius));
             circleButtons.add(circle);
@@ -97,8 +100,8 @@ public class SimonSays extends Rectangle implements MiniGame {
 
     public void render(SpriteBatch batch, float delta, Vector2 inputVector) {
 
-        for(SimonButton button: buttons) {
-            button.render(this, batch);
+        for(RuneButton button: buttons) {
+            button.render(batch);
             if (mode == Mode.play && inputVector != null && button.contains(inputVector)) {
                 if (!button.isDown()) {
                     buttonPressed(button);
@@ -118,8 +121,8 @@ public class SimonSays extends Rectangle implements MiniGame {
             float legDuration = (showDuration  / (correctOrder.size()));
             int leg = (int)(elapsed / legDuration);
             float legPercentage = (elapsed - (leg*legDuration))/legDuration;
-            SimonButton from = correctOrder.get(Math.max(0, leg-1));
-            SimonButton to = correctOrder.get(leg);
+            RuneButton from = correctOrder.get(Math.max(0, leg-1));
+            RuneButton to = correctOrder.get(leg);
             if (leg == 0) {
                 sprite.alpha = legPercentage;
             }
@@ -129,7 +132,7 @@ public class SimonSays extends Rectangle implements MiniGame {
         }
     }
 
-    private void buttonPressed(SimonButton button) {
+    private void buttonPressed(RuneButton button) {
         if (button.equals(correctOrder.get(0))) {
             // correct
             button.setDown(true);

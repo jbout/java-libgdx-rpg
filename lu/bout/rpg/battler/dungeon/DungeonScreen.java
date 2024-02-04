@@ -1,5 +1,7 @@
 package lu.bout.rpg.battler.dungeon;
 
+import static lu.bout.rpg.battler.menu.SettingsDialog.FILE_SETTINGS_ICON;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -17,10 +19,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -35,6 +39,7 @@ import java.util.Map;
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
+import lu.bout.rpg.battler.menu.SettingsDialog;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.world.Beastiarum;
@@ -85,7 +90,8 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
     public static AssetDescriptor[] getRequiredFiles() {
         return new AssetDescriptor[]{
                 FILE_CAVE_BG,
-                FILE_CAVE_ATLAS
+                FILE_CAVE_ATLAS,
+                FILE_SETTINGS_ICON
         };
     }
 
@@ -133,10 +139,23 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         uiStage = new Stage(uiViewport, game.batch);
         Table root = new Table();
         root.setFillParent(true);
-        root.pad(10);
+        root.pad(20);
         uiStage.addActor(root);
 
+        // settings button
+        ImageButton settings = new ImageButton(new TextureRegionDrawable((Texture) game.getAssetService().get(FILE_SETTINGS_ICON)));
+        root.row().align(Align.right);
+        root.add(settings);
+        settings.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                SettingsDialog dialog = new SettingsDialog(game);
+                dialog.show(uiStage);
+            }
+        });
+
+        // character profiles
         Table table = new Table();
+        table.defaults().space(20);
         portraits = new LinkedList<>();
         for (Character character: playerParty.getMembers()) {
             if (character instanceof PlayerCharacter) {
@@ -151,9 +170,10 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
                 portraits.add(portrait);
             }
         }
+        root.row();
+        root.add(table).left().padTop(40).expand().align(Align.topLeft);
 
-        table.defaults().space(20);
-        root.add(table).left().padTop(60).expand().align(Align.topLeft);
+        // botom menu
         root.row();
         if (onFlee != null) {
             TextButton fleeButton = new TextButton("Flee", game.getSkin());
@@ -356,8 +376,8 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         uiStage.getViewport().apply();
         game.batch.setProjectionMatrix(uiStage.getViewport().getCamera().combined);
         //uiStage.getRoot().draw(game.batch, 1);
-        uiStage.draw();
         uiStage.act(delta);
+        uiStage.draw();
 
     }
 

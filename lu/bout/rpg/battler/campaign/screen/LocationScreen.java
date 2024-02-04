@@ -1,9 +1,24 @@
 package lu.bout.rpg.battler.campaign.screen;
 
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateBy;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -13,11 +28,15 @@ import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
+import lu.bout.rpg.battler.menu.NewGameScreen;
+import lu.bout.rpg.battler.menu.SettingsDialog;
+import lu.bout.rpg.battler.menu.SettingsScreen;
 import lu.bout.rpg.battler.shared.StageScreen;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
 import lu.bout.rpg.battler.world.city.PeopleEncounter;
 import lu.bout.rpg.battler.world.city.LocationMap;
+import lu.bout.rpg.utils.CameraZoomAction;
 
 public class LocationScreen extends StageScreen {
 
@@ -28,11 +47,15 @@ public class LocationScreen extends StageScreen {
     private static final AssetDescriptor FILE_INN = new AssetDescriptor("town/SGI_114.png", Texture.class);
     private static final AssetDescriptor FILE_GENERIC = new AssetDescriptor("town/SGI_addons_178.png", Texture.class);
 
+    private static final AssetDescriptor FILE_SETTINGS_ICON = new AssetDescriptor("settings.png", Texture.class);
+
     private Label title;
     private Table links;
     private Table encounters;
 
     private LocationMap map;
+
+    private ImageButton settings;
 
 
     public static AssetDescriptor[] getRequiredFiles() {
@@ -41,7 +64,8 @@ public class LocationScreen extends StageScreen {
                 FILE_PLANK,
                 FILE_DUNGEON,
                 FILE_VILLAGE,
-                FILE_INN
+                FILE_INN,
+                FILE_SETTINGS_ICON
         };
     }
 
@@ -54,6 +78,7 @@ public class LocationScreen extends StageScreen {
     protected void init() {
 
         Table root = new Table();
+        root.pad(20);
         root.setFillParent(true);
         root.setBackground(new TextureRegionDrawable((Texture)game.getAssetService().get(FILE_BG)));
         stage.addActor(root);
@@ -62,16 +87,25 @@ public class LocationScreen extends StageScreen {
         plankTable.setBackground(new TextureRegionDrawable((Texture) game.getAssetService().get(FILE_PLANK)));
         title = new Label("Town Name", game.getSkin(), "wood");
         plankTable.add(title).align(Align.center).pad(10);
-        root.add(plankTable).colspan(2).expandX().align(Align.center).pad(10);
+        settings = new ImageButton(new TextureRegionDrawable((Texture) game.getAssetService().get(FILE_SETTINGS_ICON)));
+        root.add().width(75);
+        root.add(plankTable).expandX().align(Align.center);
+        root.add(settings).width(75);
         root.row().expandY();
+        settings.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                SettingsDialog dialog = new SettingsDialog(game);
+                dialog.show(stage);
+            }
+        });
 
         links = new Table();
         links.defaults().pad(5);
-        root.add(links).grow();
+        root.add(links).colspan(3).grow();
         root.row();
         encounters = new Table();
         encounters.align(Align.left);
-        root.add(encounters).colspan(2).growX().pad(15);
+        root.add(encounters).colspan(3).growX().pad(15);
         //new Label("noone here", game.getSkin())
     }
 
@@ -82,13 +116,13 @@ public class LocationScreen extends StageScreen {
         encounters.clearChildren();
         int count = 0;
         for (final Location loc : map.getConnections(location)) {
-            Actor icon = buildLocationIcon(loc);
+            final Actor icon = buildLocationIcon(loc);
+            final Cell cell = links.add(icon);
             icon.addListener(new ChangeListener(){
                 public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                    goToLocation(loc.getId());
+                    goToLocation(cell, loc.getId());
                 }
             });
-            links.add(icon);
             if (++count % 2 == 0) {
                 links.row();
             }
@@ -96,6 +130,8 @@ public class LocationScreen extends StageScreen {
         for (PeopleEncounter encounter: location.getEncounters()) {
             encounters.add(buildEncounterIcon(encounter));
         }
+        getOrthographicCamera().zoom = 1;
+        stage.getRoot().addAction(Actions.fadeIn(0.3f));
     }
 
     private Actor buildLocationIcon(Location location) {
@@ -139,8 +175,29 @@ public class LocationScreen extends StageScreen {
         return icon;
     }
 
-    protected void goToLocation(int locationId) {
-        map.getLocation(locationId).goTo(game, map);
+    protected void goToLocation(final Cell cell, final int locationId) {
+        //positionCamera(cell);
+        SequenceAction sequenceAction = new SequenceAction();
+        sequenceAction.addAction(Actions.parallel(fadeOut(0.7f), zoomTo(cell, 0.7f)));
+        sequenceAction.addAction(run(new Runnable() {
+            @Override
+            public void run() {
+                map.getLocation(locationId).goTo(game, map);
+            }
+        }));
+        stage.getRoot().addAction(sequenceAction);
     }
 
+    protected CameraZoomAction zoomTo(final Cell cell, float duration) {
+        OrthographicCamera camera = (OrthographicCamera) stage.getCamera();
+        Vector2 screenPosition = cell.getActor().localToScreenCoordinates(new Vector2(0f, 0f));
+
+        Rectangle destination = new Rectangle(
+                screenPosition.x,
+                Gdx.graphics.getHeight() - screenPosition.y,
+                cell.getActorWidth(),
+                cell.getActorHeight()
+        );
+        return new CameraZoomAction(getOrthographicCamera(), destination, duration);
+    }
 }

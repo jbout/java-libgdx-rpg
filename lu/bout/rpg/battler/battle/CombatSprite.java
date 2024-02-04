@@ -13,6 +13,7 @@ import lu.bout.rpg.battler.battle.animation.AttackAnimation;
 import lu.bout.rpg.battler.battle.animation.BattleAnimation;
 import lu.bout.rpg.battler.battle.animation.DamagedAnimation;
 import lu.bout.rpg.battler.battle.animation.DeathAnimation;
+import lu.bout.rpg.battler.battle.grahics.SimpleBar;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class CombatSprite extends Sprite {
@@ -22,7 +23,8 @@ public class CombatSprite extends Sprite {
     private Map<Integer, String> textureMap;
 
     Participant participant;
-    SimpleHealthbar healthBar;
+    SimpleBar healthBar;
+    SimpleBar unitTimer;
     Vector2 baseCenter;
     BattleAnimation animation = null;
     float lastHp;
@@ -42,7 +44,8 @@ public class CombatSprite extends Sprite {
         super(t);
         this.skin = skin;
         this.participant = participant;
-        this.healthBar = new SimpleHealthbar(Math.max(this.getWidth() / 2, 40), 10);
+        this.healthBar = new SimpleBar(Math.max(this.getWidth() / 2, 40), 10);
+        this.unitTimer = new SimpleBar(Math.max(this.getWidth() / 3, 40), 5, SimpleBar.styleGrayOnGray);
         updateHealth();
     }
 
@@ -57,6 +60,7 @@ public class CombatSprite extends Sprite {
         if (participant.isAlive() || animation != null) {
             super.draw(batch);
             healthBar.draw(batch, this.getX() + (this.getWidth() - healthBar.getWidth()) / 2, this.getY(), lastHp);
+            unitTimer.draw(batch, this.getX() + (this.getWidth() - healthBar.getWidth()) / 2, this.getY() + 10, participant.getCooldownPercentRemaining());
             if (animation instanceof DamagedAnimation) {
                 ((DamagedAnimation) animation).draw(batch);
             }

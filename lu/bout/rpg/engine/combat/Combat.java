@@ -87,7 +87,7 @@ public class Combat {
 					CombatCommand c = p.getNextCommand();
 					if (c != null) {
 						executeCommand(p, c);
-						p.addCooldown(100);
+						p.setCooldown(100);
 					}
 				} else {
 					p.elapseTime(minCooldown, this);

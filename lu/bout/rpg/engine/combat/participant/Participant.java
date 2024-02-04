@@ -8,14 +8,15 @@ public class Participant {
 
 	private Character character;
 
-	private int cooldown = 100;
+	private int cooldown;
+	private int cooldownRemaining;
 	private int teamId;
 	private CombatCommand nextCommand;
 	
 	public Participant(Character character, int teamId, int cooldown) {
 		this.character = character;
 		this.teamId = teamId;
-		this.cooldown = cooldown;
+		setCooldown(cooldown);
 	}
 
 	public boolean isAlive() {
@@ -23,7 +24,7 @@ public class Participant {
 	}
 
 	public boolean isReady() {
-		return cooldown == 0;
+		return cooldownRemaining == 0;
 	}
 
 	public void setNextCommand(CombatCommand command) {
@@ -38,12 +39,17 @@ public class Participant {
 		return toRun;
 	}
 
-	public void addCooldown(int time) {
-		cooldown += time;
+	public void setCooldown(int time) {
+		cooldown = time;
+		cooldownRemaining = time;
 	}
 
 	public int getCooldown() {
-		return cooldown;
+		return cooldownRemaining;
+	}
+
+	public float getCooldownPercentRemaining() {
+		return (float) cooldownRemaining / cooldown;
 	}
 
 	public Character getCharacter() {
@@ -55,9 +61,9 @@ public class Participant {
 	}
 
 	public void elapseTime(int time, Combat combat) {
-		cooldown -= time;
-		if (cooldown < 0) {
-			cooldown = 0;
+		cooldownRemaining -= time;
+		if (cooldownRemaining < 0) {
+			cooldownRemaining = 0;
 		}
 	}
 

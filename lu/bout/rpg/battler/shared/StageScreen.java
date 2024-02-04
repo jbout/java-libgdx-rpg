@@ -3,6 +3,7 @@ package lu.bout.rpg.battler.shared;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -49,6 +50,10 @@ public class StageScreen implements Screen {
         renderScreen(delta);
         stage.act(delta);
         stage.draw();
+    }
+
+    public OrthographicCamera getOrthographicCamera() {
+        return (OrthographicCamera)this.stage.getCamera();
     }
 
     /**

@@ -28,6 +28,8 @@ public abstract class MenuScreen implements Screen, AssetConsumer {
 
     private Image bgImage;
 
+    private Table root = new Table();
+
 
     public AssetDescriptor[] getRequiredFiles() {
         return new AssetDescriptor[]{
@@ -48,15 +50,19 @@ public abstract class MenuScreen implements Screen, AssetConsumer {
                 (Gdx.graphics.getHeight() - bgImage.getHeight()) / 2
         );
         stage.addActor(bgImage);
+        stage.addActor(root);
     }
 
     protected Table getRootTable() {
-        Table root = new Table();
-        //root.defaults().expand();
         Rectangle bounds = this.getUsableSurface();
         root.setBounds(bounds.x, bounds.y, bounds.getWidth(), bounds.getHeight());
-        stage.addActor(root);
         return root;
+    }
+
+    protected void addTitle(String title) {
+        root.row();
+        Label label = new Label(title, game.getSkin(), "title");
+        root.add(label).padTop(75).padBottom(75);
     }
 
     protected Rectangle getUsableSurface() {
