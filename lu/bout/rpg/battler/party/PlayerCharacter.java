@@ -1,10 +1,9 @@
 package lu.bout.rpg.battler.party;
 
-import lu.bout.rpg.battler.battle.BattleMini;
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.battler.battle.map.CombatMini;
 import lu.bout.rpg.engine.system.simplejrpg.SampleFighter;
 
-public class PlayerCharacter extends SampleFighter implements BattleMini {
+public class PlayerCharacter extends SampleFighter implements CombatMini {
 
     private String name;
 

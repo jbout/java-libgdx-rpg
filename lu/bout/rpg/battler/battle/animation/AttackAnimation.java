@@ -2,7 +2,7 @@ package lu.bout.rpg.battler.battle.animation;
 
 import com.badlogic.gdx.math.Vector2;
 
-import lu.bout.rpg.battler.battle.CombatSprite;
+import lu.bout.rpg.battler.battle.map.CombatSprite;
 
 public class AttackAnimation implements BattleAnimation {
 

@@ -47,7 +47,7 @@ public class Combat {
 	public LinkedList<Participant> getParticipants() {
 		return persons;
 	}
-	
+
 	public LinkedList<Participant> getEnemies(Participant participant) {
 		LinkedList<Participant> enemies = new LinkedList<Participant>();
 		for (Participant candidate: persons) {
@@ -56,6 +56,15 @@ public class Combat {
 			}
 		}
 		return enemies;
+	}
+
+	public Participant getParticipant(Character character) {
+		for (Participant candidate: persons) {
+			if (candidate.getCharacter() == character) {
+				return candidate;
+			}
+		}
+		return null;
 	}
 	
 	public boolean isOver() {

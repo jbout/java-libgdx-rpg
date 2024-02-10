@@ -106,7 +106,7 @@ public class RpgGame extends Game {
 	 */
 	public void showDialog(final Dialog dialog) {
 		if (this.screen instanceof StageScreen) {
-			((StageScreen) this.screen).showDialog(dialog);
+			dialog.show(((StageScreen) this.screen).getStage());
 		} else {
 			// legacy implementation, only works if dialog triggers navigation
 			dialogScreen.showDialog(dialog);

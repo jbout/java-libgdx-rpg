@@ -24,7 +24,7 @@ import lu.bout.rpg.battler.world.city.Location;
 import lu.bout.rpg.battler.world.city.LocationMap;
 import lu.bout.rpg.battler.world.city.VillageLocation;
 
-public class StageScreen implements Screen {
+public class StageScreen implements IStageScreen {
 
     protected final RpgGame game;
 
@@ -35,8 +35,9 @@ public class StageScreen implements Screen {
         stage = new Stage(new ScreenViewport());
     }
 
-    public void showDialog(Dialog d) {
-        d.show(this.stage);
+    @Override
+    public Stage getStage() {
+        return stage;
     }
 
     @Override

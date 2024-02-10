@@ -1,5 +1,6 @@
 package lu.bout.rpg.engine.combat;
 
+import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.engine.character.Party;
 
 public class Encounter {
@@ -15,17 +16,17 @@ public class Encounter {
     // enemy prepared an ambush given a severe disadvantage
     public final static int TYPE_AMBUSH = 4;
 
-    private Party playerParty;
+    private PlayerParty playerParty;
     private Party opponents;
     private int encounterType;
 
-    public Encounter(Party playerParty, Party opponents, int type) {
+    public Encounter(PlayerParty playerParty, Party opponents, int type) {
         this.playerParty = playerParty;
         this.opponents = opponents;
         encounterType = type;
     }
 
-    public Party getPlayerParty() {
+    public PlayerParty getPlayerParty() {
         return playerParty;
     }
 

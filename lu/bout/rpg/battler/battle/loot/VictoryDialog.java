@@ -45,6 +45,8 @@ public class VictoryDialog extends Dialog {
         if (next instanceof BattleFeedback) {
             ((BattleFeedback)next).combatEnded(true);
         }
+        // prevents animation
+        remove();
         game.setScreen(next);
     }
 }

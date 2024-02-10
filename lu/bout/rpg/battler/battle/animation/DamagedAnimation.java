@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import lu.bout.rpg.battler.battle.CombatSprite;
+import lu.bout.rpg.battler.battle.map.CombatSprite;
 
 public class DamagedAnimation implements BattleAnimation {
 

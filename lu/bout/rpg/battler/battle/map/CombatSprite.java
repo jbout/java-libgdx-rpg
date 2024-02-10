@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.battle;
+package lu.bout.rpg.battler.battle.map;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -32,8 +32,8 @@ public class CombatSprite extends Sprite {
 
     public static CombatSprite createSprite(Participant participant, Skin skin) {
         Texture t;
-        if (participant.getCharacter() instanceof BattleMini) {
-            t = new Texture(((BattleMini)participant.getCharacter()).getMiniTextureName());
+        if (participant.getCharacter() instanceof CombatMini) {
+            t = new Texture(((CombatMini)participant.getCharacter()).getMiniTextureName());
         } else {
             t = new Texture("enemy/pipo-enemy001.png");
         }

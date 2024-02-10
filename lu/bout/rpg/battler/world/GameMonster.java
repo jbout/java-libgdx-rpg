@@ -1,9 +1,9 @@
 package lu.bout.rpg.battler.world;
 
-import lu.bout.rpg.battler.battle.BattleMini;
+import lu.bout.rpg.battler.battle.map.CombatMini;
 import lu.bout.rpg.engine.character.Monster;
 
-public class GameMonster extends Monster implements BattleMini {
+public class GameMonster extends Monster implements CombatMini {
 
     public String texture;
 

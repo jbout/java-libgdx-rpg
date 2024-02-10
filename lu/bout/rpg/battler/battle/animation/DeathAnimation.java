@@ -1,6 +1,6 @@
 package lu.bout.rpg.battler.battle.animation;
 
-import lu.bout.rpg.battler.battle.CombatSprite;
+import lu.bout.rpg.battler.battle.map.CombatSprite;
 
 public class DeathAnimation implements BattleAnimation {
 
