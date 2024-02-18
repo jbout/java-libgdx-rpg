@@ -1,8 +1,14 @@
 package lu.bout.rpg.engine.combat.participant;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
+import lu.bout.rpg.engine.combat.event.DeathEvent;
+import lu.bout.rpg.engine.combat.status.CombatStatus;
+import lu.bout.rpg.engine.combat.status.DamageReceivedAffectingStatus;
 
 public class Participant {
 
@@ -12,6 +18,8 @@ public class Participant {
 	private int cooldownRemaining;
 	private int teamId;
 	private CombatCommand nextCommand;
+
+	private HashMap<Class, CombatStatus> statuses = new HashMap<>();
 	
 	public Participant(Character character, int teamId, int cooldown) {
 		this.character = character;
@@ -67,8 +75,35 @@ public class Participant {
 		}
 	}
 
-	public void takesDamage(int dmg) {
+	public void setStatus(CombatStatus status) {
+		statuses.put(status.getClass(), status);
+	}
+
+	public void removeStatus(CombatStatus status) {
+		statuses.remove(status.getClass());
+	}
+
+	public CombatStatus getStatus(Class statusType) {
+		return statuses.get(statusType);
+	}
+
+	/**
+	 * Assign the damage from an attack
+	 * @param combat combat context
+	 * @param dmg incoming unmodified damage
+	 * @return actual received damage
+	 */
+	public int takesDamage(Combat combat, int dmg) {
+		for (CombatStatus status: statuses.values()) {
+			if (status instanceof DamageReceivedAffectingStatus) {
+				dmg = ((DamageReceivedAffectingStatus) status).adjustReceivedDamage(this, dmg);
+			}
+		}
 		character.takesDamage(dmg);
+		if (!isAlive()) {
+			combat.trigger(new DeathEvent(this));
+		}
+		return dmg;
 	}
 
 }

@@ -6,6 +6,6 @@ import lu.bout.rpg.engine.combat.participant.Participant;
 public class ReadyEvent extends ParticipiantEvent {
 
 	public ReadyEvent(Combat c, Participant actor) {
-		super(c, actor);
+		super(actor);
 	}
 }

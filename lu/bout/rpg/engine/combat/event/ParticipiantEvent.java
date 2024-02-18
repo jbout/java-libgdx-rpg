@@ -1,14 +1,12 @@
 package lu.bout.rpg.engine.combat.event;
 
-import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
-abstract public class ParticipiantEvent extends BaseEvent {
+abstract public class ParticipiantEvent implements CombatEvent {
 
 	private Participant actor;
 
-	public ParticipiantEvent(Combat c, Participant actor) {
-		super(c);
+	public ParticipiantEvent(Participant actor) {
 		this.actor = actor;
 	}
 

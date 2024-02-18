@@ -8,8 +8,8 @@ import lu.bout.rpg.battler.campaign.chapter.NarrativeChapter;
 import lu.bout.rpg.battler.campaign.chapter.VictoryChapter;
 import lu.bout.rpg.battler.campaign.storyAction.AddNpcAction;
 import lu.bout.rpg.battler.campaign.storyAction.GoToChapterAction;
-import lu.bout.rpg.battler.dungeon.CombatEncounterFactory;
-import lu.bout.rpg.battler.dungeon.MapFactory;
+import lu.bout.rpg.battler.dungeon.generator.CombatEncounterFactory;
+import lu.bout.rpg.battler.dungeon.generator.MapFactory;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
@@ -36,7 +36,7 @@ public class CampaignBuilder {
     public CampaignReference[] getAvailableCampagins() {
         return new CampaignReference[] {
                 new CampaignReference("2step", "2 Step dungeon"),
-                new CampaignReference("free", "Free Roam"),
+                new CampaignReference("free", "2 Roam"),
         };
     }
 

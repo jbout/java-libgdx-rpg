@@ -8,10 +8,8 @@ import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.command.AttackCommand;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
-import lu.bout.rpg.engine.combat.event.AttackEvent;
 import lu.bout.rpg.engine.combat.event.CombatEndedEvent;
 import lu.bout.rpg.engine.combat.event.CombatEvent;
-import lu.bout.rpg.engine.combat.event.DeathEvent;
 import lu.bout.rpg.engine.combat.event.ReadyEvent;
 import lu.bout.rpg.engine.combat.participant.CombatAi;
 import lu.bout.rpg.engine.combat.participant.MonsterAi;
@@ -19,8 +17,10 @@ import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class Combat {
 
-	final static int TEAM_PLAYER = 0;
-	final static int TEAM_ENEMY = 1;
+	final public static int TEAM_PLAYER = 0;
+	final public static int TEAM_ENEMY = 1;
+
+	private LinkedList<CombatEvent> pendingEvents = new LinkedList<>();
 
 	private LinkedList<CombatListener> listeners = new LinkedList<CombatListener>();
 	
@@ -101,7 +101,7 @@ public class Combat {
 				} else {
 					p.elapseTime(minCooldown, this);
 					if (p.isReady()) {
-						propagate(new ReadyEvent(this, p));
+						trigger(new ReadyEvent(this, p));
 					}
 				}
 			}
@@ -112,6 +112,7 @@ public class Combat {
 				return p1.getCooldown() - p2.getCooldown();
 			}
 		});
+		propagateEvents();
 		return minCooldown;
 	}
 
@@ -138,34 +139,28 @@ public class Combat {
 	private void executeCommand(Participant who, CombatCommand command) {
 		if (who.isReady()) {
 			if (command.getClass() == AttackCommand.class) {
-				Participant target = ((AttackCommand) command).getTarget();
-				attackAction(who, target);
-				if (!target.isAlive()) {
-					propagate(new DeathEvent(this, target));
-				}
+				((AttackCommand) command).getAction(who).execute(this);
 			}
 		}
 		int winner = whoWon();
 		if (winner != -1) {
-			this.propagate(new CombatEndedEvent(this, winner == TEAM_PLAYER));
+			this.trigger(new CombatEndedEvent(winner));
 		}
-	}
-
-	//============== Actions ==================
-	
-	private void attackAction(Participant who, Participant whom) {
-		int dmg = who.getCharacter().getDamage();
-		CombatEvent event = new AttackEvent(this, who, whom, dmg);
-		whom.takesDamage(dmg);
-		this.propagate(event);
 	}
 
 	//=========================================
 
-	private void propagate(CombatEvent action) {
-		for(CombatListener listener : listeners) {
-			listener.receiveCombatEvent(action);
+	public void trigger(CombatEvent event) {
+		pendingEvents.add(event);
+	}
+
+	private void propagateEvents() {
+		for (CombatEvent event: pendingEvents) {
+			for (CombatListener listener : listeners) {
+				listener.receiveCombatEvent(this, event);
+			}
 		}
+		pendingEvents.clear();
 	}
 
 }

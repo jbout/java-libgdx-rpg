@@ -4,14 +4,13 @@ import lu.bout.rpg.engine.combat.Combat;
 
 public class CombatEndedEvent extends BaseEvent {
 
-	private boolean playerWon;
+	private int winner;
 
-	public CombatEndedEvent(Combat c, boolean isPlayerWinner) {
-		super(c);
-		playerWon = isPlayerWinner;
+	public CombatEndedEvent(int winner) {
+		this.winner = winner;
 	}
 
 	public boolean isPlayerWinner() {
-		return playerWon;
+		return winner == Combat.TEAM_PLAYER;
 	}
 }

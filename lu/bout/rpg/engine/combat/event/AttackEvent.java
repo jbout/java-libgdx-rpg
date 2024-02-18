@@ -9,7 +9,7 @@ public class AttackEvent extends ParticipiantEvent {
 	private int damage;
 	
 	public AttackEvent(Combat c, Participant attacker, Participant target, int damage) {
-		super(c, attacker);
+		super(attacker);
 		this.target = target;
 		this.damage = damage;
 	}

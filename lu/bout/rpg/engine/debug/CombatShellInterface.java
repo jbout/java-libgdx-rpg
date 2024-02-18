@@ -23,7 +23,7 @@ public class CombatShellInterface implements CombatListener {
     }
 
 	@Override
-	public void receiveCombatEvent(CombatEvent a) {
+	public void receiveCombatEvent(Combat combat, CombatEvent a) {
 		if (a.getClass() == AttackEvent.class) {
 			
 			System.out.println(((AttackEvent)a).getAttacker()

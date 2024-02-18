@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.dungeon;
+package lu.bout.rpg.battler.dungeon.generator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
@@ -6,6 +6,10 @@ import com.badlogic.gdx.math.MathUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import lu.bout.rpg.battler.dungeon.DungeonMap;
+import lu.bout.rpg.battler.dungeon.EncounterField;
+import lu.bout.rpg.battler.dungeon.Field;
 
 public class MapFactory {
 

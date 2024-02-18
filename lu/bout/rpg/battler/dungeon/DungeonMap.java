@@ -7,13 +7,16 @@ public class DungeonMap {
 
     private int depth;
     private HashMap<String, Field> fields;
-    private String start;
+    private String startId;
 
+    /**
+     * Used by serializer/deserializer
+     */
     public DungeonMap() {
     }
 
     public DungeonMap(Field start, int depth) {
-        this.start = start.getMapPos();
+        this.startId = start.getMapPos();
         this.depth = depth;
         fields = new HashMap<>();
         addField(start);
@@ -42,7 +45,7 @@ public class DungeonMap {
     }
 
     public Field getStart() {
-        return getField(start);
+        return getField(startId);
     }
 
     public int getDepth() {

@@ -4,6 +4,6 @@ import lu.bout.rpg.engine.combat.event.CombatEvent;
 
 public interface CombatListener {
 	
-	public void receiveCombatEvent(CombatEvent a);
+	public void receiveCombatEvent(Combat combat, CombatEvent a);
 
 }

@@ -28,10 +28,10 @@ public class MonsterAi implements CombatAi, CombatListener {
 	}
 
 	@Override
-	public void receiveCombatEvent(CombatEvent a) {
+	public void receiveCombatEvent(Combat combat, CombatEvent a) {
 		if (a instanceof ReadyEvent) {
 			if (((ReadyEvent)a).getActor() == monster) {
-				CombatCommand command = getAttackCommand(a.getCombat());
+				CombatCommand command = getAttackCommand(combat);
 				if (command != null) {
 					monster.setNextCommand(command);
 				}

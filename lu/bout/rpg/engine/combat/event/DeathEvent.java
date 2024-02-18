@@ -5,7 +5,7 @@ import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class DeathEvent extends ParticipiantEvent {
 
-    public DeathEvent(Combat c, Participant actor) {
-        super(c, actor);
+    public DeathEvent(Participant actor) {
+        super(actor);
     }
 }

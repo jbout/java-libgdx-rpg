@@ -1,4 +1,4 @@
-package lu.bout.rpg.battler.dungeon;
+package lu.bout.rpg.battler.dungeon.generator;
 
 import com.badlogic.gdx.math.MathUtils;
 
