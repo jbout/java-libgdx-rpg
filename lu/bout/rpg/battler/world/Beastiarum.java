@@ -6,7 +6,8 @@ import com.badlogic.gdx.utils.Json;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import lu.bout.rpg.engine.character.Monster;
+import lu.bout.rpg.engine.system.simplejrpg.character.Monster;
+import lu.bout.rpg.vocabulary.Animal;
 
 public class Beastiarum {
 
@@ -45,11 +46,21 @@ public class Beastiarum {
             "  ]" +
             "}";
 
-    MonsterTemplate[] templates;
+    private MonsterTemplate[] templates;
+
+    public Beastiarum() {
+        templates = new MonsterTemplate[] {
+                new MonsterTemplate(1,3, new String[] {Animal.BAT}),
+                new MonsterTemplate(3,5, new String[] {Animal.BEETLE}),
+                new MonsterTemplate(5,7, new String[] {Animal.SNAKE}),
+                new MonsterTemplate(7,9, new String[] {Animal.WULF}),
+                new MonsterTemplate(10,20, new String[] {Animal.GRIFFIN}),
+        };
+    }
 
     public static Beastiarum getInstance() {
         Json json = new Json();
-        Beastiarum beastiarum = json.fromJson(Beastiarum.class, monsterjson);
+        Beastiarum beastiarum = new Beastiarum();//json.fromJson(Beastiarum.class, monsterjson);
         return beastiarum;
     }
 

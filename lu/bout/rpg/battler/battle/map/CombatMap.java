@@ -17,10 +17,13 @@ import java.util.LinkedList;
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.engine.combat.Combat;
+import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
+import lu.bout.rpg.engine.combat.event.CombatEvent;
+import lu.bout.rpg.engine.combat.event.DeathEvent;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
-public class CombatMap extends Widget {
+public class CombatMap extends Widget implements CombatListener {
 
 	private static final AssetDescriptor FILE_CAVE_BG = new AssetDescriptor("cave_bg.PNG", Texture.class);
 	private static final AssetDescriptor FILE_UP_ARROW = new AssetDescriptor("battle/uparrow.png", Texture.class);
@@ -173,6 +176,23 @@ public class CombatMap extends Widget {
 				Gdx.app.log("Game", "    box " + sprite.getHitbox().x + " : " + sprite.getHitbox().y);
 				if (sprite.getHitbox().contains(x, y)) {
 					target = sprite;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void receiveCombatEvent(Combat combat, CombatEvent event) {
+		if (event instanceof DeathEvent) {
+			getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
+			// need to find a new target
+			if (targeting == true && target != null && !target.getParticipant().isAlive()) {
+				LinkedList<Participant> targets = new LinkedList<>();
+				for (Participant candidate: combat.getParticipants()) {
+					if (candidate.isAlive() && candidate.getTeamId() == target.getParticipant().getTeamId()) {
+						target = getSpriteforParticipant(candidate);
+						break;
+					}
 				}
 			}
 		}

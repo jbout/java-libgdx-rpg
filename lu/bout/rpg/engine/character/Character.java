@@ -1,5 +1,9 @@
 package lu.bout.rpg.engine.character;
 
+import java.util.LinkedList;
+
+import lu.bout.rpg.engine.system.Skill;
+
 abstract public class Character {
 
     protected int hp;
@@ -24,5 +28,11 @@ abstract public class Character {
 
     public void healsPercent(float percent) {
         hp = Math.min(hp + (int)(getMaxhp() * percent), getMaxhp());
+    }
+
+    public abstract LinkedList<Skill> getSkills();
+
+    public Iterable<String> getTags() {
+        return new LinkedList<>();
     }
 }

@@ -197,9 +197,9 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
 
     private void unfoldAll() {
         for (Field f: dungeonMap.getAllFields()) {
-            if (f.isOpen()) {
+            //if (f.isOpen()) {
                 showConnections(f);
-            }
+            //}
         }
     }
 
@@ -334,7 +334,7 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         game.batch.setColor(1, 1, 1, 1);
         game.batch.draw(bg, 0, 0 , RpgGame.WIDTH, maxScroll);
         for (FieldSprite f: fieldSprites) {
-            if (f.getField().isOpen()) {
+            //if (f.getField().isOpen()) {
                 game.batch.setColor(Color.BROWN);
                 for (Connection c: f.getField().getConnections()) {
                     if (c.getDirection() == Connection.LEFT) {
@@ -346,7 +346,7 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
                     if (c.getDirection() == Connection.RIGHT) {
                         game.batch.draw(right, f.getX(), f.getY());
                     }
-                }
+            //    }
             }
             game.batch.setColor(1, 1, 1, 1);
             f.draw(game.batch);

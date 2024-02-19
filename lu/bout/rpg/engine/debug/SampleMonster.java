@@ -1,6 +1,6 @@
 package lu.bout.rpg.engine.debug;
 
-import lu.bout.rpg.engine.character.Monster;
+import lu.bout.rpg.engine.system.simplejrpg.character.Monster;
 
 public class SampleMonster extends Monster {
     private String name;
@@ -16,7 +16,7 @@ public class SampleMonster extends Monster {
         this.level = level;
     }
 
-    public String getName() {
+    public String toString() {
         return name + "(" + getHp() + ")";
     }
 

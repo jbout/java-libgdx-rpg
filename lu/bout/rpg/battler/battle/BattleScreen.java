@@ -38,6 +38,7 @@ import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.Encounter;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.command.AttackCommand;
+import lu.bout.rpg.engine.combat.command.CombatCommand;
 import lu.bout.rpg.engine.combat.command.IdleCommand;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
 import lu.bout.rpg.engine.combat.event.CombatEndedEvent;
@@ -67,6 +68,7 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 	private Combat combat;
 	private Screen caller;
 	private Participant player;
+	private PlayerParty party;
 	CombatState state = CombatState.ongoing;
 
 	private Actor lowerScreen;
@@ -87,6 +89,8 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 	private Table stageTable;
 
 	private Drawable tableBackground;
+
+	CombatCommand nextCommand;
 
 	CombatMap map;
 
@@ -112,7 +116,6 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 
 	private void init() {
 		combatMenu = new CombatMenu(this);
-		//combatMenu.setBounds(0,0,RpgGame.WIDTH, RpgGame.HEIGHT / 2);
 		stats = Gdx.app.getPreferences("stats");
 		batch = new SpriteBatch();
 		brick = (Texture) game.getAssetService().get(FILE_CAVE_BRICK);
@@ -136,27 +139,30 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		setSubScreen(partyScreen);
 	}
 
-	public void startBattle(PlayerParty party, Party enemies, Screen caller) {
+	public void startBattle(PlayerParty playerParty, Party enemies, Screen caller) {
 		if (batch == null) {
 			init();
 		}
-		encounter = new Encounter(party, enemies, Encounter.TYPE_BALANCED);
+		party = playerParty;
+		encounter = new Encounter(playerParty, enemies, Encounter.TYPE_BALANCED);
 		setupMinigame(); // might have changed
 		this.caller = caller;
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
-		partyScreen.setParty(encounter.getPlayerParty());
+		partyScreen.setParty(playerParty);
 		combat = new Combat(encounter);
 		map.setCombatants(combat);
 		for (Participant participant: combat.getParticipants()) {
-			boolean isPlayer = participant.getCharacter() == party.getPlayerCharacter();
+			boolean isPlayer = participant.getCharacter() == playerParty.getPlayerCharacter();
 			if (isPlayer) {
 				player = participant;
 			}
 		}
 		combat.addListener(this);
+		combat.addListener(map);
 		difficulty = INITIAL_DIFFICULTY;
 		isPaused = false;
 		state = CombatState.ongoing;
+		showPlayerOptions();
 	}
 
 
@@ -186,13 +192,14 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 
 	private void endBattle() {
 		isPaused = true;
+		setSubScreen(partyScreen);
 		int xp = 0;
 		for (Character monster :encounter.getOpponentParty().getMembers()) {
 			xp += monster.getLevel() * 250;
 		}
 		// only show loot if the battle feedback did not trigger a navigation (ganeover)
 		if (state == CombatState.won && game.getScreen() == this) {
-			victoryDialog.showLoot(encounter.getPlayerParty(), xp, caller);
+			victoryDialog.showLoot(party, xp, caller);
 			victoryDialog.show(stage);
 		} else {
 			if (caller instanceof BattleFeedback) {
@@ -208,12 +215,24 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		stats.flush();
 		if (success) {
 			difficulty++;
-			player.setNextCommand(game.getCommandToRun());
+			if (player.isReady()) {
+				player.setNextCommand(game.getCommandToRun());
+				showPlayerOptions();
+			} else {
+				// player no ready, queue
+				nextCommand = game.getCommandToRun();
+				setSubScreen(partyScreen);
+			}
 		} else {
 			difficulty = INITIAL_DIFFICULTY;
-			player.setNextCommand(new IdleCommand());
+			if (player.isReady()) {
+				player.setNextCommand(new IdleCommand());
+				showPlayerOptions();
+			} else {
+				nextCommand = new IdleCommand();
+				setSubScreen(partyScreen);
+			}
 		}
-		setSubScreen(partyScreen);
 		isPaused = false;
 	}
 
@@ -222,11 +241,15 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		if (event instanceof AttackEvent) {
 			this.renderAttack((AttackEvent) event);
 		}
-		if (event instanceof DeathEvent) {
-			map.getSpriteforParticipant(((DeathEvent) event).getActor()).drawDeath();
-		}
 		if (event instanceof ReadyEvent && ((ReadyEvent)event).getActor() == player) {
-			showPlayerOptions();
+			if (nextCommand != null) {
+				player.setNextCommand(nextCommand);
+				nextCommand = null;
+				showPlayerOptions();
+			} else {
+				// player is still in minigame, waiting
+				isPaused = true;
+			}
 		}
 		if (event instanceof CombatEndedEvent) {
 			state = ((CombatEndedEvent) event).isPlayerWinner() ? CombatState.won : CombatState.lost;
@@ -235,14 +258,12 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 
 	private void showPlayerOptions() {
 		setSubScreen(combatMenu);
-		combatMenu.show(encounter.getPlayerParty());
-		isPaused = true;
+		combatMenu.show(party);
 	}
 
 	public void launchAttackMinigame(Participant target) {
 		minigame.init(difficulty, new AttackCommand(target));
 		setSubScreen(minigame);
-		isPaused = true;
 	}
 
 	private void renderAttack(AttackEvent attackEvent) {
@@ -271,7 +292,6 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 
 		ScreenUtils.clear(0, 0, 0, 1);
 		viewport.apply();
-		//batch.setProjectionMatrix(camera.combined);
 		stage.act(delta);
 		stage.draw();
 	}

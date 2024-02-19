@@ -1,13 +1,21 @@
 package lu.bout.rpg.battler.world;
 
+import lu.bout.rpg.engine.system.simplejrpg.character.Monster;
+
 public class MonsterTemplate {
     private String name;
     private int minlevel;
     private int maxlevel;
-    private String texture;
+    private String[] tags;
 
-    public GameMonster generateMonster() {
-        return new GameMonster(minlevel + (int)(Math.random() * (maxlevel-minlevel+1)), texture);
+    public MonsterTemplate(int min, int max, String[] tags) {
+        minlevel = min;
+        maxlevel = max;
+        this.tags = tags;
+    }
+
+    public Monster generateMonster() {
+        return new Monster(minlevel + (int)(Math.random() * (maxlevel-minlevel+1)), tags);
     }
 
     public String getId() {
@@ -18,11 +26,8 @@ public class MonsterTemplate {
         return new int[]{minlevel, maxlevel};
     }
 
-    public GameMonster generateMonster(int level) {
-        return new GameMonster(level, texture);
+    public Monster generateMonster(int level) {
+        return new Monster(level, tags);
     }
 
-    public String getMiniTextureName() {
-        return texture;
-    }
 }

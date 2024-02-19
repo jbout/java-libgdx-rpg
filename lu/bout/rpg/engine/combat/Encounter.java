@@ -1,5 +1,7 @@
 package lu.bout.rpg.engine.combat;
 
+import java.util.HashMap;
+
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.engine.character.Party;
 
@@ -16,18 +18,21 @@ public class Encounter {
     // enemy prepared an ambush given a severe disadvantage
     public final static int TYPE_AMBUSH = 4;
 
-    private PlayerParty playerParty;
+    private Party playerParty;
     private Party opponents;
     private int encounterType;
 
-    public Encounter(PlayerParty playerParty, Party opponents, int type) {
-        this.playerParty = playerParty;
+    public Encounter(Party primaryParty, Party opponents, int type) {
+        this.playerParty = primaryParty;
         this.opponents = opponents;
         encounterType = type;
     }
 
-    public PlayerParty getPlayerParty() {
-        return playerParty;
+    public HashMap<Integer, Party> getParties() {
+        HashMap<Integer, Party> parties = new HashMap<>();
+        parties.put(Integer.valueOf(Combat.TEAM_PLAYER), playerParty);
+        parties.put(Integer.valueOf(Combat.TEAM_ENEMY), opponents);
+        return parties;
     }
 
     public Party getOpponentParty() {

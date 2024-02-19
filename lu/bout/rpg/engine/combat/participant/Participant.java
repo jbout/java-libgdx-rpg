@@ -106,4 +106,12 @@ public class Participant {
 		return dmg;
 	}
 
+	/**
+	 * For debugging only
+	 * @return human readable name of the character
+	 */
+	public String toString() {
+		return this.character.toString();
+	}
+
 }

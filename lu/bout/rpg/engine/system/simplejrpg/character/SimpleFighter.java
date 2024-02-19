@@ -1,9 +1,14 @@
-package lu.bout.rpg.engine.system.simplejrpg;
+package lu.bout.rpg.engine.system.simplejrpg.character;
+
+import java.util.LinkedList;
 
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.system.CharacterKlass;
+import lu.bout.rpg.engine.system.Skill;
+import lu.bout.rpg.engine.system.simplejrpg.FighterKlass;
+import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.MeleeAttack;
 
-public class SampleFighter extends Character {
+public class SimpleFighter extends Character {
 
     private int level;
     private int xp;
@@ -16,6 +21,13 @@ public class SampleFighter extends Character {
 
     public int getLevel() {
         return level;
+    }
+
+    @Override
+    public LinkedList<Skill> getSkills() {
+        LinkedList<Skill> list = new LinkedList<>();
+        list.add(new MeleeAttack());
+        return list;
     }
 
     public CharacterKlass getKlass() {

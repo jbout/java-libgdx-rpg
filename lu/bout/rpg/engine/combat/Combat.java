@@ -3,20 +3,23 @@ package lu.bout.rpg.engine.combat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Map;
 
 import lu.bout.rpg.engine.character.Character;
 import lu.bout.rpg.engine.character.Party;
+import lu.bout.rpg.engine.combat.command.ActionableCommand;
 import lu.bout.rpg.engine.combat.command.AttackCommand;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 import lu.bout.rpg.engine.combat.event.CombatEndedEvent;
 import lu.bout.rpg.engine.combat.event.CombatEvent;
 import lu.bout.rpg.engine.combat.event.ReadyEvent;
 import lu.bout.rpg.engine.combat.participant.CombatAi;
-import lu.bout.rpg.engine.combat.participant.MonsterAi;
+import lu.bout.rpg.engine.combat.participant.RandomMonsterAi;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class Combat {
 
+	// TODO do not hardcore player team
 	final public static int TEAM_PLAYER = 0;
 	final public static int TEAM_ENEMY = 1;
 
@@ -27,19 +30,16 @@ public class Combat {
 	private LinkedList<Participant> persons = new LinkedList<Participant>();
 
 	public Combat(Encounter encounter) {
-		Party playerParty = encounter.getPlayerParty();
-		Party enemyParty = encounter.getOpponentParty();
-		for (Character character: playerParty.getMembers()) {
-			this.participate(character, TEAM_PLAYER);
-		}
-		for (Character character: enemyParty.getMembers()) {
-			this.participate(character, TEAM_ENEMY);
+		for (Map.Entry<Integer, Party> ref: encounter.getParties().entrySet()) {
+			for (Character character: ref.getValue().getMembers()) {
+				this.participate(character, ref.getKey());
+			}
 		}
 	}
 
 	protected void participate(Character character, int teamId) {
 		Participant p = new Participant(character, teamId, (int)(Math.random() * 90) + 10);
-		CombatAi brain = new MonsterAi(p);// character.getClass() == Monster.class ? new MonsterAi() : new PlayerUi();
+		CombatAi brain = new RandomMonsterAi(p);// character.getClass() == Monster.class ? new MonsterAi() : new PlayerUi();
 		this.addListener(brain);
 		persons.add(p);
 	}
@@ -140,6 +140,8 @@ public class Combat {
 		if (who.isReady()) {
 			if (command.getClass() == AttackCommand.class) {
 				((AttackCommand) command).getAction(who).execute(this);
+			} else if (command instanceof ActionableCommand) {
+				((ActionableCommand) command).getAction().execute(this);
 			}
 		}
 		int winner = whoWon();

@@ -5,11 +5,9 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateBy;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
@@ -28,15 +26,13 @@ import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
-import lu.bout.rpg.battler.menu.NewGameScreen;
 import lu.bout.rpg.battler.menu.SettingsDialog;
-import lu.bout.rpg.battler.menu.SettingsScreen;
 import lu.bout.rpg.battler.shared.StageScreen;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
 import lu.bout.rpg.battler.world.city.PeopleEncounter;
 import lu.bout.rpg.battler.world.city.LocationMap;
-import lu.bout.rpg.utils.CameraZoomAction;
+import lu.bout.rpg.battler.utils.CameraZoomAction;
 
 public class LocationScreen extends StageScreen {
 

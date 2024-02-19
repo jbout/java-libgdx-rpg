@@ -35,7 +35,7 @@ public class CombatSprite extends Sprite {
         if (participant.getCharacter() instanceof CombatMini) {
             t = new Texture(((CombatMini)participant.getCharacter()).getMiniTextureName());
         } else {
-            t = new Texture("enemy/pipo-enemy001.png");
+            t = MonsterArt.getBestSpriteTexture(participant.getCharacter());
         }
         return new CombatSprite(t, participant, skin);
     }

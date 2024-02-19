@@ -5,7 +5,7 @@ import java.util.List;
 
 import lu.bout.rpg.engine.system.CharacterKlass;
 import lu.bout.rpg.engine.system.Skill;
-import lu.bout.rpg.engine.system.simplejrpg.skill.MeleeAttack;
+import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.MeleeAttack;
 
 public class FighterKlass extends CharacterKlass {
 

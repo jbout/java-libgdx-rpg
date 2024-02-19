@@ -7,7 +7,7 @@ import lu.bout.rpg.engine.system.Attribute;
 import lu.bout.rpg.engine.system.CharacterKlass;
 import lu.bout.rpg.engine.system.System;
 
-public class SimpleJrpg extends System {
+public class SimpleJrpgSystem extends System {
 
     public List<Attribute> getAttributes() {
         List<Attribute> attributes = new ArrayList();
