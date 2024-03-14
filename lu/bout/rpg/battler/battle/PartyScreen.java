@@ -7,12 +7,12 @@ import java.util.LinkedList;
 
 import lu.bout.rpg.battler.battle.map.CombatSprite;
 import lu.bout.rpg.battler.shared.SubScreen;
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.character.Party;
 
 public class PartyScreen implements SubScreen {
 
-    LinkedList<Character> playerCharacters;
+    LinkedList<CharacterSheet> playerCharacterSheets;
     LinkedList<CombatSprite> characters = new LinkedList<CombatSprite>();
 
     @Override
@@ -21,6 +21,6 @@ public class PartyScreen implements SubScreen {
     }
 
     public void setParty(Party playerParty) {
-        playerCharacters = playerParty.getMembers();
+        playerCharacterSheets = playerParty.getMembers();
     }
 }

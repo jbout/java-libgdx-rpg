@@ -21,7 +21,7 @@ import lu.bout.rpg.battler.menu.MenuScreen;
 public class CharcterScreen extends MenuScreen {
 
     private Screen returnTo;
-    private PlayerCharacter character;
+    private Person character;
     private final Label characterName;
     private final Label characterKlass;
     private final Label characterHealth;
@@ -108,11 +108,12 @@ public class CharcterScreen extends MenuScreen {
         return abilities;
     }
 
-    public void showCharacter(final PlayerCharacter character) {
+    public void showCharacter(final Person character) {
         this.character = character;
         characterName.setText(character.getName());
         PortraitService p = new PortraitService();
         characterImage.setDrawable(new TextureRegionDrawable(p.getPortrait(character.getPortaitId())));
+        /*
         characterHealth.setText("HP: " + character.getHp() + " / " + character.getMaxhp());
         healthBar.setRange(0, character.getMaxhp());
         healthBar.setValue(character.getHp());
@@ -122,6 +123,7 @@ public class CharcterScreen extends MenuScreen {
         characterKlass.setText(character.getKlass().getName() + " lvl: " + character.getLevel());
         attributeLabels.get("str").setText(character.getStrength());
         attributeLabels.get("con").setText(character.getConstitution());
+         */
         if (game.getScreen() != this) {
             returnTo = game.getScreen();
         }

@@ -1,7 +1,7 @@
 
 The fight engine consists of:
 
-Character - describes the creature fighting
+CharacterSheet - describes the creature fighting mechanically
 Participant - represents the role a character has in a fight
 
 CombatCommand - represents an action a participant wants to take

@@ -1,11 +1,11 @@
 package lu.bout.rpg.battler.world.city;
 
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
 
 public class PeopleEncounter {
 
-    PlayerCharacter character;
+    Person character;
     private StoryAction action;
 
     /**
@@ -14,7 +14,7 @@ public class PeopleEncounter {
     public PeopleEncounter() {
     }
 
-    public PeopleEncounter(PlayerCharacter character) {
+    public PeopleEncounter(Person character) {
         this.character = character;
     }
 
@@ -22,7 +22,7 @@ public class PeopleEncounter {
         // see RemoveEncounterAction
         this.action = action;
     }
-    public PlayerCharacter getActor() {
+    public Person getActor() {
         return character;
     }
 

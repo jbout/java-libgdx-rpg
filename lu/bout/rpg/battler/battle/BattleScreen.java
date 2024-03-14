@@ -32,20 +32,20 @@ import lu.bout.rpg.battler.battle.minigame.simonGame.SimonSays;
 import lu.bout.rpg.battler.battle.minigame.lightsout.LightsoutGame;
 import lu.bout.rpg.battler.battle.minigame.timingGame.TimingGame;
 import lu.bout.rpg.battler.party.PlayerParty;
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.character.Party;
 import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.Encounter;
 import lu.bout.rpg.engine.combat.Combat;
-import lu.bout.rpg.engine.combat.command.AttackCommand;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 import lu.bout.rpg.engine.combat.command.IdleCommand;
+import lu.bout.rpg.engine.combat.command.UseSkillCommand;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
 import lu.bout.rpg.engine.combat.event.CombatEndedEvent;
 import lu.bout.rpg.engine.combat.event.CombatEvent;
-import lu.bout.rpg.engine.combat.event.DeathEvent;
 import lu.bout.rpg.engine.combat.event.ReadyEvent;
 import lu.bout.rpg.engine.combat.participant.Participant;
+import lu.bout.rpg.engine.character.skill.CombatSkill;
 
 public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListener, AssetConsumer {
 
@@ -135,7 +135,7 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		victoryDialog = new VictoryDialog(game);
 		partyScreen = new PartyScreen();
 		container = stageTable.add();
-		container.height(RpgGame.WIDTH).expandX();
+		container.height(MiniGameActor.HEIGHT).expandX();
 		setSubScreen(partyScreen);
 	}
 
@@ -150,13 +150,8 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		Gdx.app.log("Game", "Starting encounter against " + encounter.getOpponentParty().getMembers().size() + " enemies");
 		partyScreen.setParty(playerParty);
 		combat = new Combat(encounter);
-		map.setCombatants(combat);
-		for (Participant participant: combat.getParticipants()) {
-			boolean isPlayer = participant.getCharacter() == playerParty.getPlayerCharacter();
-			if (isPlayer) {
-				player = participant;
-			}
-		}
+		map.setCombatants(playerParty, combat);
+		player = combat.getParticipant(playerParty.getPlayer().getCharacter());
 		combat.addListener(this);
 		combat.addListener(map);
 		difficulty = INITIAL_DIFFICULTY;
@@ -194,7 +189,7 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		isPaused = true;
 		setSubScreen(partyScreen);
 		int xp = 0;
-		for (Character monster :encounter.getOpponentParty().getMembers()) {
+		for (CharacterSheet monster :encounter.getOpponentParty().getMembers()) {
 			xp += monster.getLevel() * 250;
 		}
 		// only show loot if the battle feedback did not trigger a navigation (ganeover)
@@ -261,8 +256,8 @@ public class BattleScreen implements IStageScreen, MiniGameFeedback, CombatListe
 		combatMenu.show(party);
 	}
 
-	public void launchAttackMinigame(Participant target) {
-		minigame.init(difficulty, new AttackCommand(target));
+	public void launchAttackMinigame(Participant target, CombatSkill skill) {
+		minigame.init(difficulty, new UseSkillCommand(skill, player, new Participant[] {target}));
 		setSubScreen(minigame);
 	}
 

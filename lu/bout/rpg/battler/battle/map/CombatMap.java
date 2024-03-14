@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -15,7 +14,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import lu.bout.rpg.battler.RpgGame;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
+import lu.bout.rpg.battler.party.PlayerParty;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.CombatListener;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
@@ -39,7 +40,6 @@ public class CombatMap extends Widget implements CombatListener {
 
 	Combat combat;
 
-	private Texture bg;
 	private Texture upArrow;
 	private LinkedList<CombatSprite> sprites;
 	private CombatSprite target = null;
@@ -49,7 +49,6 @@ public class CombatMap extends Widget implements CombatListener {
 	public CombatMap(RpgGame game) {
 		sprites = new LinkedList<>();
 		this.game = game;
-		bg = (Texture) game.getAssetService().get(FILE_CAVE_BG);
 		upArrow = (Texture) game.getAssetService().get(FILE_UP_ARROW);
 		addListener(new ClickListener() {
 			@Override
@@ -59,14 +58,18 @@ public class CombatMap extends Widget implements CombatListener {
 		});
 	}
 
-	public void setCombatants(Combat combat) {
+	public void setCombatants(PlayerParty party, Combat combat) {
 		this.combat = combat;
 		for (CombatSprite sprite: sprites) {
 			sprite.getTexture().dispose();
 		}
 		sprites = new LinkedList<CombatSprite>();
 		for (Participant participant: combat.getParticipants()) {
-			CombatSprite e = CombatSprite.createSprite(participant, game.getSkin());
+			Person person = party.getPerson(participant.getCharacter());
+			CombatSprite e = person != null
+					? CombatSprite.createPersonSprite(person, participant, game.getSkin())
+					: CombatSprite.createMonsterSprite(participant, game.getSkin());
+
 			sprites.add(e);
 		}
 		positionCombatSprites();
@@ -97,11 +100,11 @@ public class CombatMap extends Widget implements CombatListener {
 		}
 	}
 
-	public void setTargeting(PlayerCharacter playerCharacter)
+	public void setTargeting(CharacterSheet playerCharacterSheet)
 	{
 		if (target == null || !target.getParticipant().isAlive()) {
 			// find a new target
-			LinkedList<Participant> targets = combat.getEnemies(combat.getParticipant(playerCharacter));
+			LinkedList<Participant> targets = combat.getEnemies(combat.getParticipant(playerCharacterSheet));
 			if (targets.size() > 0) {
 				target = getSpriteforParticipant(targets.get(0));
 			}
@@ -143,9 +146,6 @@ public class CombatMap extends Widget implements CombatListener {
 
 	@Override
 	public void draw (Batch batch, float parentAlpha) {
-		// TODO: should not stretch but show only the right subpart
-		// used to be draw(bg, 0, (RpgGame.HEIGHT / 2), RpgGame.WIDTH, RpgGame.HEIGHT);
-		//batch.draw(bg, getX(), getY(), getWidth(), getHeight(),0,0, 1, 1);
 		for (CombatSprite e : sprites) {
 			e.draw(batch, elapsedTime);
 		}
@@ -163,9 +163,6 @@ public class CombatMap extends Widget implements CombatListener {
 	public void dispose () {
 		for (CombatSprite sprite: sprites) {
 			sprite.getTexture().dispose();
-		}
-		if (bg != null) {
-			bg.dispose();
 		}
 	}
 

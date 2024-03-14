@@ -1,8 +1,7 @@
 package lu.bout.rpg.engine.system.simplejrpg.character;
 
-import lu.bout.rpg.engine.character.Character;
-import lu.bout.rpg.engine.system.Attribute;
-import lu.bout.rpg.engine.system.CharacterKlass;
+import lu.bout.rpg.engine.character.Attribute;
+import lu.bout.rpg.engine.character.CharacterKlass;
 
 public class SimpleJrpgCharacter {
 

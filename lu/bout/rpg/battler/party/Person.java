@@ -1,9 +1,9 @@
 package lu.bout.rpg.battler.party;
 
 import lu.bout.rpg.battler.battle.map.CombatMini;
-import lu.bout.rpg.engine.system.simplejrpg.character.SimpleFighter;
+import lu.bout.rpg.engine.character.CharacterSheet;
 
-public class PlayerCharacter extends SimpleFighter implements CombatMini {
+public class Person implements CombatMini {
 
     private String name;
 
@@ -11,14 +11,16 @@ public class PlayerCharacter extends SimpleFighter implements CombatMini {
 
     private String miniName = "enemy/sample-hero.png";
 
+    private CharacterSheet characterSheet;
+
     // to serialize
-    public PlayerCharacter() {
+    public Person() {
     }
 
-    public PlayerCharacter(String playerName, int portraitId, int level) {
+    public Person(String playerName, int portraitId, CharacterSheet characterSheet) {
         name = playerName;
         this.portraitId = portraitId;
-        this.setLevel(level);
+        this.characterSheet = characterSheet;
     }
 
     public String getName() {
@@ -35,5 +37,9 @@ public class PlayerCharacter extends SimpleFighter implements CombatMini {
 
     public String getMiniTextureName() {
         return miniName;
+    }
+
+    public CharacterSheet getCharacter() {
+        return characterSheet;
     }
 }

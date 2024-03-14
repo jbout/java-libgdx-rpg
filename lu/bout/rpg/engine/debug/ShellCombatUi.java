@@ -6,18 +6,18 @@ import lu.bout.rpg.engine.combat.event.CombatEvent;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
 import lu.bout.rpg.engine.combat.event.ParticipiantEvent;
 
-public class CombatShellInterface implements CombatListener {
+public class ShellCombatUi implements CombatListener {
 
     public static void main(String args[])
     {
 		Combat combat = Samples.getSampleCombat();
-    	CombatShellInterface shell = new CombatShellInterface(combat);
+    	ShellCombatUi shell = new ShellCombatUi(combat);
     	combat.advanceTimer(500);
     }
     
     private Combat combat;
     
-    public CombatShellInterface(Combat c) {
+    public ShellCombatUi(Combat c) {
     	combat = c;
     	combat.addListener(this);
     }

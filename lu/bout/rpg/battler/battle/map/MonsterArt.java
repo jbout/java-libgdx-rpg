@@ -1,11 +1,10 @@
 package lu.bout.rpg.battler.battle.map;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.HashMap;
 
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.vocabulary.Animal;
 
 public class MonsterArt {
@@ -24,20 +23,17 @@ public class MonsterArt {
 
     private static final HashMap<String, Texture> cache = new HashMap<>();
 
-    public static Texture getBestSpriteTexture(Character character) {
-        String ref = FALLBACK;
-        Gdx.app.log("Game", "Get Sprite for " + character.getLevel());
-        for (String tag: character.getTags()) {
-            Gdx.app.log("Game", "Checking Tag " + tag);
+    public static Texture getBestSpriteTexture(CharacterSheet characterSheet) {
+        Texture texture = null;
+        for (String tag: characterSheet.getTags()) {
             if (LOOKUP.containsKey(tag)) {
-                Gdx.app.log("Game", "Accepted Tag " + tag);
-                ref = LOOKUP.get(tag);
+                texture = new Texture(LOOKUP.get(tag));
                 break;
             }
         }
-        if (!cache.containsKey(ref)) {
-            cache.put(ref, new Texture(ref));
+        if (texture == null) {
+            texture = new Texture(FALLBACK);
         }
-        return cache.get(ref);
+        return texture;
     }
 }

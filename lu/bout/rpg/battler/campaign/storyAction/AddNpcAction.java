@@ -5,17 +5,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 
 import lu.bout.rpg.battler.RpgGame;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
 
 public class AddNpcAction extends OnceAction {
 
-    PlayerCharacter character;
+    Person character;
 
     // Serializaton constructor
     public AddNpcAction() {
     }
 
-    public AddNpcAction(PlayerCharacter character) {
+    public AddNpcAction(Person character) {
         this.character = character;
     }
 
@@ -27,6 +27,6 @@ public class AddNpcAction extends OnceAction {
         d.getContentTable().add(title).grow().align(Align.center);
         d.button("Continue");
         game.showDialog(d);
-        game.state.getPlayerParty().addMember(character);
+        game.state.getPlayerParty().addNpc(character);
     }
 }

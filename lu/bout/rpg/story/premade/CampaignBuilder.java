@@ -10,12 +10,14 @@ import lu.bout.rpg.battler.campaign.storyAction.AddNpcAction;
 import lu.bout.rpg.battler.campaign.storyAction.GoToChapterAction;
 import lu.bout.rpg.battler.dungeon.generator.CombatEncounterFactory;
 import lu.bout.rpg.battler.dungeon.generator.MapFactory;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
 import lu.bout.rpg.battler.world.city.DungeonLocation;
 import lu.bout.rpg.battler.world.city.Location;
 import lu.bout.rpg.battler.world.city.PeopleEncounter;
 import lu.bout.rpg.battler.world.city.VillageLocation;
 import lu.bout.rpg.battler.world.city.LocationMap;
+import lu.bout.rpg.engine.system.System;
+import lu.bout.rpg.engine.system.simplejrpg.character.SimpleFighter;
 
 public class CampaignBuilder {
 
@@ -35,24 +37,24 @@ public class CampaignBuilder {
 
     public CampaignReference[] getAvailableCampagins() {
         return new CampaignReference[] {
-                new CampaignReference("2step", "2 Step dungeon"),
-                new CampaignReference("free", "2 Roam"),
+                new CampaignReference("free", "Rogue like"),
+//                new CampaignReference("2step", "2 Step dungeon"),
         };
     }
 
-    public Campaign getCampaign(CampaignReference ref) {
+    public Campaign getCampaign(CampaignReference ref, System combatSystem) {
         switch (ref.id) {
             case "2step":
-                return build2stepDungeon();
+                return build2stepDungeon(combatSystem);
             case "free":
-                return buildFreeRoamCampaign();
+                return buildFreeRoamCampaign(combatSystem);
             default:
                 throw new RuntimeException("Campaign " + ref.id + " not found");
         }
     }
 
-    public Campaign build2stepDungeon() {
-        CombatEncounterFactory e = new CombatEncounterFactory();
+    public Campaign build2stepDungeon(System combatSystem) {
+        CombatEncounterFactory e = new CombatEncounterFactory(combatSystem);
         NarrativeChapter intro = new NarrativeChapter("intro", "Welcome to this simple dungeon crawl.");
 
         MapFactory mapper = new MapFactory(e,5, 0, 2, 6);
@@ -79,9 +81,9 @@ public class CampaignBuilder {
         return campaign;
     }
 
-    public Campaign buildFreeRoamCampaign() {
+    public Campaign buildFreeRoamCampaign(System combatSystem) {
         Campaign campaign = new Campaign();
-        PlayerCharacter friend = getRandomNpc();
+        Person friend = getRandomNpc();
         VictoryChapter v = new VictoryChapter("v");
         LocationMap map = new LocationMap();
         VillageLocation village = new VillageLocation();
@@ -92,7 +94,7 @@ public class CampaignBuilder {
         meetFriend.onClickOnce(new AddNpcAction(friend));
         inn.addEncounter(meetFriend);
 
-        CombatEncounterFactory e = new CombatEncounterFactory();
+        CombatEncounterFactory e = new CombatEncounterFactory(combatSystem);
         MapFactory mapper = new MapFactory(e,15, 5, 5, 12);
         Location dungeon = new DungeonLocation(mapper.generate(), new GoToChapterAction("V"));
         dungeon.name = "Dungeon";
@@ -118,9 +120,10 @@ public class CampaignBuilder {
         return campaign;
     }
 
-    protected static PlayerCharacter getRandomNpc() {
+    protected static Person getRandomNpc() {
         PortraitService p = new PortraitService();
-        PlayerCharacter player = new PlayerCharacter("Friend", p.getRandomIds(1)[0], 5);
+        // TODO get npc from System
+        Person player = new Person("Friend", p.getRandomIds(1)[0], new SimpleFighter());
         player.setBattleMini("enemy/sample-hero2.png");
         return player;
     }

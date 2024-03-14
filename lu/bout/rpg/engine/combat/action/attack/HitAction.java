@@ -1,10 +1,9 @@
 package lu.bout.rpg.engine.combat.action.attack;
 
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.action.SingleTargetAction;
 import lu.bout.rpg.engine.combat.event.AttackEvent;
-import lu.bout.rpg.engine.combat.event.CombatEvent;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class HitAction extends SingleTargetAction {
@@ -19,7 +18,7 @@ public class HitAction extends SingleTargetAction {
 
     }
 
-    protected int calculateDamageAgainst(Character target) {
+    protected int calculateDamageAgainst(CharacterSheet target) {
         return actor.getCharacter().getDamage();
     }
 }

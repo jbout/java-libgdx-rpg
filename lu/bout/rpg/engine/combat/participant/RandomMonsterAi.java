@@ -1,16 +1,17 @@
 package lu.bout.rpg.engine.combat.participant;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.CombatListener;
-import lu.bout.rpg.engine.combat.action.attack.HitAction;
-import lu.bout.rpg.engine.combat.command.AttackCommand;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
-import lu.bout.rpg.engine.combat.command.GenericCommand;
+import lu.bout.rpg.engine.combat.command.UseSkillCommand;
 import lu.bout.rpg.engine.combat.event.CombatEvent;
 import lu.bout.rpg.engine.combat.event.ReadyEvent;
-import lu.bout.rpg.engine.system.Skill;
+import lu.bout.rpg.engine.character.Skill;
+import lu.bout.rpg.engine.character.skill.AttackSkill;
+import lu.bout.rpg.engine.character.skill.CombatSkill;
 
 public class RandomMonsterAi implements CombatAi, CombatListener {
 
@@ -25,8 +26,7 @@ public class RandomMonsterAi implements CombatAi, CombatListener {
 		LinkedList<Participant> enemies = c.getEnemies(monster);
 		if (enemies.size() > 0) {
 			int target = (int)(Math.random() * enemies.size());
-			return new GenericCommand(new HitAction(monster, enemies.get(target)));
-//			return new AttackCommand(enemies.get(target));
+			return new UseSkillCommand(getAttackSkill(), monster, new Participant[]{enemies.get(target)});
 		} else {
 			return null;
 		}
@@ -42,5 +42,19 @@ public class RandomMonsterAi implements CombatAi, CombatListener {
 				}
 			}
 		}
+	}
+
+	private CombatSkill getAttackSkill() {
+		ArrayList<CombatSkill> attackSkills = new ArrayList<>();
+		for (Skill skill: monster.getCharacter().getSkills()) {
+			if (skill instanceof AttackSkill) {
+				attackSkills.add((CombatSkill) skill);
+				break;
+			}
+		}
+		if (attackSkills.size() == 0) {
+			throw new RuntimeException("Enemy has no attack skills");
+		}
+		return attackSkills.get((int)(Math.random() * attackSkills.size()));
 	}
 }

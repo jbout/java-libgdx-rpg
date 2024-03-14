@@ -8,25 +8,25 @@ public class Party {
     public Party() {
     }
 
-    protected LinkedList<Character> members = new LinkedList<Character>();
+    protected LinkedList<CharacterSheet> members = new LinkedList<CharacterSheet>();
 
-    public Party(Character member)
+    public Party(CharacterSheet member)
     {
         members.add(member);
     }
 
-    public Party(LinkedList<Character> members)
+    public Party(LinkedList<CharacterSheet> members)
     {
         this.members = members;
     }
 
-    public LinkedList<Character> getMembers()
+    public LinkedList<CharacterSheet> getMembers()
     {
         return members;
     }
 
-    public void addMember(Character character)
+    public void addMember(CharacterSheet characterSheet)
     {
-        members.add(character);
+        members.add(characterSheet);
     }
 }

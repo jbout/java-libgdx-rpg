@@ -11,13 +11,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import lu.bout.rpg.battler.assets.PortraitService;
-import lu.bout.rpg.battler.party.PlayerCharacter;
-import lu.bout.rpg.engine.character.Character;
-import lu.bout.rpg.engine.character.Party;
+import lu.bout.rpg.battler.party.Person;
+import lu.bout.rpg.battler.party.PlayerParty;
 
 public class PartyActor extends Table {
 
-    HashMap<Character, CharacterXpBar> map;
+    HashMap<Person, CharacterXpBar> map;
 
     public PartyActor(Skin skin) {
         super(skin);
@@ -25,25 +24,25 @@ public class PartyActor extends Table {
         defaults().align(Align.left).pad(5);
     }
 
-    public void setParty(Party party) {
-        LinkedList<Character> toAdd = new LinkedList<>();
-        LinkedList<Character> toRemove = new LinkedList<>(map.keySet());
-        for (Character player: party.getMembers()) {
+    public void setParty(PlayerParty party) {
+        LinkedList<Person> toAdd = new LinkedList<>();
+        LinkedList<Person> toRemove = new LinkedList<>(map.keySet());
+        for (Person player: party.getPersons()) {
             if (map.containsKey(player)) {
                 toRemove.remove(player);
             } else {
                 toAdd.add(player);
             }
         }
-        for (Character player: toRemove) {
+        for (Person player: toRemove) {
             removeActor(map.get(player));
             map.remove(player);
         }
-        for (Character player: toAdd) {
-            addRow((PlayerCharacter) player);
+        for (Person player: toAdd) {
+            addRow(player);
         }
     }
-    public void addRow(PlayerCharacter player) {
+    public void addRow(Person player) {
         CharacterXpBar actor = new CharacterXpBar(player, getSkin());
         PortraitService p = new PortraitService();
         add(new Image(new TextureRegionDrawable(new Texture(p.getScaled(player.getPortaitId(), 100 , 100)))));

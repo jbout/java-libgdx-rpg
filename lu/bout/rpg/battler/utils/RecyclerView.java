@@ -1,15 +1,7 @@
 package lu.bout.rpg.battler.utils;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import lu.bout.rpg.battler.party.PlayerCharacter;
-import lu.bout.rpg.engine.character.Character;
-import lu.bout.rpg.engine.character.Party;
 
 public class RecyclerView<T extends Actor> extends Table {
 /*

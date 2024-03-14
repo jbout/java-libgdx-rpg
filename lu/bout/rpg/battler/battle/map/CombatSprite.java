@@ -7,36 +7,35 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import java.util.Map;
-
 import lu.bout.rpg.battler.battle.animation.AttackAnimation;
 import lu.bout.rpg.battler.battle.animation.BattleAnimation;
 import lu.bout.rpg.battler.battle.animation.DamagedAnimation;
 import lu.bout.rpg.battler.battle.animation.DeathAnimation;
 import lu.bout.rpg.battler.battle.grahics.SimpleBar;
+import lu.bout.rpg.battler.party.Person;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
 public class CombatSprite extends Sprite {
 
     public static final float ATTACK_DURATION = 1f;
 
-    private Map<Integer, String> textureMap;
-
+    Skin skin;
     Participant participant;
     SimpleBar healthBar;
     SimpleBar unitTimer;
+    StatusBar statusBar;
     Vector2 baseCenter;
     BattleAnimation animation = null;
     float lastHp;
-    Skin skin;
 
-    public static CombatSprite createSprite(Participant participant, Skin skin) {
-        Texture t;
-        if (participant.getCharacter() instanceof CombatMini) {
-            t = new Texture(((CombatMini)participant.getCharacter()).getMiniTextureName());
-        } else {
-            t = MonsterArt.getBestSpriteTexture(participant.getCharacter());
-        }
+    public static CombatSprite createPersonSprite(Person person, Participant participant, Skin skin) {
+        Texture t = new Texture(person.getMiniTextureName());
+        return new CombatSprite(t, participant, skin);
+
+    }
+
+    public static CombatSprite createMonsterSprite(Participant participant, Skin skin) {
+        Texture t = MonsterArt.getBestSpriteTexture(participant.getCharacter());
         return new CombatSprite(t, participant, skin);
     }
 
@@ -46,6 +45,7 @@ public class CombatSprite extends Sprite {
         this.participant = participant;
         this.healthBar = new SimpleBar(Math.max(this.getWidth() / 2, 40), 10);
         this.unitTimer = new SimpleBar(Math.max(this.getWidth() / 3, 40), 5, SimpleBar.styleGrayOnGray);
+        statusBar = new StatusBar();
         updateHealth();
     }
 
@@ -58,9 +58,11 @@ public class CombatSprite extends Sprite {
             }
         }
         if (participant.isAlive() || animation != null) {
+            final float xOffset = this.getX() + (this.getWidth() - healthBar.getWidth()) / 2;
             super.draw(batch);
-            healthBar.draw(batch, this.getX() + (this.getWidth() - healthBar.getWidth()) / 2, this.getY(), lastHp);
-            unitTimer.draw(batch, this.getX() + (this.getWidth() - healthBar.getWidth()) / 2, this.getY() + 10, participant.getCooldownPercentRemaining());
+            healthBar.draw(batch, xOffset, this.getY(), lastHp);
+            unitTimer.draw(batch, xOffset, this.getY() + 10, participant.getCooldownPercentRemaining());
+            statusBar.draw(batch, xOffset, this.getY() - StatusBar.ICON_HEIGHT);
             if (animation instanceof DamagedAnimation) {
                 ((DamagedAnimation) animation).draw(batch);
             }
@@ -83,6 +85,7 @@ public class CombatSprite extends Sprite {
         float hp = participant.getCharacter().getHp();
         hp = hp < 0 ? 0 : hp;
         lastHp = hp / participant.getCharacter().getMaxhp();
+        statusBar.setStatus(participant.getStatuses());
     }
 
     public void setBaseCenter(float x, float y) {

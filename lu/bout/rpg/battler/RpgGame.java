@@ -19,11 +19,11 @@ import lu.bout.rpg.battler.campaign.screen.NarrativeScreen;
 import lu.bout.rpg.battler.campaign.screen.GameOverScreen;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.dungeon.DungeonMap;
+import lu.bout.rpg.battler.party.Person;
 import lu.bout.rpg.battler.shared.DialogScreen;
 import lu.bout.rpg.battler.menu.HomeScreen;
 import lu.bout.rpg.battler.dungeon.DungeonScreen;
 import lu.bout.rpg.battler.party.CharcterScreen;
-import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.saves.GameState;
 import lu.bout.rpg.battler.saves.SaveService;
@@ -91,7 +91,7 @@ public class RpgGame extends Game {
 		this.setScreen(homeScreen);
 	}
 
-	public void showCharacter(PlayerCharacter character) {
+	public void showCharacter(Person character) {
 		charScreen.showCharacter(character);
 	}
 

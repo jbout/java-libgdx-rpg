@@ -1,7 +1,6 @@
 package lu.bout.rpg.battler.battle;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -10,53 +9,52 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.shared.SubScreen;
+import lu.bout.rpg.engine.character.Skill;
+import lu.bout.rpg.engine.character.skill.CombatSkill;
 
 public class CombatMenu extends Table implements SubScreen {
 
-    TextButton attackButton;
-    TextButton useItemButton;
-    TextButton fleeButton;
     BattleScreen screen;
     PlayerParty currentParty;
 
     public CombatMenu(final BattleScreen battleScreen) {
+        super(battleScreen.game.getSkin());
         screen = battleScreen;
-        attackButton = new TextButton("Attack",battleScreen.game.getSkin());
-        attackButton.addListener(new ChangeListener() {
-            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                attack();
-            }
-        });
-        add(attackButton).fillX().pad(5);
-        row();
-        useItemButton = new TextButton("Use Item",battleScreen.game.getSkin());
-        add(useItemButton).fillX().pad(5);
-        row();
-        fleeButton = new TextButton("Flee",battleScreen.game.getSkin());
-        add(fleeButton).fillX().pad(5);
     }
 
     public void show(PlayerParty party) {
-        useItemButton.setDisabled(true);
-        fleeButton.setDisabled(true);
-        currentParty = party;
-        screen.map.setTargeting(party.getPlayerCharacter());
+        if (!party.equals(currentParty)) {
+            init(party);
+            currentParty = party;
+        }
+        screen.map.setTargeting(party.getPlayer().getCharacter());
+    }
+
+    private void init(PlayerParty party) {
+        clear();
+        for (Skill skill: party.getPlayer().getCharacter().getSkills()) {
+            if (skill instanceof CombatSkill) {
+                final CombatSkill skillReference = (CombatSkill) skill;
+                TextButton button = new TextButton(skill.getClass().getSimpleName(),getSkin());
+                button.addListener(new ChangeListener() {
+                    public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                        attack(skillReference);
+                    }
+                });
+                add(button).fillX().pad(5);
+                row();
+            }
+        }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta, Vector2 inputVector) {
+        act(delta);
         draw(batch, 1);
-        if (inputVector != null) {
-            final Rectangle attackRect = new Rectangle(attackButton.getX(), attackButton.getY(), attackButton.getWidth(), attackButton.getHeight());
-            if (attackRect.contains(inputVector)) {
-                attack();
-            }
-            //final Rectangle fleeRect = new Rectangle(fleeButton.getX(), fleeButton.getY(), fleeButton.getWidth(), fleeButton.getHeight());
-        }
     }
 
-    private void attack() {
-        screen.launchAttackMinigame(screen.map.getTarget().getParticipant());
+    private void attack(CombatSkill skill) {
+        screen.launchAttackMinigame(screen.map.getTarget().getParticipant(), skill);
         screen.map.disableTargeting();
     }
 

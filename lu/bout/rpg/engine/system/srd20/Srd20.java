@@ -3,11 +3,11 @@ package lu.bout.rpg.engine.system.srd20;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.bout.rpg.engine.system.Attribute;
-import lu.bout.rpg.engine.system.CharacterKlass;
+import lu.bout.rpg.engine.character.Attribute;
+import lu.bout.rpg.engine.character.CharacterKlass;
 import lu.bout.rpg.engine.system.System;
 
-public class Srd20 extends System {
+public class Srd20 {
 
     public List<Attribute> getAttributes() {
         List<Attribute> attributes = new ArrayList();

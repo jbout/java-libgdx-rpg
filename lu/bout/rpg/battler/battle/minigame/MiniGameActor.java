@@ -13,6 +13,9 @@ import lu.bout.rpg.engine.combat.command.CombatCommand;
 
 public class MiniGameActor extends Actor {
 
+    // TODO: do not hardcode height
+    public static int HEIGHT = 700;
+
     private Vector3 touchPosRaw;
     private Vector2 touchPos;
 

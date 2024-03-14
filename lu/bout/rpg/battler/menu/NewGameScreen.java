@@ -24,8 +24,11 @@ import java.util.HashMap;
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.assets.PortraitService;
 import lu.bout.rpg.battler.campaign.Campaign;
+import lu.bout.rpg.battler.party.Person;
+import lu.bout.rpg.engine.character.CharacterSheet;
+import lu.bout.rpg.engine.system.System;
+import lu.bout.rpg.engine.system.simplejrpg.SimpleJrpgSystem;
 import lu.bout.rpg.story.premade.CampaignBuilder;
-import lu.bout.rpg.battler.party.PlayerCharacter;
 import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.battler.saves.GameState;
 
@@ -159,9 +162,12 @@ public class NewGameScreen extends MenuScreen {
         game.getPreferences().flush();
 
         int selectedPortrait = buttonMap.get(portraitGroup.getChecked());
-        Campaign campaign = builder.getCampaign(selectBox.getSelected());
 
-        PlayerCharacter player = new PlayerCharacter(playerNameField.getText(), portraitIds[selectedPortrait], 8);
+        System combatSystem = new SimpleJrpgSystem();
+        Campaign campaign = builder.getCampaign(selectBox.getSelected(), combatSystem);
+
+        CharacterSheet playerCharacter = combatSystem.getNewPlayerCharacter();
+        Person player = new Person(playerNameField.getText(), portraitIds[selectedPortrait], playerCharacter);
 
         GameState state = GameState.newGame(new PlayerParty(player), campaign);
         game.getSaveService().add(state);

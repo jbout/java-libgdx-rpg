@@ -1,6 +1,4 @@
-package lu.bout.rpg.battler.world;
-
-import lu.bout.rpg.engine.system.simplejrpg.character.Monster;
+package lu.bout.rpg.engine.system.simplejrpg.monster;
 
 public class MonsterTemplate {
     private String name;

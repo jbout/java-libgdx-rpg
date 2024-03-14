@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
+import lu.bout.rpg.battler.party.PlayerParty;
 import lu.bout.rpg.engine.character.Party;
 
 public class VictoryDialog extends Dialog {
@@ -35,7 +36,7 @@ public class VictoryDialog extends Dialog {
         button("OK").pad(25);
     }
 
-    public void showLoot(final Party party, int xp, final Screen nextScreen) {
+    public void showLoot(final PlayerParty party, int xp, final Screen nextScreen) {
         next = nextScreen;
         partyList.setParty(party);
         partyList.gainXp(xp);

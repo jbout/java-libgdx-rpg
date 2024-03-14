@@ -2,8 +2,9 @@ package lu.bout.rpg.battler.dungeon.generator;
 
 import com.badlogic.gdx.math.MathUtils;
 
-import lu.bout.rpg.battler.world.Beastiarum;
+import lu.bout.rpg.engine.character.Beastiarum;
 import lu.bout.rpg.engine.character.Party;
+import lu.bout.rpg.engine.system.System;
 
 public class CombatEncounterFactory {
 
@@ -11,8 +12,8 @@ public class CombatEncounterFactory {
 
     private Beastiarum beastiarum;
 
-    public CombatEncounterFactory() {
-        beastiarum = Beastiarum.getInstance();
+    public CombatEncounterFactory(System combatSystem) {
+        this.beastiarum = combatSystem.getBeastiarum();
     }
 
     public Party generateEnemyParty(int minlvl, int maxlvl) {

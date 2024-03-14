@@ -8,16 +8,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import lu.bout.rpg.battler.assets.PortraitService;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
 
 public class PlayerPortrait extends Table {
-    PlayerCharacter player;
+    Person player;
     Image portrait;
     ProgressBar healthBar;
 
-    public PlayerPortrait(PlayerCharacter player, Skin skin) {
+    public PlayerPortrait(Person person, Skin skin) {
         super();
-        this.player = player;
+        player = person;
         PortraitService p = new PortraitService();
         portrait = new Image(p.getRoundPortrait(player.getPortaitId(), 99));
         add(portrait);
@@ -26,7 +26,7 @@ public class PlayerPortrait extends Table {
         playerName.setColor(Color.WHITE);
         subTable.add(playerName).left();
 
-        healthBar = new ProgressBar(0, player.getMaxhp(), 1, false, skin, "health");
+        healthBar = new ProgressBar(0, player.getCharacter().getMaxhp(), 1, false, skin, "health");
         healthBar.setAnimateDuration(0.0f);
         subTable.row();
         subTable.add(healthBar);
@@ -36,10 +36,10 @@ public class PlayerPortrait extends Table {
     }
 
     public void updateHp() {
-        healthBar.setValue(player.getHp());
+        healthBar.setValue(player.getCharacter().getHp());
     }
 
-    public PlayerCharacter getPlayer() {
+    public Person getPerson() {
         return player;
     }
 }

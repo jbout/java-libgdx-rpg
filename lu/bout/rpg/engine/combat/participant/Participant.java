@@ -1,18 +1,18 @@
 package lu.bout.rpg.engine.combat.participant;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.command.CombatCommand;
 import lu.bout.rpg.engine.combat.event.DeathEvent;
+import lu.bout.rpg.engine.combat.status.AccumulatingStatus;
 import lu.bout.rpg.engine.combat.status.CombatStatus;
 import lu.bout.rpg.engine.combat.status.DamageReceivedAffectingStatus;
 
 public class Participant {
 
-	private Character character;
+	private CharacterSheet characterSheet;
 
 	private int cooldown;
 	private int cooldownRemaining;
@@ -21,14 +21,14 @@ public class Participant {
 
 	private HashMap<Class, CombatStatus> statuses = new HashMap<>();
 	
-	public Participant(Character character, int teamId, int cooldown) {
-		this.character = character;
+	public Participant(CharacterSheet characterSheet, int teamId, int cooldown) {
+		this.characterSheet = characterSheet;
 		this.teamId = teamId;
 		setCooldown(cooldown);
 	}
 
 	public boolean isAlive() {
-		return character.getHp() > 0;
+		return characterSheet.getHp() > 0;
 	}
 
 	public boolean isReady() {
@@ -60,8 +60,8 @@ public class Participant {
 		return (float) cooldownRemaining / cooldown;
 	}
 
-	public Character getCharacter() {
-		return character;
+	public CharacterSheet getCharacter() {
+		return characterSheet;
 	}
 
 	public int getTeamId() {
@@ -76,15 +76,19 @@ public class Participant {
 	}
 
 	public void setStatus(CombatStatus status) {
-		statuses.put(status.getClass(), status);
+		if (statuses.containsKey(status.getClass()) && statuses.get(status.getClass()) instanceof AccumulatingStatus) {
+			((AccumulatingStatus) statuses.get(status.getClass())).accumulate(status);
+		} else {
+			statuses.put(status.getClass(), status);
+		}
 	}
 
 	public void removeStatus(CombatStatus status) {
 		statuses.remove(status.getClass());
 	}
 
-	public CombatStatus getStatus(Class statusType) {
-		return statuses.get(statusType);
+	public CombatStatus[] getStatuses() {
+		return statuses.values().toArray(new CombatStatus[0]);
 	}
 
 	/**
@@ -99,7 +103,7 @@ public class Participant {
 				dmg = ((DamageReceivedAffectingStatus) status).adjustReceivedDamage(this, dmg);
 			}
 		}
-		character.takesDamage(dmg);
+		characterSheet.takesDamage(dmg);
 		if (!isAlive()) {
 			combat.trigger(new DeathEvent(this));
 		}
@@ -111,7 +115,7 @@ public class Participant {
 	 * @return human readable name of the character
 	 */
 	public String toString() {
-		return this.character.toString();
+		return this.characterSheet.toString();
 	}
 
 }

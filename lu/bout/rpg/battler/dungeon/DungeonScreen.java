@@ -40,10 +40,9 @@ import lu.bout.rpg.battler.RpgGame;
 import lu.bout.rpg.battler.battle.BattleFeedback;
 import lu.bout.rpg.battler.campaign.storyAction.StoryAction;
 import lu.bout.rpg.battler.menu.SettingsDialog;
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
 import lu.bout.rpg.battler.party.PlayerParty;
-import lu.bout.rpg.battler.world.Beastiarum;
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.character.Party;
 
 public class DungeonScreen implements Screen, GestureDetector.GestureListener, BattleFeedback {
@@ -157,23 +156,21 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         Table table = new Table();
         table.defaults().space(20);
         portraits = new LinkedList<>();
-        for (Character character: playerParty.getMembers()) {
-            if (character instanceof PlayerCharacter) {
-                table.row();
-                final PlayerPortrait portrait = new PlayerPortrait((PlayerCharacter) character, game.getSkin());
-                portrait.addListener(new ClickListener() {
-                    public void clicked (InputEvent event, float x, float y) {
-                        showPlayer(portrait.getPlayer());
-                    }
-                });
-                table.add(portrait);
-                portraits.add(portrait);
-            }
+        for (Person p: playerParty.getPersons()) {
+            table.row();
+            final PlayerPortrait portrait = new PlayerPortrait(p, game.getSkin());
+            portrait.addListener(new ClickListener() {
+                public void clicked (InputEvent event, float x, float y) {
+                    showPlayer(portrait.getPerson());
+                }
+            });
+            table.add(portrait);
+            portraits.add(portrait);
         }
         root.row();
         root.add(table).left().padTop(40).expand().align(Align.topLeft);
 
-        // botom menu
+        // bottom menu
         root.row();
         if (onFlee != null) {
             TextButton fleeButton = new TextButton("Flee", game.getSkin());
@@ -187,7 +184,7 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
 
     }
 
-    private void showPlayer(PlayerCharacter character) {
+    private void showPlayer(Person character) {
         game.showCharacter(character);
     }
 
@@ -226,8 +223,8 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
                     triggerFight(field);
                     break;
                 case Field.TYPE_TREASURE:
-                    for (Character character : playerParty.getMembers()) {
-                        character.healsPercent(0.5f);
+                    for (CharacterSheet characterSheet : playerParty.getMembers()) {
+                        characterSheet.healsPercent(0.5f);
                         updateUi();
                         open(current);
                     }
@@ -266,14 +263,7 @@ public class DungeonScreen implements Screen, GestureDetector.GestureListener, B
         if (field instanceof EncounterField) {
             monsterParty = ((EncounterField)field).getEnemiesParty();
         } else {
-            Beastiarum beastiarum = Beastiarum.getInstance();
-            monsterParty = new Party(beastiarum.getRandomMonster());
-            if (MathUtils.random(2) == 1) {
-                monsterParty.getMembers().add(beastiarum.getRandomMonster());
-            }
-            if (MathUtils.random(2) == 1) {
-                monsterParty.getMembers().add(beastiarum.getRandomMonster());
-            }
+            throw new RuntimeException("Missing encounter for Fight");
         }
         game.startBattle(playerParty, monsterParty, this);
     }

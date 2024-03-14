@@ -6,13 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 
-import lu.bout.rpg.battler.party.PlayerCharacter;
+import lu.bout.rpg.battler.party.Person;
+import lu.bout.rpg.engine.character.SupportsXp;
 
 public class CharacterXpBar extends Table {
 
     private static final float XP_FILL_DURATION = 1;
 
-    private final PlayerCharacter player;
+    private final Person player;
 
     private final Label characterName;
     private final Label characterHealth;
@@ -24,19 +25,23 @@ public class CharacterXpBar extends Table {
     private int xpRemaining;
     private int totalXp;
 
-    public CharacterXpBar(PlayerCharacter player, Skin skin) {
+    public CharacterXpBar(Person player, Skin skin) {
         super();
         this.player = player;
+        if (!(player.getCharacter() instanceof SupportsXp)) {
+            // TODO not the right place to check
+            throw new RuntimeException("Non Xp supporting entity got XP");
+        }
 
         characterName = new Label(player.getName(), skin, "small");
 
         characterHealth = new Label("", skin, "small");
-        healthBar = new ProgressBar(0, player.getMaxhp(), 1, false, skin, "health");
+        healthBar = new ProgressBar(0, player.getCharacter().getMaxhp(), 1, false, skin, "health");
         healthBar.setAnimateDuration(0);
         characterXp = new Label("", skin, "small");
-        xpBar = new ProgressBar(0, player.xpToNextLevel(), 1, false, skin, "xp");
+        xpBar = new ProgressBar(0, ((SupportsXp)player.getCharacter()).xpToNextLevel(), 1, false, skin, "xp");
         xpBar.setAnimateDuration(0);
-        xpBar.setValue(player.getXp());
+        xpBar.setValue(((SupportsXp)player.getCharacter()).getXp());
 
         defaults().expandY().padBottom(10);
 
@@ -59,17 +64,17 @@ public class CharacterXpBar extends Table {
     }
 
     private void updateFields() {
-        characterName.setText(player.getName() + " (lvl: " + player.getLevel() + ")");
+        characterName.setText(player.getName() + " (lvl: " + player.getCharacter().getLevel() + ")");
         //= new Label(player.getName(), skin, "small");
 
         //characterKlass.setText(player.getKlass().getName() + " lvl: " + player.getLevel());
-        characterHealth.setText("HP: " + player.getHp() + " / " + player.getMaxhp());
-        healthBar.setRange(0, player.getMaxhp());
-        healthBar.setValue(player.getHp());
-        characterXp.setText("XP: " + player.getXp() + " / " + player.xpToNextLevel());
+        characterHealth.setText("HP: " + player.getCharacter().getHp() + " / " + player.getCharacter().getMaxhp());
+        healthBar.setRange(0, player.getCharacter().getMaxhp());
+        healthBar.setValue(player.getCharacter().getHp());
+        characterXp.setText("XP: " + ((SupportsXp)player.getCharacter()).getXp() + " / " + ((SupportsXp)player.getCharacter()).xpToNextLevel());
         xpBar.setAnimateDuration(0);
-        xpBar.setRange(0, player.xpToNextLevel());
-        xpBar.setValue(player.getXp());
+        xpBar.setRange(0, ((SupportsXp)player.getCharacter()).xpToNextLevel());
+        xpBar.setValue(((SupportsXp)player.getCharacter()).getXp());
     }
 
     public void gainXp(int xp) {
@@ -79,14 +84,14 @@ public class CharacterXpBar extends Table {
     }
 
     public void animateXp(int xp) {
-        int xpToLevel = player.xpToNextLevel() - player.getXp();
+        int xpToLevel = ((SupportsXp)player.getCharacter()).xpToNextLevel() - ((SupportsXp)player.getCharacter()).getXp();
         if (xp > xpToLevel) {
             xpRemaining = xp - xpToLevel;
             xp = xpToLevel;
         } else {
             xpRemaining = 0;
         }
-        player.earnXp(xp);
+        ((SupportsXp)player.getCharacter()).earnXp(xp);
         float animateDuration = XP_FILL_DURATION * xp / totalXp;
         animationRemaining = animateDuration;
         xpBar.setAnimateDuration(animateDuration);
@@ -104,9 +109,5 @@ public class CharacterXpBar extends Table {
                 }
             }
         }
-    }
-
-    public PlayerCharacter getPlayer() {
-        return player;
     }
 }

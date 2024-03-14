@@ -1,13 +1,13 @@
-package lu.bout.rpg.engine.system.simplejrpg.character;
+package lu.bout.rpg.engine.system.simplejrpg.monster;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import lu.bout.rpg.engine.character.Character;
-import lu.bout.rpg.engine.system.Skill;
-import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.MeleeAttack;
+import lu.bout.rpg.engine.character.CharacterSheet;
+import lu.bout.rpg.engine.character.Skill;
+import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.WeaponHit;
 
-public class Monster extends Character {
+public class Monster extends CharacterSheet {
 
     int level;
 
@@ -49,7 +49,7 @@ public class Monster extends Character {
 
     public LinkedList<Skill> getSkills() {
         LinkedList<Skill> list = new LinkedList<>();
-        list.add(new MeleeAttack());
+        list.add(new WeaponHit());
         return list;
     }
 

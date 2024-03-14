@@ -1,6 +1,6 @@
 package lu.bout.rpg.engine.combat.action.attack;
 
-import lu.bout.rpg.engine.character.Character;
+import lu.bout.rpg.engine.character.CharacterSheet;
 import lu.bout.rpg.engine.combat.Combat;
 import lu.bout.rpg.engine.combat.participant.Participant;
 
@@ -14,7 +14,7 @@ public class ScratchAction extends HitAction{
         // target.addStatus(Bleed);
     }
 
-    protected int calculateDamageAgainst(Character target) {
+    protected int calculateDamageAgainst(CharacterSheet target) {
         return super.calculateDamageAgainst(target) / 2;
     }
 }

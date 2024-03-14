@@ -2,13 +2,14 @@ package lu.bout.rpg.engine.system.simplejrpg.character;
 
 import java.util.LinkedList;
 
-import lu.bout.rpg.engine.character.Character;
-import lu.bout.rpg.engine.system.CharacterKlass;
-import lu.bout.rpg.engine.system.Skill;
-import lu.bout.rpg.engine.system.simplejrpg.FighterKlass;
-import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.MeleeAttack;
+import lu.bout.rpg.engine.character.CharacterSheet;
+import lu.bout.rpg.engine.character.CharacterKlass;
+import lu.bout.rpg.engine.character.Skill;
+import lu.bout.rpg.engine.character.SupportsXp;
+import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.WeakeningAttack;
+import lu.bout.rpg.engine.system.simplejrpg.skill.combatSkill.attack.WeaponHit;
 
-public class SimpleFighter extends Character {
+public class SimpleFighter extends CharacterSheet implements SupportsXp {
 
     private int level;
     private int xp;
@@ -26,7 +27,8 @@ public class SimpleFighter extends Character {
     @Override
     public LinkedList<Skill> getSkills() {
         LinkedList<Skill> list = new LinkedList<>();
-        list.add(new MeleeAttack());
+        list.add(new WeaponHit());
+        list.add(new WeakeningAttack());
         return list;
     }
 
@@ -60,7 +62,8 @@ public class SimpleFighter extends Character {
     }
 
     public int getDamage() {
-        int dmg = (int)(Math.random() * 10) + 5;
+        //int dmg = (int)(Math.random() * 10) + 5;
+        int dmg = 10;
         return dmg * getStrength() / 100;
     }
 
@@ -68,4 +71,5 @@ public class SimpleFighter extends Character {
     public int getMaxhp() {
         return  10 + getConstitution() * 2;
     }
+
 }

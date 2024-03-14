@@ -2,13 +2,11 @@ package lu.bout.rpg.engine.character;
 
 import java.util.LinkedList;
 
-import lu.bout.rpg.engine.system.Skill;
-
-abstract public class Character {
+abstract public class CharacterSheet {
 
     protected int hp;
 
-    public Character() {
+    public CharacterSheet() {
         hp = this.getMaxhp();
     }
 
